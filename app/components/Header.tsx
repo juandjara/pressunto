@@ -1,19 +1,29 @@
 import type { User } from "@/lib/github"
-import { Link, useFetcher, useLocation } from "@remix-run/react"
+import { Link, useFetcher, useLocation, useMatches } from "@remix-run/react"
 
 export default function Header({ user }: { user: User }) {
+  const matches = useMatches()
   const location = useLocation()
   if (location.pathname === '/') {
     return null
   }
 
+  const breadcrumbs = matches
+    .filter(m => m.handle?.breadcrumb)
+    .map((m, index) => (
+      <li key={index}>
+        {m.handle?.breadcrumb(m.data)}
+      </li>
+    ))
+
   return (
     <nav className="flex items-center p-3 border-b border-gray-200">
       <Link to="/" className="ml-1 inline-block text-slate-500">
         <h1 className="font-medium text-2xl font-serif">
-          🐷{" "}<em>Press</em>unto
+          🐷
         </h1>
       </Link>
+      <ul className="flex items-center justify-start ml-2 space-x-2">{breadcrumbs}</ul>
       <div className="flex-grow"></div>
       <UserMenu user={user} />
     </nav>
