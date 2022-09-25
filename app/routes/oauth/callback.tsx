@@ -17,7 +17,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   if (!code) {
-    throw new Response('code param must be recevied in callback url', { status: 500 })
+    throw new Response('code param must be recevied in callback url', { status: 400, statusText: 'Bad Request' })
   }
 
   const tokenData = await getAccessToken({

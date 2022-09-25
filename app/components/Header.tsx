@@ -3,6 +3,10 @@ import { Link, useFetcher, useLocation } from "@remix-run/react"
 
 export default function Header({ user }: { user: User }) {
   const location = useLocation()
+  if (location.pathname === '/') {
+    return null
+  }
+
   return (
     <nav className="flex items-center p-3 border-b border-gray-200">
       <Link to="/" className="ml-1 inline-block text-slate-500">
@@ -11,7 +15,7 @@ export default function Header({ user }: { user: User }) {
         </h1>
       </Link>
       <div className="flex-grow"></div>
-      {location.pathname !== '/' && <UserMenu user={user} />}
+      <UserMenu user={user} />
     </nav>
   )
 }

@@ -10,7 +10,7 @@ import {
   useCatch,
   useLoaderData,
 } from "@remix-run/react"
-import Header, { LoginButton, LogoutButton } from "./components/Header"
+import Header from "./components/Header"
 import { getSessionData } from "./lib/session.server"
 import LiveReload from "./LiveReload"
 import tailwind from "./tailwind.css"
@@ -65,6 +65,7 @@ export function ErrorBoundary({ error }: { error: Error }) {
       <body>
         <div className="max-w-xl bg-red-50 text-red-800 rounded-xl my-8 mx-auto p-4">
           <h1 className="text-2xl font-bold text-red-600">Big Oof :c</h1>
+          <h2 className="mt-1 text-xl font-bold text-red-600">There was an unexpected error</h2>
           <p className="my-2 text-lg">{error.message}</p>
         </div>
         <Scripts />
@@ -94,11 +95,7 @@ export function CatchBoundary() {
             <p className="text-xl font-semibold">{title}</p>
             <p className="text-base">{data?.message}</p>
           </div>
-          {(status === 401 || status === 403) ? (
-            <LoginButton />
-          ) : (
-            <Link to="/" className="bg-slate-700 text-white rounded-lg px-4 py-2">Take me home</Link>
-          )}
+          <Link to="/" className="bg-slate-700 text-white rounded-lg px-4 py-2">Take me home</Link>
         </div>
         <Scripts />
       </body>
