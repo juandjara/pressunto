@@ -1,0 +1,12 @@
+.linearloading {
+  animation: linearloading 1.5s ease-out infinite;
+}
+
+@keyframes linearloading {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}

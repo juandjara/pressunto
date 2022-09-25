@@ -10,14 +10,17 @@ import {
   useCatch,
   useLoaderData,
 } from "@remix-run/react"
+import GlobalSpinner from "./components/GlobalSpiner"
 import Header from "./components/Header"
 import { getSessionData } from "./lib/session.server"
 import LiveReload from "./LiveReload"
 import tailwind from "./tailwind.css"
+import animate from './animate.css'
 
 export function links() {
   return [
     { rel: "stylesheet", href: tailwind },
+    { rel: "stylesheet", href: animate },
   ]
 }
 
@@ -41,6 +44,7 @@ export default function App() {
         <Links />
       </head>
       <body>
+        <GlobalSpinner />
         <div className="container mx-auto">
           <Header user={user} />
           <Outlet />
