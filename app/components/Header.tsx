@@ -4,6 +4,7 @@ import { Link, useFetcher, useLocation, useMatches } from "@remix-run/react"
 export default function Header({ user }: { user: User }) {
   const matches = useMatches()
   const location = useLocation()
+
   if (location.pathname === '/') {
     return null
   }

@@ -1,3 +1,5 @@
+import parseLink from 'parse-link-header'
+
 const OAUTH_URL = 'https://github.com/login/oauth'
 const API_URL = 'https://api.github.com'
 const ACCEPT_HEADER = 'application/vnd.github+json'
@@ -20,7 +22,7 @@ async function callGithubAPI(token: string, url: fetchURL, options?: fetchOption
   }
 
   const data = await res.json()
-  return data
+  return { data, headers: res.headers }
 }
 
 type getAccessTokenParams = {
@@ -68,15 +70,15 @@ export type User = {
 }
 
 export async function getCurrentUser(token: string) {
-  const user = await callGithubAPI(token, `${API_URL}/token`)
+  const { data } = await callGithubAPI(token, `${API_URL}/token`)
   return {
-    avatar: user.avatar_url,
-    name: user.login
+    avatar: data.avatar_url,
+    name: data.login
   } as User
 }
 
 export async function getOrgs(token: string) {
-  const data = await callGithubAPI(token, `${API_URL}/user/orgs`)
+  const { data } = await callGithubAPI(token, `${API_URL}/user/orgs`)
   return data.map((o: any) => o.login) as string[]
 }
 
@@ -85,18 +87,45 @@ type searchRepoParams = {
   org?: string
   query?: string
   includeForks?: boolean
+  page?: number
+  rpp?: number
+}
+
+export type RepoItem = {
+  name: string
+  full_name: string
+  description: string
+  language: string
+  default_branch: string
+  pushed_at: string
+  fork: boolean
+  private: boolean
+}
+
+export type RepoData = {
+  page_data: {
+    next?: number
+    prev?: number
+    last?: number
+    first?: number
+  }
+  total_count: number
+  items: RepoItem[]
 }
 
 export async function searchRepos(token: string, {
   user = '',
   org = '',
   query = '',
-  includeForks = false
+  includeForks = false,
+  page = 1,
+  rpp = 10
 }: searchRepoParams) {
   const url = new URL(`${API_URL}/search/repositories`)
-  url.searchParams.set('per_page', '10')
+  url.searchParams.set('per_page', String(rpp))
+  url.searchParams.set('page', String(page))
 
-  let q = query
+  let q = query || ''
   if (user) {
     q = `${q}+user:${user}`
   }
@@ -107,6 +136,32 @@ export async function searchRepos(token: string, {
     q = `${q}+fork:true`
   }
 
-  url.searchParams.set('q', q)
-  return await callGithubAPI(token, url)
+  const fullUrl = url.toString() + `&q=${q}`
+  const { data, headers } = await callGithubAPI(token, fullUrl)
+
+  // console.log(data.items[0])
+
+  data.items = data.items.map((r: any) => ({
+    name: r.name,
+    full_name: r.full_name,
+    description: r.description,
+    language: r.language,
+    default_branch: r.default_branch,
+    pushed_at: r.pushed_at,
+    fork: r.fork,
+    private: r.private
+  }))
+
+  const pageData = parseLink(headers.get('link'))
+
+  return {
+    page_data: {
+      next: pageData?.next?.page,
+      prev: pageData?.prev?.page,
+      last: pageData?.last?.page,
+      first: pageData?.first?.page
+    },
+    total_count: data.total_count,
+    items: data.items
+  } as RepoData
 }
