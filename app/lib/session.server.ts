@@ -1,5 +1,6 @@
-import { createCookieSessionStorage } from "@remix-run/node"
+import { createCookieSessionStorage, redirect } from "@remix-run/node"
 import env from "./env.server"
+import type { User } from "./github"
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -15,7 +16,10 @@ export const sessionStorage = createCookieSessionStorage({
 export async function getSessionData(request: Request) {
   const cookie = request.headers.get("cookie")
   const session = await sessionStorage.getSession(cookie)
-  return session.data
+  return {
+    token: session.get('token') as string | null,
+    user: session.get('user') as User | null
+  }
 }
 
 export async function setSessionData(request: Request, data: Record<string, any>) {
@@ -34,4 +38,23 @@ export async function destroySession(request: Request) {
   const session = await sessionStorage.getSession(cookie)
   const sessionCookie = await sessionStorage.destroySession(session)
   return sessionCookie
+}
+
+export async function logout(request: Request) {
+  return redirect('/', {
+    headers: {
+      "Set-Cookie": await destroySession(request)
+    }
+  })
+}
+
+export async function requireUserSession(
+  request: Request,
+  redirectTo: string = new URL(request.url).pathname
+) {
+  const { token, user } = await getSessionData(request)
+  if (!token || !user) {
+    throw redirect(`/?redirectTo=${redirectTo}`)
+  }
+  return { token, user }
 }

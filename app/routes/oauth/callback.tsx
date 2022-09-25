@@ -27,14 +27,12 @@ export const loader: LoaderFunction = async ({ request }) => {
   })
 
   const user = await getCurrentUser(tokenData.access_token)
-
   const sessionCookie = await setSessionData(request,  {
     token: tokenData.access_token,
-    username: user.login,
-    avatar: user.avatar_url
+    user
   })
 
   const headers = new Headers({ 'Set-cookie': sessionCookie })
 
-  return redirect('/search', { headers })
+  return redirect('/', { headers })
 }

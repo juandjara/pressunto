@@ -1,3 +1,6 @@
+const OAUTH_URL = 'https://github.com/login/oauth'
+const API_URL = 'https://api.github.com'
+const ACCEPT_HEADER = 'application/vnd.github+json'
 
 type getAccessTokenParams = {
   code: string
@@ -6,7 +9,7 @@ type getAccessTokenParams = {
 }
 
 export async function getAccessToken({ code, clientID, clientSecret }: getAccessTokenParams) {
-  const url = 'https://github.com/login/oauth/access_token'
+  const url = `${OAUTH_URL}/access_token`
   const body = {
     client_id: clientID,
     client_secret: clientSecret,
@@ -24,7 +27,7 @@ export async function getAccessToken({ code, clientID, clientSecret }: getAccess
 
   try {
     const data = await res.json()
-    if (data?.error) {
+    if (data?.error || !res.ok) {
       throw new Response(JSON.stringify(data), { status: 500 })
     }
 
@@ -39,17 +42,43 @@ export async function getAccessToken({ code, clientID, clientSecret }: getAccess
 }
 
 export async function getCurrentUser(token: string) {
-  const userReq = await fetch('https://api.github.com/user', {
+  const res = await fetch(`${API_URL}/user`, {
     headers: {
+      'Accept': ACCEPT_HEADER,
       'Authorization': `token ${token}`
     }
   })
 
-  if (!userReq.ok) {
-    const text = await userReq.text()
-    throw new Response(`User response failed: ${text}`, { status: userReq.status })
+  if (!res.ok) {
+    // if this request failed then the passed token is invalid
+    throw res
   }
 
-  const user = await userReq.json()
-  return user
+  const user = await res.json()
+
+  return {
+    avatar: user.avatar_url,
+    name: user.login
+  } as User
+}
+
+export type User = {
+  avatar: string
+  name: string
+}
+
+export async function getOrgs(token: string) {
+  const res = await fetch(`${API_URL}/user/orgs`, {
+    headers: {
+      'Accept': ACCEPT_HEADER,
+      'Authorization': `token ${token}`
+    }
+  })
+
+  if (!res.ok) {
+    throw res
+  }
+
+  const data = await res.json()
+  return data.map((o: any) => o.login) as string[]
 }

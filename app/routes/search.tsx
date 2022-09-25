@@ -1,22 +1,32 @@
+import { getOrgs } from "@/lib/github"
+import { requireUserSession } from "@/lib/session.server"
 import { json } from "@remix-run/node"
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderArgs } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
-import { getSessionData } from "@/lib/session.server"
+import useCurrentUser from "@/lib/useCurrentUser"
 
 export async function loader({ request }: LoaderArgs) {
-  const session = await getSessionData(request)
-  return json({ ...session })
+  const { token } = await requireUserSession(request)
+  const orgs = await getOrgs(token)
+
+  return json({ orgs })
 }
 
 export default function Search() {
-  const data = useLoaderData()
-  console.log('search data', data)
+  const user = useCurrentUser()
+  const { orgs } = useLoaderData()
 
   return (
-    <div className="container mx-auto px-2">
-      <h1 className="my-4 text-center text-xl font-medium">
-        Repo Search
-      </h1>
+    <div className="px-2">
+      <form className="mt-4">
+        <label className="block mb-1 text-sm text-gray-600" htmlFor="org">Organizacion</label>
+        <select name="org">
+          <option value={user.name}>{user.name}</option>
+          {orgs.map((o: string) => (
+            <option key={o} value={o}>{o}</option>
+          ))}
+        </select>
+      </form>
     </div>
   )
 }
