@@ -30,18 +30,23 @@ export async function loader({ request }: LoaderArgs) {
     org: org || user.name,
     orgs,
     repos
+  }, {
+    headers: {
+      'Vary': 'Cookie',
+      'Cache-control': 'max-age=60'
+    }
   })
 }
 
-export const handle = {
-  breadcrumb: (data: LoaderData) => (
-    <Link 
-      to={`/repo?org=${data.org}`}
-      className="text-slate-500 font-medium text-lg">
-      {data.org}
-    </Link>
-  )
-}
+// export const handle = {
+//   breadcrumb: (data: LoaderData) => (
+//     <Link 
+//       to={`/repo?org=${data.org}`}
+//       className="text-slate-500 font-medium text-lg">
+//       {data.org}
+//     </Link>
+//   )
+// }
 
 const focusCN = [
   `focus:border-rose-300`,
@@ -67,13 +72,6 @@ const checkboxCN = [
   'shadow-sm',
   'disabled:opacity-50'
 ].concat(focusCN).join(' ')
-
-// const labelCN = [
-//   'block',
-//   'mb-1',
-//   'text-sm',
-//   'text-slate-600',
-// ].join(' ')
 
 export default function Repo() {
   const user = useCurrentUser()
