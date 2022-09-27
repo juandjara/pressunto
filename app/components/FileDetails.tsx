@@ -24,12 +24,12 @@ export default function FileDetails({ repo, file }: FileDetailsProps) {
   if (!file) return null
 
   return (
-    <div className="flex-grow min-w-0 px-2" style={{ height: 'inherit' }}>
+    <div className="mt-1 flex-grow min-w-0 px-2" style={{ height: 'inherit' }}>
       <div className='flex items-center justify-between mb-4  '>
         <a className='md:hidden mr-2' href="?file=" title='Back to file tree'>
           <BackIcon />
         </a>
-        <div className='block md:hidden'>
+        <div className=''>
           <FileLabel file={file.path} />
         </div>
         <div className='flex-grow'></div>

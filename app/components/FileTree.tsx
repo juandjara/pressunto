@@ -97,7 +97,7 @@ export default function FileTree({ tree, subpath }: { tree: TreeItem[]; subpath?
         </li>
       ))}
       <li>
-        <NewFileItem path="/" />
+        <NewFileItem path={`/${subpath || ''}`} />
       </li>
     </ul>
   )

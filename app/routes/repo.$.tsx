@@ -6,7 +6,6 @@ import type { LoaderArgs } from "@remix-run/node"
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react"
 import clsx from 'clsx'
 import FileDetails from "@/components/FileDetails"
-import FileLabel from "@/components/FileLabel"
 
 type LoaderData = {
   org: string
@@ -60,11 +59,6 @@ export default function RepoDetails() {
     <div className="py-4">
       <main className="flex items-stretch">
         <aside className={sidebarCN}>
-          {file ? (
-            <div className="hidden md:block mb-4 pl-2">
-              <FileLabel file={file} />
-            </div>
-          ) : null}
           <FileTree tree={files} />
         </aside>
         {file ? <FileDetails repo={`${org}/${repo}`} file={content} /> : null}

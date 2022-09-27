@@ -9,7 +9,8 @@ type fetchURL = Parameters<typeof fetch>[0]
 type fetchOptions = Parameters<typeof fetch>[1]
 
 async function callGithubAPI(token: string, url: fetchURL, options?: fetchOptions) {
-  const res = await fetch(API_URL + url, {
+  const fullUrl = typeof url === 'string' ? API_URL + url : url
+  const res = await fetch(fullUrl, {
     ...options,
     headers: {
       'Accept': ACCEPT_HEADER,
@@ -122,7 +123,7 @@ export async function searchRepos(token: string, {
   page = 1,
   rpp = 10
 }: searchRepoParams) {
-  const url = new URL(`/search/repositories`)
+  const url = new URL(`${API_URL}/search/repositories`)
   url.searchParams.set('per_page', String(rpp))
   url.searchParams.set('page', String(page))
 
@@ -137,7 +138,7 @@ export async function searchRepos(token: string, {
     q = `${q}+fork:true`
   }
 
-  const fullUrl = url.toString() + `&q=${q}`
+  const fullUrl = new URL(url.toString() + `&q=${q}`)
   const { data, headers } = await callGithubAPI(token, fullUrl)
 
   // console.log(data.items[0])
