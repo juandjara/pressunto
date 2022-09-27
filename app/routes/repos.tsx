@@ -112,14 +112,18 @@ export default function RepoSearch() {
               className={`${inputCN} pr-10`}
               defaultValue={params.get('q') || undefined}
             />
-            <button disabled={busy} type="submit" className="absolute top-0 right-0 p-2 disabled:pointer-events-none hover:bg-slate-100 hover:bg-opacity-50 rounded-r-md">
+            <button
+              disabled={busy}
+              type="submit"
+              style={{ top: 3, right: 3 }}
+              className="absolute p-2 disabled:pointer-events-none hover:bg-slate-100 hover:bg-opacity-50 rounded-r-md">
               {busy ? (
-                <svg className="animate-spin h-6 w-6 text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin h-5 w-5 text-rose-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
               )}
