@@ -2,16 +2,15 @@ import { useSearchParams } from '@remix-run/react'
 import clsx from 'clsx'
 import type { TreeItem } from '@/lib/github'
 
-function DocumentIcon(props: React.ComponentProps<'svg'>) {
+function DocumentIcon({ className = '' }: { className?: string }) {
   return (
     <svg
-      {...props}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="w-6 h-6"
+      className={`w-6 h-6 ${className}`}
     >
       <path
         strokeLinecap="round"
@@ -22,16 +21,15 @@ function DocumentIcon(props: React.ComponentProps<'svg'>) {
   )
 }
 
-function FolderIcon(props: React.ComponentProps<'svg'>) {
+function FolderIcon({ className = '' }: { className?: string }) {
   return (
     <svg
-      {...props}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="w-6 h-6"
+      className={`w-6 h-6 ${className}`}
     >
       <path
         strokeLinecap="round"
@@ -42,9 +40,9 @@ function FolderIcon(props: React.ComponentProps<'svg'>) {
   )
 }
 
-function TreeItemIcon({ item, ...props }: { item: TreeItem; className?: string }) {
-  if (item.type === 'blob') return <DocumentIcon {...props} />
-  if (item.type === 'tree') return <FolderIcon {...props} />
+function TreeItemIcon({ item }: { item: TreeItem }) {
+  if (item.type === 'blob') return <DocumentIcon className="flex-shrink-0 text-slate-500" />
+  if (item.type === 'tree') return <FolderIcon className="flex-shrink-0 text-slate-500" />
   return null
 }
 
@@ -56,7 +54,7 @@ function FileItem(f: TreeItem) {
   const linkStyle = clsx(LIStyle, { 'bg-gray-100': f.path === searchParams.get('file') })
   return (
     <a href={`?file=${f.path}`} className={linkStyle}>
-      <TreeItemIcon item={f} className="p-2 bg-gray-100" />
+      <TreeItemIcon item={f} />
       <p className="ml-2 font-medium">{getBasename(f.path)}</p>
     </a>
   )
@@ -77,7 +75,7 @@ function DirItem(f: TreeItem, tree: TreeItem[]) {
   return (
     <details>
       <summary className={LIStyle}>
-        <TreeItemIcon item={f} className="p-2 bg-gray-100" />
+        <TreeItemIcon item={f} />
         <p className="ml-2 font-medium">{getBasename(f.path)}</p>
       </summary>
       <div className="pl-4">

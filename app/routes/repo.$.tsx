@@ -2,7 +2,7 @@ import FileTree from "@/components/FileTree"
 import { getFileContent, getRepoDetails, getRepoFiles } from "@/lib/github"
 import type { ParsedFile, TreeItem } from '@/lib/github'
 import { requireUserSession } from "@/lib/session.server"
-import type { LoaderArgs } from "@remix-run/node"
+import { json, LoaderArgs } from "@remix-run/node"
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react"
 import clsx from 'clsx'
 import FileDetails from "@/components/FileDetails"
@@ -33,7 +33,12 @@ export async function loader({ request, params }: LoaderArgs) {
     file ? getFileContent(token, { repo: fullRepo, isNew, file }) : null
   ])
 
-  return { org, repo, files, content, permissions: details.permissions }
+  return json({ org, repo, files, content, permissions: details.permissions }, {
+    headers: {
+      'Vary': 'Cookie',
+      'Cache-control': 'max-age=60'
+    }
+  })
 }
 
 export const handle = {
@@ -53,7 +58,7 @@ export default function RepoDetails() {
   const { files, org, repo, content } = useLoaderData<LoaderData>()
   const [searchParams] = useSearchParams()
   const file = searchParams.get('file')
-  const sidebarCN = clsx('max-w-xs w-full flex-shrink-0 mr-2', { 'hidden md:block': !!file })
+  const sidebarCN = clsx('max-w-sm w-full flex-shrink-0 mr-2', { 'hidden md:block': !!file })
 
   return (
     <div className="py-4">

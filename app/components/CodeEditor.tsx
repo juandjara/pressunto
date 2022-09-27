@@ -27,7 +27,7 @@ export default function CodeEditor({ file, initialValue, onChange }: CodeEditorP
     <div>
       <textarea
         name="markdown"
-        className={`font-mono ${inputCN}`}
+        className={`font-mono whitespace-pre ${inputCN}`}
         defaultValue={initialValue}
         onChange={ev => onChange(ev.target.value)}
         rows={20}
