@@ -17,14 +17,16 @@ export async function loader({ request }: LoaderArgs) {
   const params = new URL(request.url).searchParams
   const page = Number(params.get('page') || 1)
   const org = params.get('org') as string
-  const orgs = await getOrgs(token)
-  const repos = await searchRepos(token, {
-    org: org || '',
-    user: org ? '' : user.name,
-    includeForks: params.get('includeForks') === 'on',
-    query: params.get('q') as string,
-    page
-  })
+  const [orgs, repos] = await Promise.all([
+    getOrgs(token),
+    searchRepos(token, {
+      org: org || '',
+      user: org ? '' : user.name,
+      includeForks: params.get('includeForks') === 'on',
+      query: params.get('q') as string,
+      page
+    })
+  ])
 
   return json<LoaderData>({
     org: org || user.name,
@@ -37,16 +39,6 @@ export async function loader({ request }: LoaderArgs) {
     }
   })
 }
-
-// export const handle = {
-//   breadcrumb: (data: LoaderData) => (
-//     <Link 
-//       to={`/repo?org=${data.org}`}
-//       className="text-slate-500 font-medium text-lg">
-//       {data.org}
-//     </Link>
-//   )
-// }
 
 const focusCN = [
   `focus:border-rose-300`,
@@ -73,7 +65,7 @@ const checkboxCN = [
   'disabled:opacity-50'
 ].concat(focusCN).join(' ')
 
-export default function Repo() {
+export default function RepoSearch() {
   const user = useCurrentUser()
   const { orgs, repos } = useLoaderData<LoaderData>()
   const [params, setSearchParams] = useSearchParams()
@@ -138,7 +130,7 @@ export default function Repo() {
       <ul className="px-2 mt-2">
         {repos?.items.map((r: any) => (
           <li key={r.full_name} className="p-4 rounded-md hover:bg-slate-100">
-            <Link to={r.full_name} className="flex items-center">
+            <Link to={`/repo/${r.full_name}`} className="flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
