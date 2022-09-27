@@ -1,4 +1,5 @@
 import parseLink from 'parse-link-header'
+import * as mime from 'mime'
 
 const OAUTH_URL = 'https://github.com/login/oauth'
 const API_URL = 'https://api.github.com'
@@ -8,7 +9,7 @@ type fetchURL = Parameters<typeof fetch>[0]
 type fetchOptions = Parameters<typeof fetch>[1]
 
 async function callGithubAPI(token: string, url: fetchURL, options?: fetchOptions) {
-  const res = await fetch(url, {
+  const res = await fetch(API_URL + url, {
     ...options,
     headers: {
       'Accept': ACCEPT_HEADER,
@@ -70,7 +71,7 @@ export type User = {
 }
 
 export async function getCurrentUser(token: string) {
-  const { data } = await callGithubAPI(token, `${API_URL}/token`)
+  const { data } = await callGithubAPI(token, `/token`)
   return {
     avatar: data.avatar_url,
     name: data.login
@@ -78,7 +79,7 @@ export async function getCurrentUser(token: string) {
 }
 
 export async function getOrgs(token: string) {
-  const { data } = await callGithubAPI(token, `${API_URL}/user/orgs`)
+  const { data } = await callGithubAPI(token, `/user/orgs`)
   return data.map((o: any) => o.login) as string[]
 }
 
@@ -121,7 +122,7 @@ export async function searchRepos(token: string, {
   page = 1,
   rpp = 10
 }: searchRepoParams) {
-  const url = new URL(`${API_URL}/search/repositories`)
+  const url = new URL(`/search/repositories`)
   url.searchParams.set('per_page', String(rpp))
   url.searchParams.set('page', String(page))
 
@@ -164,4 +165,101 @@ export async function searchRepos(token: string, {
     total_count: data.total_count,
     items: data.items
   } as RepoData
+}
+
+export async function getRepoDetails(token: string, repo: string) {
+  const { data } = await callGithubAPI(token, `/repos/${repo}`)
+  return data
+}
+
+export async function getRepoFiles(token: string, repo: string) {
+  const { data: repoDetails } = await callGithubAPI(token, `/repos/${repo}/git/refs/heads/master`)
+
+  const treeSha = repoDetails.object.sha
+  const { data: files } = await callGithubAPI(token, `/repos/${repo}/git/trees/${treeSha}?recursive=true`)
+
+  files.tree.sort((a: any, b: any) => {
+    if (a.type === 'blob' && b.type === 'tree') return 1
+    else if (a.type === 'tree' && b.type === 'blob') return -1
+    else return a.path < b.path ? -1 : 1
+  })
+
+  return files.tree as TreeItem[]
+}
+
+export type TreeItem = {
+  mode: string
+  path: string
+  sha: string
+  type: 'tree' | 'blob'
+  url: string
+}
+
+type File = {
+  content: string
+  size: number
+  type: string
+  sha: string
+  name: string
+  path: string
+}
+
+export type ParsedFile = ReturnType<typeof parseFile>
+
+type FileRequest = {
+  repo: string
+  file: string
+  isNew: boolean
+}
+
+export async function getFileContent(token: string, { repo, file, isNew }: FileRequest) {
+  if (isNew) {
+    return null
+  }
+
+  const { data } = await callGithubAPI(token, `/repos/${repo}/contents/${file}`)
+  return parseFile(data)
+}
+
+export function parseFile(file: File) {
+  const extension = getExtension(file.name)
+  const lang = extensionToCodeMirrorLang(extension || '')
+  const mimeType = mime.getType(file.name)
+  const format = mimeType?.split('/')[0] || ''
+  return {
+    ...file,
+    lang,
+    format,
+    isMarkdown: isMarkdown(file.name),
+    content: b64DecodeUnicode(file.content)
+  }
+}
+
+// from here: https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
+function b64DecodeUnicode(str: string) {
+  // Going backwards: from bytestream, to percent-encoding, to original string.
+  return decodeURIComponent(atob(str).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+  }).join(''))
+}
+
+function isMarkdown(file: string) {
+  const regex = new RegExp(/.(md|mdx|mkdn?|mdown|markdown)$/)
+  return !!(regex.test(file))
+}
+
+function extensionToCodeMirrorLang(extension: string) {
+  if (isMarkdown(extension)) return 'gfm'
+  if (['js', 'json'].indexOf(extension) !== -1) return 'javascript'
+  if (extension === 'html') return 'htmlmixed'
+  if (extension === 'rb') return 'ruby'
+  if (/(yml|yaml)/.test(extension)) return 'yaml'
+  if (['java', 'c', 'cpp', 'cs', 'php'].indexOf(extension) !== -1) return 'clike'
+
+  return extension
+}
+
+function getExtension(path: string) {
+  const match = path.match(/\.(\w+)$/)
+  return match ? match[1] : null
 }
