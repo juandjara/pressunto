@@ -17,7 +17,7 @@ const inputCN = [
   'border-gray-300',
   'shadow-sm',
   'disabled:opacity-50',
-  'placeholder:text-slate-300'
+  'placeholder:text-slate-300',
 ].concat(focusCN).join(' ')
 
 export default function FileLabel() {
@@ -27,7 +27,7 @@ export default function FileLabel() {
   const basename = isNew ? '' : getBasename(file)
   const folder = isNew ? `${file}/` : file.replace(basename, '')
   return (
-    <p className='text-slate-500 dark:text-slate-200 text-lg font-semibold truncate'>
+    <p className='min-w-0 text-slate-500 dark:text-slate-200 text-lg font-semibold truncate'>
       {folder ? (
         <span className="hidden md:inline md:mr-2">{folder}</span>
       ) : null}

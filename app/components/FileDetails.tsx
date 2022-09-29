@@ -5,7 +5,7 @@ import CodeEditor from './CodeEditor'
 import type { ParsedFile } from '@/lib/github'
 import FileLabel from './FileLabel'
 import { Tab } from '@headlessui/react'
-import { Link } from '@remix-run/react'
+import { Link, useLocation } from '@remix-run/react'
 
 type FileDetailsProps = {
   repo: string
@@ -14,10 +14,15 @@ type FileDetailsProps = {
 
 export default function FileDetails({ repo, file }: FileDetailsProps) {
   const [tempContent, setTempContent] = useState('')
-  const [previewOpen, setPreviewOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState('')
+  const { search } = useLocation()
+  const params = new URLSearchParams(search)
+  params.delete('new')
 
-  const tabButtonCN = ({ selected }: { selected: boolean }) => `mr-1 rounded-md px-4 py-2 ${selected ? 'bg-slate-100 text-slate-700' : 'hover:underline'}`
+  const tabButtonCN = ({ selected }: { selected: boolean }) => {
+    const activeStyle = selected ? 'bg-slate-100 text-slate-700' : 'hover:underline'
+    return `rounded-md px-4 py-2 ${activeStyle}`
+  }
 
   useEffect(() => {
     if (file) {
@@ -28,20 +33,18 @@ export default function FileDetails({ repo, file }: FileDetailsProps) {
   return (
     <form className="mt-1 flex-grow min-w-0 px-2" style={{ height: 'inherit' }}>
       <div className='flex items-center justify-start mb-2'>
-        <Link className='md:hidden mr-2' to={`/r/${repo}`} title='Back to file tree'>
+        <Link className='md:hidden mr-2' to={`/r/${repo}?${params}`} title='Back to file tree'>
           <BackIcon />
         </Link>
-        <div className='min-w-0 mr-2'>
-          <FileLabel />
-        </div>
+        <FileLabel />
       </div>
       {file?.isMarkdown ? (
         <Tab.Group as="div" className='mt-4'>
-          <Tab.List>
+          <Tab.List className="mx-1">
             <Tab className={tabButtonCN}>Edit File</Tab>
             <Tab className={tabButtonCN}>Preview changes</Tab>
           </Tab.List>
-          <Tab.Panels className="mt-2">
+          <Tab.Panels className="-mt-1">
             <Tab.Panel>
               <CodeEditor
                 file={file}
