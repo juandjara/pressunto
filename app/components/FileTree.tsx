@@ -52,12 +52,13 @@ function FileItem(f: TreeItem) {
   const urlparts = useLocation().pathname.split('/')
   const file = urlparts.slice(4).join('/')
   const base = urlparts.join('/').replace(file, '').replace(/\/$/, '')
-  const [params] = useSearchParams()
-  const branch = params.get('branch') || ''
+  const { search } = useLocation()
+  const params = new URLSearchParams(search)
+  params.delete('new')
 
   const linkStyle = clsx(LIStyle, { 'bg-gray-100': f.path === file })
   return (
-    <Link to={`${base}/${f.path}?branch=${branch}`} className={linkStyle}>
+    <Link to={`${base}/${f.path}?${params}`} className={linkStyle}>
       <TreeItemIcon item={f} />
       <p className="ml-2 font-medium">{getBasename(f.path)}</p>
     </Link>
@@ -68,11 +69,12 @@ function NewFileItem({ path }: { path: string }) {
   const urlparts = useLocation().pathname.split('/')
   const file = urlparts.slice(4).join('/')
   const base = urlparts.join('/').replace(file, '').replace(/\/$/, '')
-  const [params] = useSearchParams()
-  const branch = params.get('branch') || ''
+  const { search } = useLocation()
+  const params = new URLSearchParams(search)
+  params.set('new', 'true')
 
   return (
-    <Link to={`${base}${path}?branch=${branch}&new=true`} className={LIStyle}>
+    <Link to={`${base}${path}?${params}`} className={LIStyle}>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>

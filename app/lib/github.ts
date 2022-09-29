@@ -170,7 +170,10 @@ export async function searchRepos(token: string, {
 
 export async function getRepoDetails(token: string, repo: string) {
   const { data } = await callGithubAPI(token, `/repos/${repo}`)
-  return data
+  return {
+    default_branch: data.default_branch,
+    permissions: data.permissions
+  }
 }
 
 export async function getRepoBranches(token: string, repo: string) {
@@ -178,7 +181,12 @@ export async function getRepoBranches(token: string, repo: string) {
   return data.map((b: any) => b.name) as string[]
 }
 
-export async function getRepoFiles(token: string, repo: string, branch: string) {
+export async function getRepoFiles(token: string, repo: string, branch?: string) {
+  if (!branch) {
+    const details = await getRepoDetails(token, repo)
+    branch = details.default_branch
+  }
+  
   const { data: repoDetails } = await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch}`)
 
   const treeSha = repoDetails.object.sha
@@ -216,12 +224,17 @@ type FileRequest = {
   repo: string
   file: string
   isNew: boolean
-  branch: string
+  branch?: string
 }
 
 export async function getFileContent(token: string, { repo, file, isNew, branch }: FileRequest) {
   if (isNew) {
     return null
+  }
+
+  if (!branch) {
+    const details = await getRepoDetails(token, repo)
+    branch = details.default_branch
   }
 
   const { data } = await callGithubAPI(token, `/repos/${repo}/contents/${file}?ref=${branch}`)

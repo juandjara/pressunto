@@ -18,14 +18,14 @@ type LoaderData = {
 
 export async function loader({ request, params }: LoaderArgs) {
   const { token } = await requireUserSession(request)
-  const { org, repo } = params
+  const { org, repo, '*': path } = params
   if (!org || !repo) {
     throw new Response('Not found', { status: 404, statusText: 'Not foud' })
   }
 
   const fullRepo = `${org}/${repo}`
-  const branch = new URL(request.url).searchParams.get('branch') || 'master'
-  const hasFile = new URL(request.url).pathname.replace(`/r/${fullRepo}`, '').length > 1
+  const branch = new URL(request.url).searchParams.get('branch') || undefined
+  const hasFile = !!path
 
   const [files, branches] = await Promise.all([
     getRepoFiles(token, fullRepo, branch),
@@ -62,7 +62,7 @@ export default function RepoDetails() {
       <main className="flex items-stretch">
         <aside className={sidebarCN}>
           <Form method="get">
-            <div className="mt-1 mb-5 mx-2">
+            <div className="mb-5 mx-2">
               <label htmlFor="branch" className="text-xs text-slate-500 font-medium">Branch</label>
               <BranchSelect name='branch' options={branches} />
               <div className="hidden">

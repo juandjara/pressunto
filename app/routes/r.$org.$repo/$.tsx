@@ -12,13 +12,15 @@ export async function loader({ request, params }: LoaderArgs) {
   const file = params['*']
   const sp = new URL(request.url).searchParams
   const isNew = sp.get('new') === 'true'
-  const branch = sp.get('branch') || ''
+  const branch = sp.get('branch') || undefined
 
-  const [details, content] = await Promise.all([
-    // Promise.resolve({ permissions: { admin: false, push: false, pull: false } }), 
-    getRepoDetails(token, fullRepo),
-    file ? getFileContent(token, { repo: fullRepo, isNew, file, branch }) : null
-  ])
+  const details = await getRepoDetails(token, fullRepo)
+  const content = file ? await getFileContent(token, {
+    repo: fullRepo,
+    file,
+    branch: branch || details.default_branch,
+    isNew,
+  }) : null
 
   return json({ org, repo, content, permissions: details.permissions }, {
     headers: {
