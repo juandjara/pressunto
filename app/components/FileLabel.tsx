@@ -10,7 +10,7 @@ const focusCN = [
 
 const inputCN = [
   'font-normal',
-  'text-gray-700',
+  'text-slate-700',
   'm-1 ml-0',
   'flex-shrink-0',
   'rounded-md',
@@ -27,7 +27,7 @@ export default function FileLabel() {
   const basename = isNew ? '' : getBasename(file)
   const folder = isNew ? `${file}/` : file.replace(basename, '')
   return (
-    <p className='text-slate-500 text-lg font-semibold truncate'>
+    <p className='text-slate-500 dark:text-slate-200 text-lg font-semibold truncate'>
       {folder ? (
         <span className="hidden md:inline md:mr-2">{folder}</span>
       ) : null}
@@ -40,7 +40,6 @@ export default function FileLabel() {
         aria-label="file name"
         className={inputCN}
       />
-      {/* <span className="text-slate-400 font-medium">{basename}</span> */}
     </p>
   )
 }

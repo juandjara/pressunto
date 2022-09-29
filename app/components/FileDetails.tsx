@@ -17,17 +17,13 @@ export default function FileDetails({ repo, file }: FileDetailsProps) {
   const [previewOpen, setPreviewOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState('')
 
-  const tabButtonCN = ({ selected }: { selected: boolean }) => `mr-1 rounded-md px-4 py-2 ${selected ? 'bg-slate-100' : 'hover:underline'}`
+  const tabButtonCN = ({ selected }: { selected: boolean }) => `mr-1 rounded-md px-4 py-2 ${selected ? 'bg-slate-100 text-slate-700' : 'hover:underline'}`
 
   useEffect(() => {
     if (file) {
       setTempContent(file.content || '')
     }
   }, [file])
-
-  // if (!file) {
-  //   return null
-  // }
 
   return (
     <form className="mt-1 flex-grow min-w-0 px-2" style={{ height: 'inherit' }}>
@@ -70,7 +66,7 @@ export default function FileDetails({ repo, file }: FileDetailsProps) {
       <div className='flex items-center mt-2'>
         <button type='submit' name='op' value='delete' className='py-2 px-4 rounded-md bg-red-50 text-red-700 hover:bg-red-100'>Delete</button>
         <div className='flex-grow'></div>
-        <button type='reset' className='py-2 px-4 rounded-md text-slate-600 hover:bg-slate-100'>Reset</button>
+        <button type='reset' className='py-2 px-4 rounded-md hover:text-slate-700 hover:bg-slate-100'>Reset</button>
         <button type='submit' name='op' value='create' className='ml-2 py-2 px-4 rounded-md bg-slate-600 text-white hover:bg-slate-700'>Save</button>
       </div>
       {/* {modalOpen === 'commit' && <CommitModal file={file} content={tempContent} />} */}

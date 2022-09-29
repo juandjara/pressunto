@@ -19,6 +19,7 @@ const inputCN = [
   'rounded-md',
   'border-gray-300',
   'shadow-sm',
+  'text-slate-700',
   'disabled:opacity-50',
   'placeholder:text-slate-300'
 ].concat(focusCN).join(' ')

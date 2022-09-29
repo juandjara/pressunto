@@ -1,4 +1,4 @@
-import { Link, useLocation, useSearchParams } from '@remix-run/react'
+import { Link, useLocation, useParams, useSearchParams } from '@remix-run/react'
 import clsx from 'clsx'
 import type { TreeItem } from '@/lib/github'
 
@@ -41,22 +41,26 @@ function FolderIcon({ className = '' }: { className?: string }) {
 }
 
 function TreeItemIcon({ item }: { item: TreeItem }) {
-  if (item.type === 'blob') return <DocumentIcon className="flex-shrink-0 text-slate-500" />
-  if (item.type === 'tree') return <FolderIcon className="flex-shrink-0 text-slate-500" />
+  if (item.type === 'blob') return <DocumentIcon className="flex-shrink-0 text-slate-400" />
+  if (item.type === 'tree') return <FolderIcon className="flex-shrink-0 text-slate-400" />
   return null
 }
 
-const LIStyle = 'hover:bg-gray-100 flex items-center p-2 rounded cursor-pointer'
+const LIStyle = 'hover:text-slate-600 hover:bg-gray-100 flex items-center my-1 p-2 rounded cursor-pointer'
+
+function useBasePath() {
+  const { org, repo } = useParams()
+  return `/r/${org}/${repo}`
+}
 
 function FileItem(f: TreeItem) {
-  const urlparts = useLocation().pathname.split('/')
-  const file = urlparts.slice(4).join('/')
-  const base = urlparts.join('/').replace(file, '').replace(/\/$/, '')
+  const file = useParams()['*']
+  const base = useBasePath()
   const { search } = useLocation()
   const params = new URLSearchParams(search)
   params.delete('new')
 
-  const linkStyle = clsx(LIStyle, { 'bg-gray-100': f.path === file })
+  const linkStyle = clsx(LIStyle, { 'text-slate-600 bg-gray-100': f.path === file })
   return (
     <Link to={`${base}/${f.path}?${params}`} className={linkStyle}>
       <TreeItemIcon item={f} />
@@ -66,16 +70,14 @@ function FileItem(f: TreeItem) {
 }
 
 function NewFileItem({ path }: { path: string }) {
-  const urlparts = useLocation().pathname.split('/')
-  const file = urlparts.slice(4).join('/')
-  const base = urlparts.join('/').replace(file, '').replace(/\/$/, '')
+  const base = useBasePath()
   const { search } = useLocation()
   const params = new URLSearchParams(search)
   params.set('new', 'true')
 
   return (
     <Link to={`${base}${path}?${params}`} className={LIStyle}>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-slate-400">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
       <p className='ml-2 font-medium'>New File</p>
@@ -84,8 +86,10 @@ function NewFileItem({ path }: { path: string }) {
 }
 
 function DirItem(f: TreeItem, tree: TreeItem[]) {
+  const path = useParams()['*']
+  const isOpen = !!path && path.startsWith(f.path)
   return (
-    <details>
+    <details open={isOpen}>
       <summary className={LIStyle}>
         <TreeItemIcon item={f} />
         <p className="ml-2 font-medium">{getBasename(f.path)}</p>

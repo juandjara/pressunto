@@ -7,6 +7,28 @@ type BranchSelectParams = {
   name: string
 }
 
+const focusCN = [
+  'focus:outline-none',
+  'focus-visible:ring-2',
+  'focus-visible:ring-white',
+  'focus-visible:ring-opacity-75',
+  'focus-visible:ring-offset-2',
+  'focus-visible:ring-offset-rose-300'
+].join(' ')
+
+const toggleCN = [
+  'relative',
+  'w-full',
+  'cursor-default',
+  'overflow-hidden',
+  'rounded-lg',
+  'bg-white',
+  'text-left',
+  'shadow',
+  'sm:text-sm',
+  ...focusCN
+].join(' ')
+
 export default function BranchSelect({ name, options }: BranchSelectParams) {
   const [selected, setSelected] = useState(options[0])
   const [query, setQuery] = useState('')
@@ -22,7 +44,7 @@ export default function BranchSelect({ name, options }: BranchSelectParams) {
     <div className="w-72">
       <Combobox name={name} value={selected} onChange={setSelected}>
         <div className="relative mt-1">
-          <div className="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-300 sm:text-sm">
+          <div className={toggleCN}>
             <Combobox.Input
               className="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
               onChange={(event) => setQuery(event.target.value)}
@@ -52,7 +74,7 @@ export default function BranchSelect({ name, options }: BranchSelectParams) {
                     key={opt}
                     className={({ active }) =>
                       `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                        active ? 'bg-slate-600 text-white' : 'text-gray-900'
+                        active ? 'bg-slate-500 text-white' : 'text-gray-900'
                       }`
                     }
                     value={opt}
