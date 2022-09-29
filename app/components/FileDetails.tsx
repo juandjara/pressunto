@@ -32,7 +32,7 @@ export default function FileDetails({ repo, file }: FileDetailsProps) {
   return (
     <form className="mt-1 flex-grow min-w-0 px-2" style={{ height: 'inherit' }}>
       <div className='flex items-center justify-start mb-2'>
-        <Link className='md:hidden mr-2' to={`/repo/${repo}`} title='Back to file tree'>
+        <Link className='md:hidden mr-2' to={`/r/${repo}`} title='Back to file tree'>
           <BackIcon />
         </Link>
         <div className='min-w-0 mr-2'>
