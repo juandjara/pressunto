@@ -173,8 +173,8 @@ export async function getRepoDetails(token: string, repo: string) {
   return data
 }
 
-export async function getRepoFiles(token: string, repo: string) {
-  const { data: repoDetails } = await callGithubAPI(token, `/repos/${repo}/git/refs/heads/master`)
+export async function getRepoFiles(token: string, repo: string, branch: string) {
+  const { data: repoDetails } = await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch}`)
 
   const treeSha = repoDetails.object.sha
   const { data: files } = await callGithubAPI(token, `/repos/${repo}/git/trees/${treeSha}?recursive=true`)
@@ -211,14 +211,15 @@ type FileRequest = {
   repo: string
   file: string
   isNew: boolean
+  branch: string
 }
 
-export async function getFileContent(token: string, { repo, file, isNew }: FileRequest) {
+export async function getFileContent(token: string, { repo, file, isNew, branch }: FileRequest) {
   if (isNew) {
     return null
   }
 
-  const { data } = await callGithubAPI(token, `/repos/${repo}/contents/${file}`)
+  const { data } = await callGithubAPI(token, `/repos/${repo}/contents/${file}?ref=${branch}`)
   return parseFile(data)
 }
 

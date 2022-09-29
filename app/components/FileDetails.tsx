@@ -5,6 +5,7 @@ import CodeEditor from './CodeEditor'
 import type { ParsedFile } from '@/lib/github'
 import FileLabel from './FileLabel'
 import { Tab } from '@headlessui/react'
+import { Link } from '@remix-run/react'
 
 type FileDetailsProps = {
   repo: string
@@ -20,62 +21,60 @@ export default function FileDetails({ repo, file }: FileDetailsProps) {
 
   useEffect(() => {
     if (file) {
-      setTempContent(file.content)
+      setTempContent(file.content || '')
     }
   }, [file])
 
-  if (!file) return null
+  // if (!file) {
+  //   return null
+  // }
 
   return (
-    <div className="mt-1 flex-grow min-w-0 px-2" style={{ height: 'inherit' }}>
+    <form className="mt-1 flex-grow min-w-0 px-2" style={{ height: 'inherit' }}>
       <div className='flex items-center justify-between mb-2'>
-        <a className='md:hidden mr-2' href="?file=" title='Back to file tree'>
+        <Link className='md:hidden mr-2' to={`/repo/${repo}`} title='Back to file tree'>
           <BackIcon />
-        </a>
+        </Link>
         <div className='min-w-0 mr-2'>
-          <FileLabel file={file.path} />
+          <FileLabel />
         </div>
-        <div className='flex-grow'></div>
-        {file.isMarkdown && (
-          previewOpen ? (
-            <button title='Edit' className='hover:bg-slate-200 rounded-full p-1.5 ml-1' onClick={() => setPreviewOpen(false)}>
-              <EditIcon />
-            </button>
-          ) : (
-            <button title='Preview' className='hover:bg-slate-200 rounded-full p-1.5 ml-1' onClick={() => setPreviewOpen(true)}>
-              <EyeIcon />
-            </button>
-          )
-        )}
       </div>
-      <Tab.Group>
-        <Tab.List>
-          <Tab className={tabButtonCN}>Edit File</Tab>
-          <Tab className={tabButtonCN}>Preview changes</Tab>
-        </Tab.List>
-        <Tab.Panels className="mt-2">
-          <Tab.Panel>
-            <CodeEditor
-              file={file}
-              initialValue={tempContent || file.content}
-              onChange={setTempContent}
-            />
-          </Tab.Panel>
-          <Tab.Panel>
-            <div className='p-3 rounded-md border border-gray-300'>... Preview ...</div>
-            {/* <MarkdownPreview code={tempContent} /> */}
-          </Tab.Panel>
-        </Tab.Panels>
-      </Tab.Group>
+      {file?.isMarkdown ? (
+        <Tab.Group as="div" className='mt-4'>
+          <Tab.List>
+            <Tab className={tabButtonCN}>Edit File</Tab>
+            <Tab className={tabButtonCN}>Preview changes</Tab>
+          </Tab.List>
+          <Tab.Panels className="mt-2">
+            <Tab.Panel>
+              <CodeEditor
+                file={file}
+                initialValue={tempContent || file?.content || ''}
+                onChange={setTempContent}
+              />
+            </Tab.Panel>
+            <Tab.Panel>
+              <div className='p-3 rounded-md border border-gray-300'>... Preview ...</div>
+              {/* <MarkdownPreview code={tempContent} /> */}
+            </Tab.Panel>
+          </Tab.Panels>
+        </Tab.Group>        
+      ) : (
+        <CodeEditor
+          file={file}
+          initialValue={tempContent || file?.content || ''}
+          onChange={setTempContent}
+        />
+      )}
 
-      <div className='flex items-center mt-4'>
-        <button className='py-2 px-4 rounded-md text-red-700 hover:bg-red-100'>Delete</button>
+      <div className='flex items-center mt-2'>
+        <button type='submit' name='op' value='delete' className='py-2 px-4 rounded-md bg-red-50 text-red-700 hover:bg-red-100'>Delete</button>
         <div className='flex-grow'></div>
-        <button className='py-2 px-4 rounded-md text-slate-600 hover:bg-slate-100'>Reset</button>
-        <button className='ml-2 py-2 px-4 rounded-md bg-slate-600 text-white hover:bg-slate-700'>Save</button>
+        <button type='reset' className='py-2 px-4 rounded-md text-slate-600 hover:bg-slate-100'>Reset</button>
+        <button type='submit' name='op' value='create' className='ml-2 py-2 px-4 rounded-md bg-slate-600 text-white hover:bg-slate-700'>Save</button>
       </div>
       {/* {modalOpen === 'commit' && <CommitModal file={file} content={tempContent} />} */}
-    </div>
+    </form>
   )
 }
 

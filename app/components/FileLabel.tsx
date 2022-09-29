@@ -1,3 +1,5 @@
+import { useLocation } from "@remix-run/react"
+
 const focusCN = [
   `focus:border-rose-300`,
   'focus:ring',
@@ -9,25 +11,33 @@ const focusCN = [
 const inputCN = [
   'font-normal',
   'text-gray-700',
-  'm-1 md:ml-2',
+  'm-1 ml-0',
   'flex-shrink-0',
   'rounded-md',
   'border-gray-300',
   'shadow-sm',
-  'disabled:opacity-50'
+  'disabled:opacity-50',
+  'placeholder:text-slate-300'
 ].concat(focusCN).join(' ')
 
-export default function FileLabel({ file }: { file: string }) {
-  const basename = getBasename(file)
-  const folder = file.replace(basename, '')
+export default function FileLabel() {
+  const { pathname, search } = useLocation()
+  const isNew = new URLSearchParams(search).get('new') === 'true'
+  const file = pathname.split('/').slice(4).join('/')
+  const basename = isNew ? '' : getBasename(file)
+  const folder = isNew ? `${file}/` : file.replace(basename, '')
   return (
     <p className='text-slate-500 text-lg font-semibold truncate'>
-      <span className="hidden md:inline">{folder}</span>
+      {folder ? (
+        <span className="hidden md:inline md:mr-2">{folder}</span>
+      ) : null}
       <input
         name="filename"
         type="text"
         defaultValue={basename}
-        placeholder="File name"
+        placeholder="file name"
+        title="file name"
+        aria-label="file name"
         className={inputCN}
       />
       {/* <span className="text-slate-400 font-medium">{basename}</span> */}

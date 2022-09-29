@@ -19,7 +19,8 @@ const inputCN = [
   'rounded-md',
   'border-gray-300',
   'shadow-sm',
-  'disabled:opacity-50'
+  'disabled:opacity-50',
+  'placeholder:text-slate-300'
 ].concat(focusCN).join(' ')
 
 export default function CodeEditor({ file, initialValue, onChange }: CodeEditorProps) {
@@ -27,8 +28,11 @@ export default function CodeEditor({ file, initialValue, onChange }: CodeEditorP
     <div>
       <textarea
         name="markdown"
-        className={`font-mono whitespace-pre ${inputCN}`}
+        className={`font-mono ${file?.isMarkdown ? 'whitespace-pre-line' : 'whitespace-pre'} ${inputCN}`}
         defaultValue={initialValue}
+        title="file contents"
+        aria-label="file contents"
+        placeholder="file contents"
         onChange={ev => onChange(ev.target.value)}
         rows={20}
       />

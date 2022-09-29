@@ -134,7 +134,7 @@ export default function RepoSearch() {
       <ul className="px-2 mt-2">
         {repos?.items.map((r: any) => (
           <li key={r.full_name} className="p-4 rounded-md hover:bg-slate-100">
-            <Link to={`/repo/${r.full_name}`} className="flex items-center">
+            <Link to={`/repo/${r.full_name}?branch=${r.default_branch}`} className="flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"

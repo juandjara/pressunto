@@ -1,4 +1,4 @@
-import { useSearchParams } from '@remix-run/react'
+import { Link, useLocation, useSearchParams } from '@remix-run/react'
 import clsx from 'clsx'
 import type { TreeItem } from '@/lib/github'
 
@@ -49,25 +49,35 @@ function TreeItemIcon({ item }: { item: TreeItem }) {
 const LIStyle = 'hover:bg-gray-100 flex items-center p-2 rounded cursor-pointer'
 
 function FileItem(f: TreeItem) {
-  const [searchParams] = useSearchParams()
+  const urlparts = useLocation().pathname.split('/')
+  const file = urlparts.slice(4).join('/')
+  const base = urlparts.join('/').replace(file, '').replace(/\/$/, '')
+  const [params] = useSearchParams()
+  const branch = params.get('branch') || ''
 
-  const linkStyle = clsx(LIStyle, { 'bg-gray-100': f.path === searchParams.get('file') })
+  const linkStyle = clsx(LIStyle, { 'bg-gray-100': f.path === file })
   return (
-    <a href={`?file=${f.path}`} className={linkStyle}>
+    <Link to={`${base}/${f.path}?branch=${branch}`} className={linkStyle}>
       <TreeItemIcon item={f} />
       <p className="ml-2 font-medium">{getBasename(f.path)}</p>
-    </a>
+    </Link>
   )
 }
 
 function NewFileItem({ path }: { path: string }) {
+  const urlparts = useLocation().pathname.split('/')
+  const file = urlparts.slice(4).join('/')
+  const base = urlparts.join('/').replace(file, '').replace(/\/$/, '')
+  const [params] = useSearchParams()
+  const branch = params.get('branch') || ''
+
   return (
-    <a href={`?file=${path}&new=true`} className={LIStyle}>
+    <Link to={`${base}${path}?branch=${branch}&new=true`} className={LIStyle}>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
       <p className='ml-2 font-medium'>New File</p>
-    </a>
+    </Link>
   )
 }
 
