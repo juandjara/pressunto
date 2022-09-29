@@ -173,6 +173,11 @@ export async function getRepoDetails(token: string, repo: string) {
   return data
 }
 
+export async function getRepoBranches(token: string, repo: string) {
+  const { data } = await callGithubAPI(token, `/repos/${repo}/branches?per_page=100`)
+  return data.map((b: any) => b.name) as string[]
+}
+
 export async function getRepoFiles(token: string, repo: string, branch: string) {
   const { data: repoDetails } = await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch}`)
 

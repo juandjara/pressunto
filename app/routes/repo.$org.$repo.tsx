@@ -1,15 +1,17 @@
 import FileTree from "@/components/FileTree"
-import { getRepoFiles } from "@/lib/github"
+import { getRepoBranches, getRepoFiles } from "@/lib/github"
 import type { TreeItem } from '@/lib/github'
 import { requireUserSession } from "@/lib/session.server"
 import { json } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
-import { Link, Outlet, useLoaderData } from "@remix-run/react"
+import { Form, Link, Outlet, useLoaderData } from "@remix-run/react"
 import clsx from 'clsx'
+import BranchSelect from "@/components/BranchSelect"
 
 type LoaderData = {
   org: string
   repo: string
+  branches: string[]
   files: TreeItem[]
   hasFile: boolean
 }
@@ -17,13 +19,20 @@ type LoaderData = {
 export async function loader({ request, params }: LoaderArgs) {
   const { token } = await requireUserSession(request)
   const { org, repo } = params
+  if (!org || !repo) {
+    throw new Response('Not found', { status: 404, statusText: 'Not foud' })
+  }
+
   const fullRepo = `${org}/${repo}`
   const branch = new URL(request.url).searchParams.get('branch') || 'master'
-  const hasFile = request.url.replace(`/repo/${fullRepo}`, '').length > 1
+  const hasFile = new URL(request.url).pathname.replace(`/r/${fullRepo}`, '').length > 1
 
-  const files = await getRepoFiles(token, fullRepo, branch)
+  const [files, branches] = await Promise.all([
+    getRepoFiles(token, fullRepo, branch),
+    getRepoBranches(token, fullRepo)
+  ])
 
-  return json({ hasFile, files, org, repo }, {
+  return json<LoaderData>({ org, repo, branches, files, hasFile }, {
     headers: {
       'Vary': 'Cookie',
       'Cache-control': 'max-age=60'
@@ -45,13 +54,22 @@ export const handle = {
 }
 
 export default function RepoDetails() {
-  const { files, hasFile } = useLoaderData<LoaderData>()
+  const { files, hasFile, branches } = useLoaderData<LoaderData>()
   const sidebarCN = clsx('max-w-sm w-full flex-shrink-0 mr-2', { 'hidden md:block': hasFile })
 
   return (
     <div className="py-4">
       <main className="flex items-stretch">
         <aside className={sidebarCN}>
+          <Form method="get">
+            <div className="mt-1 mb-5 mx-2">
+              <label htmlFor="branch" className="text-xs text-slate-500 font-medium">Branch</label>
+              <BranchSelect name='branch' options={branches} />
+              <div className="hidden">
+                <input type="submit" />
+              </div>
+            </div>
+          </Form>
           <FileTree tree={files} />
         </aside>
         <Outlet />
