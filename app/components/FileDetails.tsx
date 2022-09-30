@@ -1,11 +1,9 @@
-import { useEffect, useState } from 'react'
+import {  useEffect, useState } from 'react'
 import CodeEditor from './CodeEditor'
-// import CommitModal from './CommitModal'
-// import MarkdownPreview from './MarkdownPreview'
 import type { ParsedFile } from '@/lib/github'
 import FileLabel from './FileLabel'
 import { Tab } from '@headlessui/react'
-import { Link, useLocation } from '@remix-run/react'
+import { Form, Link, useLocation, useParams, useTransition } from '@remix-run/react'
 import MarkdownPreview from './MarkdownPreview'
 
 type FileDetailsProps = {
@@ -14,8 +12,9 @@ type FileDetailsProps = {
 }
 
 export default function FileDetails({ repo, file }: FileDetailsProps) {
+  const transition = useTransition()
   const [tempContent, setTempContent] = useState('')
-  const [modalOpen, setModalOpen] = useState('')
+  const { '*': path } = useParams()
   const { search } = useLocation()
   const params = new URLSearchParams(search)
   params.delete('new')
@@ -31,8 +30,19 @@ export default function FileDetails({ repo, file }: FileDetailsProps) {
     }
   }, [file])
 
+  const busy = transition.state === 'submitting'
+
   return (
-    <form className="mt-1 flex-grow min-w-0 px-2" style={{ height: 'inherit' }}>
+    <Form
+      action={`/r/${repo}/${path}`}
+      method='post'
+      onSubmit={(ev) => {
+        const op = ((ev.nativeEvent as SubmitEvent).submitter as HTMLButtonElement)?.value
+        if (op === 'delete' && !confirm('¿Estas seguro de que quieres borrar este archivo?')) {
+          ev.preventDefault()
+        }
+      }}
+      className="mt-1 flex-grow min-w-0 px-2">
       <div className='flex items-center justify-start mb-2'>
         <Link className='md:hidden mr-2' to={`/r/${repo}?${params}`} title='Back to file tree'>
           <BackIcon />
@@ -48,6 +58,7 @@ export default function FileDetails({ repo, file }: FileDetailsProps) {
           <Tab.Panels className="-mt-1">
             <Tab.Panel>
               <CodeEditor
+                name="markdown"
                 file={file}
                 initialValue={tempContent || file?.content || ''}
                 onChange={setTempContent}
@@ -62,6 +73,7 @@ export default function FileDetails({ repo, file }: FileDetailsProps) {
         </Tab.Group>        
       ) : (
         <CodeEditor
+          name="markdown"
           file={file}
           initialValue={tempContent || file?.content || ''}
           onChange={setTempContent}
@@ -69,13 +81,34 @@ export default function FileDetails({ repo, file }: FileDetailsProps) {
       )}
 
       <div className='flex items-center mt-2'>
-        <button type='submit' name='op' value='delete' className='py-2 px-4 rounded-md bg-red-50 text-red-700 hover:bg-red-100'>Delete</button>
+        <button
+          disabled={busy}
+          type='submit'
+          name='_op'
+          value='delete'
+          className='disabled:opacity-50 disabled:pointer-events-none py-2 px-4 rounded-md bg-red-50 text-red-700 hover:bg-red-100'>
+          Delete
+        </button>
         <div className='flex-grow'></div>
-        <button type='reset' className='py-2 px-4 rounded-md hover:text-slate-700 hover:bg-slate-100'>Reset</button>
-        <button type='submit' name='op' value='create' className='ml-2 py-2 px-4 rounded-md bg-slate-600 text-white hover:bg-slate-700'>Save</button>
+        <button
+          disabled={busy}
+          type='reset'
+          className='py-2 px-4 rounded-md hover:text-slate-700 hover:bg-slate-100'>
+          Reset
+        </button>
+        <button
+          disabled={busy}
+          type='submit'
+          name='_op'
+          value='save'
+          className='disabled:opacity-50 disabled:pointer-events-none ml-2 py-2 px-4 rounded-md bg-slate-600 text-white hover:bg-slate-700'>
+          Save
+        </button>
+        <input type="hidden" name="sha" value={file?.sha} />
+
       </div>
       {/* {modalOpen === 'commit' && <CommitModal file={file} content={tempContent} />} */}
-    </form>
+    </Form>
   )
 }
 

@@ -1,6 +1,7 @@
 import type { ParsedFile } from "@/lib/github"
 
 type CodeEditorProps = {
+  name: string
   file: ParsedFile
   initialValue: string
   onChange: (s: string) => void
@@ -24,11 +25,11 @@ const inputCN = [
   'placeholder:text-slate-300'
 ].concat(focusCN).join(' ')
 
-export default function CodeEditor({ file, initialValue, onChange }: CodeEditorProps) {
+export default function CodeEditor({ name, file, initialValue, onChange }: CodeEditorProps) {
   return (
     <div>
       <textarea
-        name="markdown"
+        name={name}
         className={`font-mono ${file?.isMarkdown ? 'whitespace-pre-line' : 'whitespace-pre'} ${inputCN}`}
         defaultValue={initialValue}
         title="file contents"

@@ -31,6 +31,7 @@ export default function FileLabel() {
       {folder ? (
         <span className="hidden md:inline md:mr-2">{folder}</span>
       ) : null}
+      <input type="hidden" name="path" value={folder} />
       <input
         name="filename"
         type="text"

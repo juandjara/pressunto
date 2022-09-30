@@ -263,6 +263,16 @@ function b64DecodeUnicode(str: string) {
   }).join(''))
 }
 
+function b64EncodeUnicode(str: string) {
+  // first we use encodeURIComponent to get percent-encoded UTF-8,
+  // then we convert the percent encodings into raw bytes which
+  // can be fed into btoa.
+  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+      function toSolidBytes(match, p1) {
+          return String.fromCharCode(Number('0x' + p1))
+  }))
+}
+
 function isMarkdown(file: string) {
   const regex = new RegExp(/.(md|mdx|mkdn?|mdown|markdown)$/)
   return !!(regex.test(file))
@@ -282,4 +292,28 @@ function extensionToCodeMirrorLang(extension: string) {
 function getExtension(path: string) {
   const match = path.match(/\.(\w+)$/)
   return match ? match[1] : null
+}
+
+export type CommitParams = {
+  repo: string
+  message: string
+  branch?: string
+  path: string
+  sha?: string
+  content: string
+  method: 'PUT' | 'DELETE'
+  name: string
+}
+
+export async function saveFile(token: string, params: CommitParams) {
+  const { method, repo, message, branch, sha, path, name, content } = params
+  const author = {
+    name: 'Pressunto',
+    email: 'commitbot@pressun.to'
+  }
+
+  const url = `/repos/${repo}/contents/${path}${name}`
+  const body = { message, sha, author, branch, content: b64EncodeUnicode(content) }
+  const { data } = await callGithubAPI(token, url, { method, body: JSON.stringify(body) })
+  return data
 }
