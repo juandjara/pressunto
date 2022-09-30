@@ -17,14 +17,21 @@ type LoaderData = {
   }
 }
 
+function useBackLink() {
+  const { org, repo } = useParams()
+  const { search } = useLocation()
+  const params = new URLSearchParams(search)
+  params.delete('new')
+
+  return `/r/${org}/${repo}?${params}`
+}
+
 export default function FileDetails() {
   const transition = useTransition()
   const [tempContent, setTempContent] = useState('')
   const { org, repo, content: file, permissions } = useLoaderData<LoaderData>()
   const { '*': path } = useParams()
-  const { search } = useLocation()
-  const params = new URLSearchParams(search)
-  params.delete('new')
+  const backlink = useBackLink()
 
   const tabButtonCN = ({ selected }: { selected: boolean }) => {
     const activeStyle = selected ? 'bg-slate-100 text-slate-700' : 'hover:underline'
@@ -51,7 +58,7 @@ export default function FileDetails() {
       }}
       className="mt-1 flex-grow min-w-0 px-2">
       <div className='flex items-center justify-start mb-2'>
-        <Link className='md:hidden mr-2' to={`/r/${org}/${repo}?${params}`} title='Back to file tree'>
+        <Link className='md:hidden mr-2' to={backlink} title='Back to file tree'>
           <BackIcon />
         </Link>
         <FileLabel />
@@ -79,12 +86,14 @@ export default function FileDetails() {
           </Tab.Panels>
         </Tab.Group>        
       ) : (
-        <CodeEditor
-          name="markdown"
-          file={file}
-          initialValue={tempContent || file?.content || ''}
-          onChange={setTempContent}
-        />
+        !file || file.format === 'text' ? (
+          <CodeEditor
+            name="markdown"
+            file={file}
+            initialValue={tempContent || file?.content || ''}
+            onChange={setTempContent}
+          />
+        ) : null
       )}
 
       {permissions.push ? (
