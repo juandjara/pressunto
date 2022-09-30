@@ -46,14 +46,14 @@ export async function action({ request, params }: ActionArgs) {
   }
 
   const sha = formData.get('sha') as string | undefined
-  const isNew = !!sha
+  const isNew = !sha
   const branch = new URL(request.url).searchParams.get('branch') || undefined
   const { repo, org } = params
   const message = op === 'delete' 
-    ? `Delete file ${path}` 
+    ? `Delete file ${path}${name}` 
     : isNew
-      ? `Create file ${path}`
-      : `Update file ${path}`
+      ? `Create file ${path}${name}`
+      : `Update file ${path}${name}`
 
   const isDelete = op === 'delete'
   await saveFile(token, {
