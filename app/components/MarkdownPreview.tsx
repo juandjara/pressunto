@@ -1,11 +1,14 @@
 import { useMemo } from 'react'
 import matter from 'front-matter'
-import { marked } from 'marked'
+import Markdown from 'markdown-it'
+import emoji from 'markdown-it-emoji'
 
 export default function MarkdownPreview({ code }: { code: string }) {
   const markdown = useMemo(() => {
     const { body } = matter(code)
-    return marked(body, { gfm: true })
+    return new Markdown({ linkify: true, html: false })
+      .use(emoji)
+      .render(body)
   }, [code])
 
   return (
