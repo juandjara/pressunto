@@ -72,8 +72,8 @@ export async function action({ request, params }: ActionArgs) {
 }
 
 export default function FileDetailsPage() {
-  const { org, repo, content } = useLoaderData()
+  const { content } = useLoaderData()
   return (
-    <FileDetails key={content?.sha} repo={`${org}/${repo}`} file={content} />
+    <FileDetails key={content?.sha} />
   )
 }
