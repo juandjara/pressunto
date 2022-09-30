@@ -72,7 +72,7 @@ export type User = {
 }
 
 export async function getCurrentUser(token: string) {
-  const { data } = await callGithubAPI(token, `/token`)
+  const { data } = await callGithubAPI(token, `/user`)
   return {
     avatar: data.avatar_url,
     name: data.login
