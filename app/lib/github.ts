@@ -307,13 +307,13 @@ export type CommitParams = {
 
 export async function saveFile(token: string, params: CommitParams) {
   const { method, repo, message, branch, sha, path, name, content } = params
-  const commiter = {
+  const committer = {
     name: 'Pressunto',
     email: 'commitbot@pressun.to'
   }
 
   const url = `/repos/${repo}/contents/${path}${name}`
-  const body = { message, sha, commiter, branch, content: b64EncodeUnicode(content) }
+  const body = { message, sha, committer, branch, content: b64EncodeUnicode(content) }
   const { data } = await callGithubAPI(token, url, { method, body: JSON.stringify(body) })
   return data
 }
