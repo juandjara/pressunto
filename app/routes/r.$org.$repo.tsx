@@ -27,7 +27,7 @@ export async function loader({ request, params }: LoaderArgs) {
 
   const [files, branches] = await Promise.all([
     getRepoFiles(token, fullRepo, branch),
-    getRepoBranches(token, fullRepo)
+    getRepoBranches(token, fullRepo, branch)
   ])
 
   return json<LoaderData>({ org, repo, branches, files }, {

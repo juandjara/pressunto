@@ -176,9 +176,10 @@ export async function getRepoDetails(token: string, repo: string) {
   }
 }
 
-export async function getRepoBranches(token: string, repo: string) {
+export async function getRepoBranches(token: string, repo: string, selectedBranch?: string) {
   const { data } = await callGithubAPI(token, `/repos/${repo}/branches?per_page=100`)
-  return data.map((b: any) => b.name) as string[]
+  const branches = data.map((b: any) => b.name) as string[]
+  return selectedBranch ? Array.from(new Set([selectedBranch, ...branches])) : branches
 }
 
 export async function getRepoFiles(token: string, repo: string, branch?: string) {
