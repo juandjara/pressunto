@@ -4,7 +4,7 @@ import type { TreeItem } from '@/lib/github'
 import { requireUserSession } from "@/lib/session.server"
 import { json } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
-import { Form, Link, Outlet, useLoaderData } from "@remix-run/react"
+import { Form, Link, Outlet, useLoaderData, useParams } from "@remix-run/react"
 import clsx from 'clsx'
 import BranchSelect from "@/components/BranchSelect"
 
@@ -13,26 +13,24 @@ type LoaderData = {
   repo: string
   branches: string[]
   files: TreeItem[]
-  hasFile: boolean
 }
 
 export async function loader({ request, params }: LoaderArgs) {
   const { token } = await requireUserSession(request)
-  const { org, repo, '*': path } = params
+  const { org, repo } = params
   if (!org || !repo) {
     throw new Response('Not found', { status: 404, statusText: 'Not foud' })
   }
 
   const fullRepo = `${org}/${repo}`
   const branch = new URL(request.url).searchParams.get('branch') || undefined
-  const hasFile = !!path
 
   const [files, branches] = await Promise.all([
     getRepoFiles(token, fullRepo, branch),
     getRepoBranches(token, fullRepo)
   ])
 
-  return json<LoaderData>({ org, repo, branches, files, hasFile }, {
+  return json<LoaderData>({ org, repo, branches, files }, {
     headers: {
       'Vary': 'Cookie',
       'Cache-control': 'max-age=60'
@@ -54,8 +52,9 @@ export const handle = {
 }
 
 export default function RepoDetails() {
-  const { files, hasFile, branches } = useLoaderData<LoaderData>()
-  const sidebarCN = clsx('max-w-sm w-full flex-shrink-0 mr-2', { 'hidden md:block': hasFile })
+  const { files, branches } = useLoaderData<LoaderData>()
+  const path = useParams()['*']
+  const sidebarCN = clsx('max-w-sm w-full flex-shrink-0 mr-2', { 'hidden md:block': !!path })
 
   return (
     <div className="py-4">
