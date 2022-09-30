@@ -217,6 +217,8 @@ type File = {
   sha: string
   name: string
   path: string
+  download_url: string
+  html_url: string
 }
 
 export type ParsedFile = ReturnType<typeof parseFile>
@@ -252,7 +254,7 @@ export function parseFile(file: File) {
     lang,
     format,
     isMarkdown: isMarkdown(file.name),
-    content: b64DecodeUnicode(file.content)
+    content: format === 'text' ? b64DecodeUnicode(file.content) : file.content
   }
 }
 

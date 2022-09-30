@@ -26,23 +26,94 @@ function useBackLink() {
   return `/r/${org}/${repo}?${params}`
 }
 
-export default function FileDetails() {
-  const transition = useTransition()
+function FileContents({ file }: { file?: ParsedFile }) {
   const [tempContent, setTempContent] = useState('')
-  const { org, repo, content: file, permissions } = useLoaderData<LoaderData>()
-  const { '*': path } = useParams()
-  const backlink = useBackLink()
-
-  const tabButtonCN = ({ selected }: { selected: boolean }) => {
-    const activeStyle = selected ? 'bg-slate-100 text-slate-700' : 'hover:underline'
-    return `rounded-md px-4 py-2 ${activeStyle}`
-  }
 
   useEffect(() => {
     if (file) {
       setTempContent(file.content || '')
     }
   }, [file])
+
+  const tabButtonCN = ({ selected }: { selected: boolean }) => {
+    const activeStyle = selected ? 'bg-slate-100 text-slate-700' : 'hover:underline'
+    return `rounded-md px-4 py-2 ${activeStyle}`
+  }
+
+  if (!file) {
+    return (
+      <CodeEditor
+        name="markdown"
+        onChange={setTempContent}
+      />
+    )
+  }
+
+  if (file.isMarkdown) {
+    return (
+      <Tab.Group as="div" className='mt-4'>
+        <Tab.List className="mx-1">
+          <Tab className={tabButtonCN}>Editor</Tab>
+          <Tab className={tabButtonCN}>Preview</Tab>
+        </Tab.List>
+        <Tab.Panels className="-mt-1">
+          <Tab.Panel>
+            <CodeEditor
+              name="markdown"
+              file={file}
+              initialValue={tempContent || file?.content || ''}
+              onChange={setTempContent}
+            />
+          </Tab.Panel>
+          <Tab.Panel>
+            <div className='p-3 rounded-md border text-slate-700 bg-white border-gray-300'>
+              <MarkdownPreview code={tempContent} />
+            </div>
+          </Tab.Panel>
+        </Tab.Panels>
+      </Tab.Group>
+    )
+  }
+
+  if (file.format === 'text') {
+    return (
+      <CodeEditor
+        name="markdown"
+        file={file}
+        initialValue={tempContent || file?.content || ''}
+        onChange={setTempContent}
+      />
+    )
+  }
+
+  if (file.format === 'image') {
+    return (
+      <div className='p-3 border border-slate-300 rounded-md mt-2'>
+        <div>
+          <img
+            alt="content from github"
+            src={file.download_url}
+            className='max-w-full object-contain mx-auto'
+          />
+        </div>
+      </div>
+      
+    )
+  }
+
+  return (
+    <div className='p-3 border border-slate-300 rounded-md mt-2 text-center'>
+      <p className='text-sm font-medium mb-2'>This file format is not supported.</p>
+      <a className='underline' target='_blank' rel='noreferrer' href={file.html_url}>See raw file</a>
+    </div>
+  )
+}
+
+export default function FileDetails() {
+  const transition = useTransition()
+  const { org, repo, content: file, permissions } = useLoaderData<LoaderData>()
+  const { '*': path } = useParams()
+  const backlink = useBackLink()
 
   const busy = transition.state === 'submitting'
 
@@ -63,38 +134,7 @@ export default function FileDetails() {
         </Link>
         <FileLabel />
       </div>
-      {file?.isMarkdown ? (
-        <Tab.Group as="div" className='mt-4'>
-          <Tab.List className="mx-1">
-            <Tab className={tabButtonCN}>Editor</Tab>
-            <Tab className={tabButtonCN}>Preview</Tab>
-          </Tab.List>
-          <Tab.Panels className="-mt-1">
-            <Tab.Panel>
-              <CodeEditor
-                name="markdown"
-                file={file}
-                initialValue={tempContent || file?.content || ''}
-                onChange={setTempContent}
-              />
-            </Tab.Panel>
-            <Tab.Panel>
-              <div className='p-3 rounded-md border text-slate-700 bg-white border-gray-300'>
-                <MarkdownPreview code={tempContent} />
-              </div>
-            </Tab.Panel>
-          </Tab.Panels>
-        </Tab.Group>        
-      ) : (
-        !file || file.format === 'text' ? (
-          <CodeEditor
-            name="markdown"
-            file={file}
-            initialValue={tempContent || file?.content || ''}
-            onChange={setTempContent}
-          />
-        ) : null
-      )}
+      <FileContents file={file} />
 
       {permissions.push ? (
         <div className='flex items-center mt-2'>
@@ -108,7 +148,7 @@ export default function FileDetails() {
             {transition.state === 'loading' && 'Saved!'}
             {transition.state === 'idle' && 'Save'}
           </button>
-          <Link to={`/r/${org}/${repo}?${params}`}>
+          <Link to={backlink}>
             <button
               type='button'
               className='py-2 px-4 ml-2 rounded-md hover:text-slate-700 hover:bg-slate-100'>
