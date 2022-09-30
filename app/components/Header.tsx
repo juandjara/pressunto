@@ -6,7 +6,7 @@ export default function Header({ user }: { user: User }) {
   const matches = useMatches()
   const location = useLocation()
 
-  if (location.pathname === '/') {
+  if (location.pathname === '/' || !user) {
     return null
   }
 
@@ -71,27 +71,6 @@ function UserMenu({ user }: { user: User }) {
     </div>
   )
 }
-
-// function UserMenu({ user }: { user: User }) {
-//   const children = user ? (
-//     <>
-//       <LogoutButton />
-//       <img
-//         className="ml-1 rounded-full"
-//         src={user.avatar}
-//         width={40}
-//         height={40}
-//         title={user.name}
-//         alt={`github avatar for ${user.name}`}
-//       />
-//     </>
-//   ) : <LoginButton />
-
-//   return (
-//     // maintain 40px height to avoid CLS
-//     <div className="flex items-center h-10">{children}</div>
-//   )
-// }
 
 export function LoginButton() {
   const fetcher = useFetcher()
