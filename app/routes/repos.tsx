@@ -5,11 +5,13 @@ import { json } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
 import { Form, Link, useLoaderData, useSearchParams, useTransition } from "@remix-run/react"
 import useCurrentUser from "@/lib/useCurrentUser"
+import { getRecentRepos } from "@/lib/recentsCookie.server"
 
 type LoaderData = {
   orgs: string[]
   org: string | null
   repos: RepoData
+  recentRepos: string[]
 }
 
 export async function loader({ request }: LoaderArgs) {
@@ -17,7 +19,7 @@ export async function loader({ request }: LoaderArgs) {
   const params = new URL(request.url).searchParams
   const page = Number(params.get('page') || 1)
   const org = params.get('org') as string
-  const [orgs, repos] = await Promise.all([
+  const [orgs, repos, recentRepos] = await Promise.all([
     getOrgs(token),
     searchRepos(token, {
       org: org || '',
@@ -25,13 +27,15 @@ export async function loader({ request }: LoaderArgs) {
       includeForks: params.get('includeForks') === 'on',
       query: params.get('q') as string,
       page
-    })
+    }),
+    getRecentRepos(request)
   ])
 
   return json<LoaderData>({
     org: org || user.name,
     orgs,
-    repos
+    repos,
+    recentRepos
   }, {
     headers: {
       'Vary': 'Cookie',
@@ -68,7 +72,7 @@ const checkboxCN = [
 
 export default function RepoSearch() {
   const user = useCurrentUser()
-  const { orgs, repos } = useLoaderData<LoaderData>()
+  const { orgs, repos, recentRepos } = useLoaderData<LoaderData>()
   const [params, setSearchParams] = useSearchParams()
   const transition = useTransition()
   const busy = transition.state !== 'idle'
@@ -80,6 +84,16 @@ export default function RepoSearch() {
 
   return (
     <div>
+      <div className="py-2 px-3 my-4">
+        <p className="mb-2 text-sm text-slate-600 dark:text-slate-300">Repositorios recientes</p>
+        <ul className="flex flex-wrap justify-start items-center">
+          {recentRepos.map((r) => (
+            <li className="mr-4 mb-2 py-1 px-3 font-medium rounded-xl border border-slate-400" key={r}>
+              <Link to={`/r/${r}`}>{r}</Link>
+            </li>
+          ))}
+        </ul>
+      </div>
       <Form>
         <fieldset disabled={busy} className="mt-4 flex flex-wrap items-center justify-between pl-4">
           <label className="mr-4 mb-2 dark:text-slate-300 text-slate-600 inline-flex items-center">

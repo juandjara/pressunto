@@ -1,12 +1,13 @@
 import FileTree from "@/components/FileTree"
 import { getRepoBranches, getRepoFiles } from "@/lib/github"
 import type { TreeItem } from '@/lib/github'
-import { requireUserSession } from "@/lib/session.server"
+import { requireUserSession, sessionStorage } from "@/lib/session.server"
 import { json } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
 import { Form, Link, Outlet, useLoaderData, useParams } from "@remix-run/react"
 import clsx from 'clsx'
 import BranchSelect from "@/components/BranchSelect"
+import { addRecentRepo } from "@/lib/recentsCookie.server"
 
 type LoaderData = {
   org: string
@@ -31,9 +32,8 @@ export async function loader({ request, params }: LoaderArgs) {
   ])
 
   return json<LoaderData>({ org, repo, branches, files }, {
-    headers: {
-      'Vary': 'Cookie',
-      'Cache-control': 'max-age=60'
+     headers: {
+      "Set-Cookie": await addRecentRepo(request, fullRepo)
     }
   })
 }

@@ -22,12 +22,7 @@ export async function loader({ request, params }: LoaderArgs) {
     isNew,
   }) : null
 
-  return json({ org, repo, content, permissions: details.permissions }, {
-    headers: {
-      'Vary': 'Cookie',
-      'Cache-control': 'max-age=60'
-    }
-  })
+  return json({ org, repo, content, permissions: details.permissions })
 }
 
 export async function action({ request, params }: ActionArgs) {

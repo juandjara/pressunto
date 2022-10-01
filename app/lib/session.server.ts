@@ -52,9 +52,9 @@ export async function requireUserSession(
   request: Request,
   redirectTo: string = new URL(request.url).pathname
 ) {
-  const { token, user } = await getSessionData(request)
+  const { token, user, recent_repos } = await getSessionData(request)
   if (!token || !user) {
     throw redirect(`/?redirectTo=${redirectTo}`)
   }
-  return { token, user }
+  return { token, user, recent_repos }
 }
