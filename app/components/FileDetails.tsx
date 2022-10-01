@@ -40,16 +40,7 @@ function FileContents({ file }: { file?: ParsedFile }) {
     return `rounded-md px-4 py-2 ${activeStyle}`
   }
 
-  if (!file) {
-    return (
-      <CodeEditor
-        name="markdown"
-        onChange={setTempContent}
-      />
-    )
-  }
-
-  if (file.isMarkdown) {
+  if (!file || file.isMarkdown) {
     return (
       <Tab.Group as="div" className='mt-4'>
         <Tab.List className="mx-1">
@@ -60,7 +51,7 @@ function FileContents({ file }: { file?: ParsedFile }) {
           <Tab.Panel>
             <CodeEditor
               name="markdown"
-              file={file}
+              isMarkdown={file ? file.isMarkdown : true}
               initialValue={tempContent || file?.content || ''}
               onChange={setTempContent}
             />
@@ -101,7 +92,7 @@ function FileContents({ file }: { file?: ParsedFile }) {
   return (
     <CodeEditor
       name="markdown"
-      file={file}
+      isMarkdown={file?.isMarkdown}
       initialValue={tempContent || file?.content || ''}
       onChange={setTempContent}
     />
