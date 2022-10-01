@@ -68,7 +68,7 @@ export function ErrorBoundary({ error }: { error: Error }) {
       </head>
       <body>
         <div className="max-w-xl bg-red-50 text-red-800 rounded-xl my-8 mx-auto p-4">
-          <h1 className="text-2xl font-bold text-red-600">Big Oof :c</h1>
+          <h1 className="text-2xl font-bold text-red-600">Oops :c</h1>
           <h2 className="mt-1 text-xl font-bold text-red-600">There was an unexpected error</h2>
           <p className="my-2 text-lg">{error.message}</p>
         </div>
