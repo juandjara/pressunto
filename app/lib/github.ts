@@ -1,5 +1,6 @@
 import parseLink from 'parse-link-header'
 import * as mime from 'mime'
+import isbinary from 'is-binary-path'
 
 const OAUTH_URL = 'https://github.com/login/oauth'
 const API_URL = 'https://api.github.com'
@@ -249,12 +250,15 @@ export function parseFile(file: File) {
   const lang = extensionToCodeMirrorLang(extension || '')
   const mimeType = mime.getType(file.name)
   const format = mimeType?.split('/')[0] || ''
+  const isBinary = isbinary(file.name)
   return {
     ...file,
     lang,
     format,
+    mimeType,
+    isBinary,
     isMarkdown: isMarkdown(file.name),
-    content: format === 'text' ? b64DecodeUnicode(file.content) : file.content
+    content: isBinary ? file.content : b64DecodeUnicode(file.content)
   }
 }
 

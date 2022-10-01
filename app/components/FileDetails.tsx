@@ -75,17 +75,6 @@ function FileContents({ file }: { file?: ParsedFile }) {
     )
   }
 
-  if (file.format === 'text') {
-    return (
-      <CodeEditor
-        name="markdown"
-        file={file}
-        initialValue={tempContent || file?.content || ''}
-        onChange={setTempContent}
-      />
-    )
-  }
-
   if (file.format === 'image') {
     return (
       <div className='p-3 border border-slate-300 rounded-md mt-2'>
@@ -97,15 +86,25 @@ function FileContents({ file }: { file?: ParsedFile }) {
           />
         </div>
       </div>
-      
+    )
+  }
+
+  if (file.isBinary) {
+    return (
+      <div className='p-3 border border-slate-300 rounded-md mt-2 text-center'>
+        <p className='text-sm font-medium mb-2'>This file is not a text format or image that can be edited by this application.</p>
+        <a className='underline' target='_blank' rel='noreferrer' href={file.html_url}>See raw file</a>
+      </div>
     )
   }
 
   return (
-    <div className='p-3 border border-slate-300 rounded-md mt-2 text-center'>
-      <p className='text-sm font-medium mb-2'>This file format is not supported.</p>
-      <a className='underline' target='_blank' rel='noreferrer' href={file.html_url}>See raw file</a>
-    </div>
+    <CodeEditor
+      name="markdown"
+      file={file}
+      initialValue={tempContent || file?.content || ''}
+      onChange={setTempContent}
+    />
   )
 }
 
