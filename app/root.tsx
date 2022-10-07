@@ -43,7 +43,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="dark:text-slate-100 dark:bg-slate-700 text-slate-700">
+      <body className="dark:text-slate-100 dark:bg-slate-800 text-slate-700">
         <GlobalSpinner />
         <div className="container mx-auto">
           <Header user={user} />

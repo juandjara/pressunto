@@ -42,7 +42,7 @@ export default function BranchSelect({ name, options }: BranchSelectParams) {
 
   return (
     <div className="w-72">
-      <Combobox name={name} value={selected} onChange={setSelected}>
+      <Combobox name={name} value={selected}>
         <div className="relative mt-1">
           <div className={toggleCN}>
             <Combobox.Input
