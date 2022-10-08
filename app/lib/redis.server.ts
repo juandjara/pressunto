@@ -9,15 +9,16 @@ export type RedisRepo = {
 }
 
 export async function getUserRepos(user: string) {
-  const keys = await db.keys(`${user}:*`)
+  const keys = await db.smembers(`${user}:repos`)
   if (keys.length === 0) {
     return []
   }
 
-  const data = await Promise.all(keys.map((k) => db.hgetall(k).then(data => ({ ...data, repo: k.split(':')[1] }))))
-  return data as RedisRepo[]
+  const repos = await db.mget(...keys.map(k => `${user}:repos:${k}`))
+  return repos as RedisRepo[]
 }
 
 export async function setUserRepo(user: string, repo: RedisRepo) {
-  return await db.hset(`${user}:${repo.repo}`, { branch: repo.branch, title: repo.title })
+  await db.sadd(`${user}:repos`, repo.repo)
+  return await db.set(`${user}:repos:${repo.repo}`, repo)
 }
