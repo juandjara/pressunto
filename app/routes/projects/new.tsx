@@ -1,15 +1,17 @@
-import { Form, Link, useActionData, useFetcher, useTransition } from "@remix-run/react"
+import { Form, Link, useActionData, useFetcher, useSearchParams, useTransition } from "@remix-run/react"
 import { buttonCN, inputCN, labelCN } from '@/lib/styles'
 import ComboBox from "@/components/ComboBox"
-import { createConfigFile, RepoItem } from "@/lib/github"
+import type { RepoItem } from "@/lib/github"
+import { createConfigFile } from "@/lib/github"
 import { useEffect, useMemo, useRef } from "react"
 import debounce from 'debounce'
-import { ActionFunction, json, redirect } from "@remix-run/node"
+import type { ActionFunction} from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
 import { requireUserSession } from "@/lib/session.server"
-import { setUserRepo } from "@/lib/projects.server"
+import { saveProject } from "@/lib/projects.server"
+import InlineCode from "@/components/InlineCode"
 
-const DEBOUNCE_TIME = 500
-
+const DEBOUNCE_TIME = 300
 
 type ActionData = undefined | { errors: { repo: string } }
 
@@ -24,10 +26,12 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ errors: { repo: 'This field is required' } })
   }
 
-  await setUserRepo(user.name, { title, repo, branch })
-  await createConfigFile(token, repo, branch)
+  await Promise.all([
+    saveProject(user.name, { title, repo, branch }),
+    createConfigFile(token, repo, branch)
+  ])
 
-  return redirect(`/p/${repo}`)
+  return redirect(`/projects/${repo}`)
 }
 
 export default function NewProject() {
@@ -38,6 +42,9 @@ export default function NewProject() {
   const actionData = useActionData<ActionData>()
   const errors = actionData?.errors
   const selectRef = useRef<HTMLInputElement>(null)
+
+  const [params] = useSearchParams()
+  const defaultRepo = params.get('repo') || undefined
 
   const debouncedSearchFn = useMemo(
     () => debounce(
@@ -57,7 +64,7 @@ export default function NewProject() {
     <div className="px-3 py-8 max-w-screen-md">
       <header className="mb-4">
         <h2 className="font-medium text-4xl mb-2">Create project</h2>
-        <p>This will create a <code className="bg-rose-50 text-rose-900 rounded-md px-1">pressunto.config.json</code> in the root of your repository</p>
+        <p>This will create a <InlineCode>pressunto.config.json</InlineCode> in the root of your repository</p>
       </header>
       <Form replace method="post">
         <fieldset disabled={busy} className="space-y-6">
@@ -81,6 +88,7 @@ export default function NewProject() {
               onSearch={debouncedSearchFn}
               labelKey='full_name'
               valueKey='full_name'
+              defaultValue={defaultRepo}
             />
           </div>
           <div>

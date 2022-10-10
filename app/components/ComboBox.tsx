@@ -1,4 +1,4 @@
-import type { MutableRefObject } from 'react'
+import { MutableRefObject, useState } from 'react'
 import { Fragment } from 'react'
 import { Combobox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
@@ -14,6 +14,7 @@ type ComboBoxProps<T> = {
   onSearch: (q: string) => void
   labelKey: keyof T
   valueKey: keyof T
+  defaultValue?: string
 }
 
 const optionsWrapperCN = [
@@ -30,12 +31,12 @@ export default function ComboBox<T>({
   loading,
   options,
   onSearch,
-  onSelect,
   labelKey,
-  valueKey
+  valueKey,
+  defaultValue
 }: ComboBoxProps<T>) {
   return (
-    <Combobox name={name} onChange={onSelect}>
+    <Combobox name={name} defaultValue={defaultValue}>
       <div className="relative mt-1">
         <div className={`${inputCN} ${focusWithinCN}`}>
           <Combobox.Input

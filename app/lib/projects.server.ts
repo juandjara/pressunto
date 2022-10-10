@@ -2,7 +2,7 @@ import { Redis } from "@upstash/redis"
 
 const db = Redis.fromEnv()
 
-export type ProjectListItem = {
+export type Project = {
   title: string
   repo: string
   branch: string
@@ -15,17 +15,23 @@ export type Collection = {
   template: string
 }
 
-export async function getUserRepos(user: string) {
-  const keys = await db.smembers(`${user}:repos`)
+export async function getUserProjects(user: string) {
+  const keys = await db.smembers(`user:${user}:projects`)
   if (keys.length === 0) {
     return []
   }
 
-  const repos = await db.mget(...keys.map(k => `${user}:repos:${k}`))
-  return repos as ProjectListItem[]
+  const projects = await db.mget(...keys.map(k => `project:${user}:${k}`))
+  return projects as Project[]
 }
 
-export async function setUserRepo(user: string, repo: ProjectListItem) {
-  await db.sadd(`${user}:repos`, repo.repo)
-  return await db.set(`${user}:repos:${repo.repo}`, repo)
+export async function getProject(user: string, repo: string) {
+  return await db.get(`project:${user}:${repo}`) as Project[]
+}
+
+export async function saveProject(user: string, project: Omit<Project, 'id'>) {
+  return Promise.all([
+    db.sadd(`user:${user}:projects`, project.repo),
+    db.set(`project:${user}:${project.repo}`, project)
+  ])
 }

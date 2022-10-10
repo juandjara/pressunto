@@ -53,5 +53,6 @@ export const buttonCN = {
   slate: [
     'text-slate-100 bg-slate-600 hover:bg-slate-900',
     'dark:text-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200'
-  ].join(' ')
+  ].join(' '),
+  iconLeft: 'flex items-center gap-2 pl-2'
 }

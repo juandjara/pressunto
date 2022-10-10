@@ -331,10 +331,16 @@ export async function saveFile(token: string, params: CommitParams) {
 }
 
 export async function createConfigFile(token: string, repo: string, branch: string) {
+  const repoTree = await getRepoFiles(token, repo)
+  const configFile = repoTree.find((f) => f.path === 'pressunto.config.json')
+  if (configFile) {
+    return configFile
+  }
+
   const url = `/repos/${repo}/contents/${CONFIG_FILE_NAME}`
   const body = {
-    message: 'Create config file for Pressunto',
     sha: null,
+    message: 'Create config file for Pressunto',
     branch: branch || 'master',
     content: b64EncodeUnicode(CONFIG_FILE_TEMPLATE)
   }
