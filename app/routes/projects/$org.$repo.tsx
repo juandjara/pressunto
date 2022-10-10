@@ -5,7 +5,7 @@ import { getProject } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
 import type { LoaderFunction } from "@remix-run/node"
 import { json } from "@remix-run/node"
-import { Outlet, useLoaderData } from "@remix-run/react"
+import { Link, Outlet, useLoaderData } from "@remix-run/react"
 
 type LoaderData = {
   project: Project,
@@ -20,6 +20,20 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const config = await getProjectConfig(token, project)
 
   return json<LoaderData>({ project, config })
+}
+
+export const handle = {
+  breadcrumb: ({ project }: LoaderData) => (
+    <span className="text-slate-500 dark:text-slate-300 font-medium text-lg">
+      {project.title}
+      {/* <Link
+        to={`/repos?org=${data.org}`}
+        className="text-slate-500 dark:text-slate-300 font-medium text-lg hover:underline">
+        {data.org}
+      </Link> */}
+      {/* {" "}<span className="text-slate-400 font-medium text-base">/ {data.repo}</span> */}
+    </span>
+  )
 }
 
 export default function ProjectDetails() {

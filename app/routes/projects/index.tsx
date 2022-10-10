@@ -42,7 +42,7 @@ export default function ProjectsList() {
         ))}
       </ul>
       <Link to='/projects/new' className="inline-block">
-        <button className={`${buttonCN.normal} ${buttonCN.slate} flex items-center gap-2 pl-2`}>
+        <button className={`${buttonCN.normal} ${buttonCN.slate} ${buttonCN.iconLeft}`}>
           <PlusIcon className='w-6 h-6' />
           <p>Create project</p>
         </button>
