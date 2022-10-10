@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef } from "react"
 import debounce from 'debounce'
 import { ActionFunction, json, redirect } from "@remix-run/node"
 import { requireUserSession } from "@/lib/session.server"
-import { setUserRepo } from "@/lib/redis.server"
+import { setUserRepo } from "@/lib/projects.server"
 
 const DEBOUNCE_TIME = 500
 
@@ -53,7 +53,10 @@ export default function NewProject() {
 
   return (
     <div className="px-3 py-8 max-w-screen-md">
-      <h2 className="font-medium text-4xl mb-4">Create project</h2>
+      <header className="mb-4">
+        <h2 className="font-medium text-4xl mb-2">Create project</h2>
+        <p>This will create a <code className="bg-rose-50 text-rose-900 rounded-md px-1">pressunto.config.json</code> in the root of your repository</p>
+      </header>
       <Form replace method="post">
         <fieldset disabled={busy} className="space-y-6">
           <div>

@@ -1,5 +1,5 @@
-import type { RedisRepo } from "@/lib/redis.server"
-import { getUserRepos } from "@/lib/redis.server"
+import type { ProjectListItem } from "@/lib/projects.server"
+import { getUserRepos } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
 import { buttonCN } from "@/lib/styles"
 import { PlusIcon } from "@heroicons/react/20/solid"
@@ -8,7 +8,7 @@ import { json } from "@remix-run/node"
 import { Link, useLoaderData } from "@remix-run/react"
 
 type LoaderData = {
-  repos: RedisRepo[]
+  repos: ProjectListItem[]
 }
 
 export async function loader({ request }: LoaderArgs) {

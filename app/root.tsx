@@ -13,7 +13,7 @@ import {
 import GlobalSpinner from "./components/GlobalSpiner"
 import Header from "./components/Header"
 import { getSessionData } from "./lib/session.server"
-import LiveReload from "./LiveReload"
+import LiveReload from "./components/LiveReload"
 import tailwind from "./tailwind.css"
 import animate from './animate.css'
 
