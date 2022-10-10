@@ -225,11 +225,11 @@ export type ParsedFile = ReturnType<typeof parseFile>
 type FileRequest = {
   repo: string
   file: string
-  isNew: boolean
+  isNew?: boolean
   branch?: string
 }
 
-export async function getFileContent(token: string, { repo, file, isNew, branch }: FileRequest) {
+export async function getFileContent(token: string, { repo, file, isNew = false, branch }: FileRequest) {
   if (isNew) {
     return null
   }
@@ -310,41 +310,11 @@ export type CommitParams = {
   name: string
 }
 
-export const CONFIG_FILE_NAME = 'pressunto.config.json'
-export const CONFIG_FILE_TEMPLATE = `{
-  "collections": [],
-  "templates": [],
-  "drafts": {
-    "enabled": false,
-    "route": "/drafts"
-  }
-}
-`
-
 export async function saveFile(token: string, params: CommitParams) {
   const { method, repo, message, branch, sha, path, name, content } = params
 
   const url = `/repos/${repo}/contents/${path}${name}`
   const body = { message, sha, branch, content: b64EncodeUnicode(content) }
   const { data } = await callGithubAPI(token, url, { method, body: JSON.stringify(body) })
-  return data
-}
-
-export async function createConfigFile(token: string, repo: string, branch: string) {
-  const repoTree = await getRepoFiles(token, repo)
-  const configFile = repoTree.find((f) => f.path === 'pressunto.config.json')
-  if (configFile) {
-    return configFile
-  }
-
-  const url = `/repos/${repo}/contents/${CONFIG_FILE_NAME}`
-  const body = {
-    sha: null,
-    message: 'Create config file for Pressunto',
-    branch: branch || 'master',
-    content: b64EncodeUnicode(CONFIG_FILE_TEMPLATE)
-  }
-
-  const { data } = await callGithubAPI(token, url, { method: 'PUT', body: JSON.stringify(body) })
   return data
 }

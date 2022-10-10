@@ -2,13 +2,12 @@ import { Form, Link, useActionData, useFetcher, useSearchParams, useTransition }
 import { buttonCN, inputCN, labelCN } from '@/lib/styles'
 import ComboBox from "@/components/ComboBox"
 import type { RepoItem } from "@/lib/github"
-import { createConfigFile } from "@/lib/github"
 import { useEffect, useMemo, useRef } from "react"
 import debounce from 'debounce'
 import type { ActionFunction} from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { requireUserSession } from "@/lib/session.server"
-import { saveProject } from "@/lib/projects.server"
+import { createConfigFile, saveProject } from "@/lib/projects.server"
 import InlineCode from "@/components/InlineCode"
 
 const DEBOUNCE_TIME = 300
@@ -26,9 +25,10 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ errors: { repo: 'This field is required' } })
   }
 
+  const project = { title, repo, branch }
   await Promise.all([
-    saveProject(user.name, { title, repo, branch }),
-    createConfigFile(token, repo, branch)
+    saveProject(user.name, project),
+    createConfigFile(token, project)
   ])
 
   return redirect(`/projects/${repo}`)

@@ -1,4 +1,4 @@
-import type { Collection } from "@/lib/projects.server"
+import type { ProjectCollection } from "@/lib/projects.server"
 import { CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, FolderIcon, PlusIcon } from "@heroicons/react/20/solid"
 import { Link } from "@remix-run/react"
 
@@ -13,7 +13,7 @@ const iconCN = {
   small: `w-5 h-5 ${iconColor}`,
 }
 
-export default function ProjectSidebar({ collections }: { collections: Collection[] }) {
+export default function ProjectSidebar({ collections }: { collections: ProjectCollection[] }) {
   return (
     <aside className="max-w-sm w-full flex-shrink-0 py-2 my-4 bg-slate-50">
       <nav>
