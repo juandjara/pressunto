@@ -142,8 +142,6 @@ export async function searchRepos(token: string, {
   const fullUrl = new URL(url.toString() + `&q=${q}`)
   const { data, headers } = await callGithubAPI(token, fullUrl)
 
-  // console.log(data.items[0])
-
   data.items = data.items.map((r: any) => ({
     name: r.name,
     full_name: r.full_name,
@@ -312,15 +310,35 @@ export type CommitParams = {
   name: string
 }
 
+export const CONFIG_FILE_NAME = 'pressunto.config.json'
+export const CONFIG_FILE_TEMPLATE = `{
+  "collections": [],
+  "templates": [],
+  "drafts": {
+    "enabled": false,
+    "route": "/drafts"
+  }
+}
+`
+
 export async function saveFile(token: string, params: CommitParams) {
   const { method, repo, message, branch, sha, path, name, content } = params
-  const committer = {
-    name: 'Pressunto',
-    email: 'commitbot@pressun.to'
-  }
 
   const url = `/repos/${repo}/contents/${path}${name}`
-  const body = { message, sha, committer, branch, content: b64EncodeUnicode(content) }
+  const body = { message, sha, branch, content: b64EncodeUnicode(content) }
   const { data } = await callGithubAPI(token, url, { method, body: JSON.stringify(body) })
+  return data
+}
+
+export async function createConfigFile(token: string, repo: string, branch: string) {
+  const url = `/repos/${repo}/contents/${CONFIG_FILE_NAME}`
+  const body = {
+    message: 'Create config file for Pressunto',
+    sha: null,
+    branch: branch || 'master',
+    content: b64EncodeUnicode(CONFIG_FILE_TEMPLATE)
+  }
+
+  const { data } = await callGithubAPI(token, url, { method: 'PUT', body: JSON.stringify(body) })
   return data
 }

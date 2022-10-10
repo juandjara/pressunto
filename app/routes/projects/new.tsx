@@ -1,7 +1,7 @@
 import { Form, Link, useActionData, useFetcher, useTransition } from "@remix-run/react"
 import { buttonCN, inputCN, labelCN } from '@/lib/styles'
 import ComboBox from "@/components/ComboBox"
-import type { RepoItem } from "@/lib/github"
+import { createConfigFile, RepoItem } from "@/lib/github"
 import { useEffect, useMemo, useRef } from "react"
 import debounce from 'debounce'
 import { ActionFunction, json, redirect } from "@remix-run/node"
@@ -14,7 +14,7 @@ const DEBOUNCE_TIME = 500
 type ActionData = undefined | { errors: { repo: string } }
 
 export const action: ActionFunction = async ({ request }) => {
-  const { user } = await requireUserSession(request)
+  const { user, token } = await requireUserSession(request)
   const formData = await request.formData()
   const title = formData.get('title') as string
   const repo = formData.get('repo') as string
@@ -25,6 +25,8 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   await setUserRepo(user.name, { title, repo, branch })
+  await createConfigFile(token, repo, branch)
+
   return redirect(`/p/${repo}`)
 }
 

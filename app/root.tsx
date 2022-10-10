@@ -92,9 +92,6 @@ export function CatchBoundary() {
       <body>
         <div className="h-screen flex flex-col items-center justify-center text-slate-700 text-center">
           <p className="grayscale text-7xl text-center">🐷</p>
-          <p className="text-lg">
-            {status === 404 ? 'No piggy here' : 'Sad piggy'}
-          </p>
           <div className="my-6">
             <p className="text-xl font-semibold">{title}</p>
             <p className="text-base">{data?.message}</p>
