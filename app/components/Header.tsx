@@ -2,6 +2,8 @@ import type { User } from "@/lib/github"
 import { Link, useFetcher, useLocation, useMatches } from "@remix-run/react"
 import { Menu, Transition } from '@headlessui/react'
 
+export const HEADER_HEIGHT = '65px'
+
 export default function Header({ user }: { user: User }) {
   const matches = useMatches()
   const location = useLocation()
@@ -19,7 +21,7 @@ export default function Header({ user }: { user: User }) {
     ))
 
   return (
-    <nav className="flex items-center p-3 border-b border-gray-200">
+    <nav className="flex items-center p-3 border-b border-gray-200 dark:border-gray-600">
       <Link to="/" className="ml-1 inline-block text-slate-500">
         <h1 className="font-medium text-2xl font-serif">
           🐷

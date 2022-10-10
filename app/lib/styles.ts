@@ -17,11 +17,12 @@ export const inputCN = [
   'block',
   'w-full',
   'rounded-md',
-  'border',
-  'border-gray-300',
-  'text-slate-700',
   'shadow-sm',
   'disabled:opacity-50',
+  'border',
+  'border-gray-300',
+  'dark:border-gray-500',
+  'text-slate-700',
   'dark:text-slate-100',
   'dark:bg-slate-800',
   'placeholder:text-slate-400',
@@ -47,7 +48,7 @@ const buttonCommon = [
 ].join(' ')
 
 export const buttonCN = {
-  small: `px-2 py-1 ${buttonCommon}`,
+  small: `px-2 py-1 text-sm ${buttonCommon}`,
   normal: `px-4 py-2 ${buttonCommon}`,
   big: `px-5 py-3 text-lg ${buttonCommon}`,
   slate: [
