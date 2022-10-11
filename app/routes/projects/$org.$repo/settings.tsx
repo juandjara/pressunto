@@ -1,9 +1,13 @@
 import { buttonCN, checkboxCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
-import { PlusCircleIcon } from "@heroicons/react/20/solid"
+import { PencilIcon, PlusCircleIcon, TrashIcon } from "@heroicons/react/20/solid"
 import { Link, Outlet, useFetcher } from "@remix-run/react"
 
 const groupCN = 'py-2'
+const listCN = [
+  'flex items-center pl-4 p-2 rounded-md text-lg',
+  'bg-slate-100 dark:bg-slate-700'
+].join(' ')
 
 export default function ProjectSettings() {
   const config = useProjectConfig()
@@ -18,10 +22,16 @@ export default function ProjectSettings() {
           {config.collections.length === 0 && (
             <p>You don't have any saved collection.</p>
           )}
+          <ul className="space-y-4 mt-4">
+            {config.collections.map((c) => (
+              <li key={c.id} className={listCN}>
+                <Link to={`collections/${c.id}`} className="flex-grow">{c.name}</Link>
+              </li>
+            ))}
+          </ul>
           <Link to='collections/new'>
             <button className={`mt-4 ${buttonCN.slate} ${buttonCN.normal}`}>New collection</button>
           </Link>
-          {/* <CollectionForm /> */}
         </div>
       </div>
       <div>
@@ -33,7 +43,6 @@ export default function ProjectSettings() {
           <Link to='templates/new'>
             <button className={`mt-4 ${buttonCN.slate} ${buttonCN.normal}`}>New template</button>
           </Link>
-          {/* <TemplateForm /> */}
         </div>
       </div>
       <DraftsForm />

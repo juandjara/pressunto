@@ -43,7 +43,7 @@ export default function Modal({ title, open, onClose, children }: ModalProps) {
               <Dialog.Panel className={panelCN}>
                 <Dialog.Title
                   as="h3"
-                  className="text-lg font-medium leading-6"
+                  className="text-lg font-medium leading-6 mb-4"
                 >
                   {title}
                 </Dialog.Title>

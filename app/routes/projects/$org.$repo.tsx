@@ -27,7 +27,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
   return json<LoaderData>({ project, config }, {
     headers: new Headers({
-      'cache-control': 'max-age=30'
+      'cache-control': 'max-age=60'
     })
   })
 }

@@ -11,7 +11,7 @@ export default function NewTemplate() {
 
   return (
     <Modal open onClose={closeModal} title="New Template">
-      <Form replace method="post" className="space-y-4 mt-4">
+      <Form replace method="post" className="space-y-4">
         <div>
           <label htmlFor="name" className={labelCN}>Name</label>
           <input name="name" type="text" className={inputCN} />

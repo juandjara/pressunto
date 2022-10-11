@@ -88,6 +88,24 @@ export async function createConfigFile(token: string, project: Project) {
   })
 }
 
+export async function updateConfigFile(token: string, project: Project, config: ProjectConfig) {
+  const file = await getFileContent(token, {
+    file: CONFIG_FILE_NAME,
+    repo: project.repo,
+    branch: project.branch
+  })
+  await saveFile(token, {
+    method: 'PUT',
+    sha: file?.sha,
+    repo: project.repo,
+    branch: project.branch || 'master',
+    name: CONFIG_FILE_NAME,
+    content: JSON.stringify(config),
+    message: 'Update config file for Pressunto',
+    path: '',
+  })
+}
+
 export async function getProjectConfig(token: string, project: Project) {
   const file = await getFileContent(token, {
     file: CONFIG_FILE_NAME,

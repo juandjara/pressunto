@@ -33,7 +33,7 @@ export default function ProjectSidebar() {
         <ul className="block mt-1 space-y-2 h-full">
           {collections.map((c) => (
             <li key={c.route}>
-              <NavLink to={c.route} className={linkCN}>
+              <NavLink to={c.id} className={linkCN}>
                 <DocumentDuplicateIcon className={iconCN.small} />
                 <span>{c.name}</span>
               </NavLink>
