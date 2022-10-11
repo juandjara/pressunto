@@ -113,6 +113,6 @@ export async function getProjectConfig(token: string, project: Project) {
     branch: project.branch
   })
 
-  return JSON.parse(file?.content || CONFIG_FILE_TEMPLATE)
+  return JSON.parse(file?.content || CONFIG_FILE_TEMPLATE) as ProjectConfig
 }
 

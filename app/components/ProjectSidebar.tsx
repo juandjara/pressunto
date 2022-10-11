@@ -24,27 +24,21 @@ export default function ProjectSidebar() {
   const { collections } = useProjectConfig()
 
   return (
-    <aside className="max-w-xs w-full flex-shrink-0 py-4 border-r border-slate-200 dark:border-gray-600">
+    <aside className="md:max-w-xs w-full flex-shrink-0 py-4 border-r border-slate-200 dark:border-gray-600">
       <nav>
-        <Link to='' className={baseLinkCN}>
+        <NavLink to='' end className={linkCN}>
           <FolderIcon className={iconCN.big} />
           <span className="text-lg">Content</span>
-        </Link>
-        <ul className="block mt-1 space-y-2 h-full">
+        </NavLink>
+        <ul className="block ml-0.5 my-2 space-y-2 h-full">
           {collections.map((c) => (
             <li key={c.route}>
               <NavLink to={c.id} className={linkCN}>
                 <DocumentDuplicateIcon className={iconCN.small} />
-                <span>{c.name}</span>
+                <span className="ml-1">{c.name}</span>
               </NavLink>
             </li>
           ))}
-          <li>
-            <Link to='new' className={baseLinkCN}>
-              <PlusIcon className={iconCN.big} />
-              <span>New collection</span>
-            </Link>
-          </li>
         </ul>
       </nav>
       <nav className="space-y-2 mt-12">

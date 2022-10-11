@@ -278,7 +278,7 @@ function b64EncodeUnicode(str: string) {
   }))
 }
 
-function isMarkdown(file: string) {
+export function isMarkdown(file: string) {
   const regex = new RegExp(/.(md|mdx|mkdn?|mdown|markdown)$/)
   return !!(regex.test(file))
 }

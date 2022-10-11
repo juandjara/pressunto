@@ -20,12 +20,18 @@ function slugify(text: string) {
 export const action: ActionFunction = async ({ request, params }) => {
   const { token } = await requireUserSession(request)
   const formData = await request.formData()
+
   const name = formData.get('name') as string
   const route = formData.get('route') as string
   const template = (formData.get('template') || '') as string
   const config = JSON.parse((formData.get('config') || '') as string) as ProjectConfig
   const project = JSON.parse((formData.get('project') || '') as string) as Project
   const operation = formData.get('operation') as string
+  let id = slugify(name)
+
+  if (id === 'index') id = '_index'
+  if (id === 'settings') id = '_settings'
+  if (id === 'site') id = '_site'
 
   const foundCollection = config.collections.find((c) => c.id === params.cid)
   if (foundCollection) {
@@ -36,7 +42,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     }
   } else {
     config.collections.push({
-      id: slugify(name),
+      id,
       name,
       route,
       template
