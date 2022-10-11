@@ -13,6 +13,9 @@
     "start": "remix-serve build"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.0.5",
+    "@dnd-kit/sortable": "^7.0.1",
+    "@dnd-kit/utilities": "^3.2.0",
     "@headlessui/react": "^1.7.2",
     "@heroicons/react": "^2.0.11",
     "@remix-run/node": "^1.7.2",
@@ -43,6 +46,7 @@
     "@types/mime": "^3.0.1",
     "@types/parse-link-header": "^2.0.0",
     "@types/react": "^18.0.15",
+    "@types/react-beautiful-dnd": "^13.1.2",
     "@types/react-dom": "^18.0.6",
     "eslint": "^8.23.1",
     "npm-run-all": "^4.1.5",
