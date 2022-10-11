@@ -31,8 +31,6 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   }
 
   const tree = await getRepoFiles(token, project.repo, project.branch || 'master')
-  console.log(collection.route)
-  console.log(tree)
   const files = tree.filter((f) => {
     const inCollection = getDirname(f.path) === collection.route.replace(/^\//, '')
     return inCollection && isMarkdown(f.path)
