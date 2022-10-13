@@ -11,7 +11,7 @@ import { Form, Link, useLoaderData, useTransition } from "@remix-run/react"
 import { useState } from "react"
 import { CSS } from '@dnd-kit/utilities'
 import { useProject } from "@/lib/useProjectConfig"
-import { ArrowsUpDownIcon, Bars2Icon } from "@heroicons/react/20/solid"
+import { ArrowsUpDownIcon, Bars2Icon, PlusIcon } from "@heroicons/react/20/solid"
 import { buttonCN } from "@/lib/styles"
 
 type LoaderData = {
@@ -82,12 +82,21 @@ function CollectionLinks({ onToggleMode }: DisplayModeProps) {
       <header className="flex items-center mt-4 mb-8">
         <h2 className="font-medium text-4xl">{collection.name}</h2>
         <div className="flex-grow"></div>
+        <Link to='new'>
+          <button
+            type="button"
+            title="Create new post"
+            aria-label="Create new post"
+            className="ml-2 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-100/25">
+            <PlusIcon className="w-6 h-6" />
+          </button>
+        </Link>
         <button
           type="button"
           title="Reorder posts"
           aria-label="Reorder posts"
           onClick={() => onToggleMode('reorder')}
-          className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-100/25">
+          className="ml-2 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-100/25">
           <ArrowsUpDownIcon className="w-6 h-6" />
         </button>
       </header>

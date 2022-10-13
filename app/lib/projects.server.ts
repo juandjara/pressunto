@@ -1,5 +1,5 @@
 import { Redis } from "@upstash/redis"
-import { createBlob, getFileContent, getRepoFiles, pushFolder, saveFile } from "./github"
+import { createBlob, getFileContent, getRepoFiles, ParsedFile, pushFolder, saveFile } from "./github"
 import { getDirname, isMarkdown } from "./pathUtils"
 import matter from 'front-matter'
 
@@ -127,6 +127,19 @@ export type CollectionFile = {
   body: string
 }
 
+export function processFileContent(fileContent: ParsedFile) {
+  const data = matter<{ title: string; order: number }>(fileContent.content)
+  const title = data.attributes.title || fileContent.name
+  return {
+    id: fileContent.sha,
+    name: fileContent.name,
+    title,
+    path: fileContent.path,
+    attributes: data.attributes,
+    body: data.body
+  }
+}
+
 export async function getCollectionFiles(token: string, project: Project, collection: ProjectCollection) {
   const tree = await getRepoFiles(token, project.repo, project.branch || 'master')
   const collectionTree = tree.filter((f) => {
@@ -147,20 +160,13 @@ export async function getCollectionFiles(token: string, project: Project, collec
     const fileContent = contents[collectionTree.indexOf(f)]
 
     if (!fileContent) {
-      throw new Response(`File ${f.path} not found`, { status: 404, statusText: 'Not found' })
+      throw new Response(`File ${f.path} not found in github content API`, {
+        status: 404,
+        statusText: 'Not found'
+      })
     }
-  
-    const data = matter<{ title: string; order: number }>(fileContent.content)
-    const title = data.attributes.title || fileContent.name
 
-    parsedFiles.push({
-      id: fileContent.sha,
-      name: fileContent.name,
-      title,
-      path: fileContent.path,
-      attributes: data.attributes,
-      body: data.body
-    })
+    parsedFiles.push(processFileContent(fileContent))
   }
 
   parsedFiles.sort((a, b) => a.attributes.order - b.attributes.order)
