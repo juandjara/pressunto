@@ -17,13 +17,8 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const repo = `${params.org}/${params.repo}`
   const { user, token } = await requireUserSession(request)
 
-  console.time('getProject')
   const project = await getProject(user.name, repo)
-  console.timeEnd('getProject')
-
-  console.time('getProjectConfig')
   const config = await getProjectConfig(token, project)
-  console.timeEnd('getProjectConfig')
 
   return json<LoaderData>({ project, config }, {
     headers: new Headers({

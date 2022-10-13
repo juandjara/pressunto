@@ -1,5 +1,7 @@
 import { Redis } from "@upstash/redis"
 import { getFileContent, getRepoFiles, saveFile } from "./github"
+import { getDirname, isMarkdown } from "./pathUtils"
+import matter from 'front-matter'
 
 const db = Redis.fromEnv()
 
@@ -116,3 +118,47 @@ export async function getProjectConfig(token: string, project: Project) {
   return JSON.parse(file?.content || CONFIG_FILE_TEMPLATE) as ProjectConfig
 }
 
+export type CollectionFile = {
+  id: string
+  name: string
+  title: string
+  path: string
+  attributes: Record<string, any>
+  body: string
+}
+
+export async function getCollectionFiles(token: string, project: Project, collection: ProjectCollection) {
+  const tree = await getRepoFiles(token, project.repo, project.branch || 'master')
+  const collectionTree = tree.filter((f) => {
+    const inCollection = getDirname(f.path) === collection.route.replace(/^\//, '')
+    return inCollection && isMarkdown(f.path)
+  })
+
+  const parsedFiles = []
+  for (const f of collectionTree) {
+    const fileContent = await getFileContent(token, {
+      repo: project.repo,
+      branch: project.branch,
+      file: f.path
+    })
+
+    if (!fileContent) {
+      throw new Response(`File ${f.path} not found`, { status: 404, statusText: 'Not found' })
+    }
+  
+    const data = matter<{ title: string; order: number }>(fileContent.content)
+    const title = data.attributes.title || fileContent.name
+    parsedFiles.push({
+      id: fileContent.sha,
+      name: fileContent.name,
+      title,
+      path: fileContent.path,
+      attributes: data.attributes,
+      body: data.body
+    })
+  }
+
+  parsedFiles.sort((a, b) => a.attributes.order - b.attributes.order)
+
+  return parsedFiles as CollectionFile[]
+}
