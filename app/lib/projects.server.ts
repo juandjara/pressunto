@@ -135,12 +135,16 @@ export async function getCollectionFiles(token: string, project: Project, collec
   })
 
   const parsedFiles = []
-  for (const f of collectionTree) {
-    const fileContent = await getFileContent(token, {
+  const contents = await Promise.all(
+    collectionTree.map((f) => getFileContent(token, {
       repo: project.repo,
       branch: project.branch,
       file: f.path
-    })
+    }))
+  )
+
+  for (const f of collectionTree) {
+    const fileContent = contents[collectionTree.indexOf(f)]
 
     if (!fileContent) {
       throw new Response(`File ${f.path} not found`, { status: 404, statusText: 'Not found' })
@@ -148,6 +152,7 @@ export async function getCollectionFiles(token: string, project: Project, collec
   
     const data = matter<{ title: string; order: number }>(fileContent.content)
     const title = data.attributes.title || fileContent.name
+
     parsedFiles.push({
       id: fileContent.sha,
       name: fileContent.name,
@@ -172,25 +177,27 @@ type UpdateOrderParams = {
 
 export async function updateCollectionFileOrder(token: string, payload: UpdateOrderParams) {
   const { repo, branch, collectionRoute, files } = payload
-  const blobs = []
+  
+  const contents = []
   for (const file of files) {
     const matter = Object.entries(file.attributes)
       .map(([key, value]) => `${key}: ${key === 'order' ? files.indexOf(file) : value}`)
       .join('\n')
-    const content = `---
-${matter}
----
 
-${file.body}
-`
-    const newBlob = await createBlob(token, repo, content) as { sha: string }
-    blobs.push({
-      sha: newBlob.sha,
-      path: file.path,
-      mode: '100644',
-      type: 'blob'
-    })
+    const content = ['---', matter, '---', '', file.body].join('\n')
+    contents.push(content)
   }
+
+  const newBlobIds = await Promise.all(
+    contents.map((c) => createBlob(token, repo, c).then(blob => blob.sha))
+  )
+
+  const blobs = files.map((f, i) => ({
+    sha: newBlobIds[i],
+    path: f.path,
+    mode: '100644',
+    type: 'blob'
+  }))
 
   const commit = await pushFolder(token, repo, branch, {
     message: `Updated order for files in ${collectionRoute}`,

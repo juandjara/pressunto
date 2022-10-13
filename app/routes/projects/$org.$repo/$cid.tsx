@@ -23,10 +23,10 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const { token, user } = await requireUserSession(request)
   const collectionId = params.cid
   const repo = `${params.org}/${params.repo}`
-  
   const project = await getProject(user.name, repo)
   const config = await getProjectConfig(token, project)
   const collection = config.collections.find((c) => c.id === collectionId)
+
   if (!collection) {
     throw new Response(`Collection "${collectionId}" not found`, { status: 404, statusText: 'Not found' })
   }
