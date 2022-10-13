@@ -79,8 +79,8 @@ function CollectionLinks({ onToggleMode }: DisplayModeProps) {
 
   return (
     <div className="p-4">
-      <header className="flex items-center">
-        <h2 className="font-medium text-4xl mb-8">{collection.name}</h2>
+      <header className="flex items-center mt-4 mb-8">
+        <h2 className="font-medium text-4xl">{collection.name}</h2>
         <div className="flex-grow"></div>
         <button
           type="button"
@@ -111,8 +111,8 @@ function CollectionReorder({ onToggleMode }: DisplayModeProps) {
 
   return (
     <Form replace method="post" className="p-4" onSubmit={() => onToggleMode('links')}>
-      <header className="flex items-center">
-        <h2 className="font-medium text-4xl mb-8">{collection.name}</h2>
+      <header className="flex items-center mt-4 mb-8">
+        <h2 className="font-medium text-4xl truncate">{collection.name}</h2>
         <div className="flex-grow"></div>
         <button
           type="button"
@@ -200,7 +200,7 @@ function SortableItem({ file, isActive }: { file: CollectionFile; isActive: bool
     transition,
     opacity: isActive ? 0 : 1,
     pointerEvents: isActive ? 'none' : undefined,
-    userSelect: 'none'
+    userSelect: 'none',
   }
 
   return (
@@ -220,7 +220,7 @@ function CollectionListItem({ file, clickable = false }: { file: CollectionFile;
   }
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1 cursor-move">
       <Bars2Icon className="h-4 w-4" />
       <p className={listCN}>{file.title}</p>
     </div>
