@@ -1,4 +1,5 @@
-import type { CollectionFile, ProjectCollection } from "@/lib/projects.server"
+import type { CollectionFile, ProjectCollection} from "@/lib/projects.server"
+import { updateCollectionFileOrder } from "@/lib/projects.server"
 import { getCollectionFiles } from "@/lib/projects.server"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
@@ -6,11 +7,12 @@ import { closestCenter, DndContext, DragOverlay, KeyboardSensor, PointerSensor, 
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import type { ActionFunction, LoaderFunction } from "@remix-run/node"
 import { json } from "@remix-run/node"
-import { Form, Link, useLoaderData, useSubmit } from "@remix-run/react"
+import { Form, Link, useLoaderData, useTransition } from "@remix-run/react"
 import { useState } from "react"
 import { CSS } from '@dnd-kit/utilities'
 import { useProject } from "@/lib/useProjectConfig"
-import { createBlob, pushFolder } from "@/lib/github"
+import { ArrowsUpDownIcon, Bars2Icon } from "@heroicons/react/20/solid"
+import { buttonCN } from "@/lib/styles"
 
 type LoaderData = {
   files: CollectionFile[]
@@ -39,59 +41,106 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
   const repo = formData.get('repo') as string
   const branch = formData.get('branch') as string
-  const route = formData.get('collectionRoute') as string
+  const collectionRoute = formData.get('collectionRoute') as string
   const files = JSON.parse(formData.get('files') as string) as CollectionFile[]
 
-  const blobs = []
-  for (const file of files) {
-    const matter = Object.entries(file.attributes)
-      .map(([key, value]) => `${key}: ${key === 'order' ? files.indexOf(file) : value}`)
-      .join('\n')
-    const content = `---
-${matter}
----
-
-${file.body}
-`
-    const newBlob = await createBlob(token, repo, content) as { sha: string }
-    blobs.push({
-      sha: newBlob.sha,
-      path: file.path,
-      mode: '100644',
-      type: 'blob'
-    })
-  }
-
-  const commit = await pushFolder(token, repo, branch, {
-    message: `Updated order for files in ${route}`,
-    files: blobs
+  const commit = await updateCollectionFileOrder(token, {
+    repo,
+    branch,
+    collectionRoute,
+    files
   })
 
   return json({ commit })
 }
 
-const listCN = 'flex items-center pl-4 p-2 rounded-md text-lg bg-slate-100 dark:bg-slate-700'
+const listCN = 'flex-grow block px-4 py-2 rounded-md text-lg bg-slate-100 dark:bg-slate-700'
+
+type CollectionDisplay = 'links' | 'reorder'
 
 export default function CollectionDetails() {
+  const [mode, setMode] = useState<CollectionDisplay>('links')
+
+  return mode === 'links' 
+    ? <CollectionLinks onToggleMode={(mode: CollectionDisplay) => setMode(mode)} />
+    : <CollectionReorder onToggleMode={(mode: CollectionDisplay) => setMode(mode)} />
+}
+
+type DisplayModeProps = {
+  onToggleMode: (mode: CollectionDisplay) => void
+}
+
+function CollectionLinks({ onToggleMode }: DisplayModeProps) {
   const { files, collection } = useLoaderData<LoaderData>()
+  const transition = useTransition()
+  const fileList = transition.submission
+    ? JSON.parse(transition.submission.formData.get('files') as string) as CollectionFile[]
+    : files
 
   return (
     <div className="p-4">
-      <h2 className="font-medium text-4xl mb-8">{collection.name}</h2>
+      <header className="flex items-center">
+        <h2 className="font-medium text-4xl mb-8">{collection.name}</h2>
+        <div className="flex-grow"></div>
+        <button
+          type="button"
+          title="Reorder posts"
+          aria-label="Reorder posts"
+          onClick={() => onToggleMode('reorder')}
+          className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-100/25">
+          <ArrowsUpDownIcon className="w-6 h-6" />
+        </button>
+      </header>
       <ul className="space-y-4">
-        <SortableList files={files} />
+        {fileList.map((f) => (
+          <li key={f.id}>
+            <CollectionListItem file={f} clickable />
+          </li>
+        ))}
       </ul>
     </div>
   )
 }
 
-function SortableList({ files: _files }: { files: CollectionFile[] }) {
+function CollectionReorder({ onToggleMode }: DisplayModeProps) {
+  const project = useProject()
+  const { collection, files: _files } = useLoaderData<LoaderData>()
   const [files, setFiles] = useState(_files)
+  const transition = useTransition()
+  const busy = transition.state !== 'idle'
+
+  return (
+    <Form replace method="post" className="p-4" onSubmit={() => onToggleMode('links')}>
+      <header className="flex items-center">
+        <h2 className="font-medium text-4xl mb-8">{collection.name}</h2>
+        <div className="flex-grow"></div>
+        <button
+          type="button"
+          onClick={() => onToggleMode('links')}
+          className={`ml-2 ${buttonCN.cancel} ${buttonCN.normal}`}>
+          Cancel
+        </button>
+        <button disabled={busy} type="submit" className={`ml-2 ${buttonCN.slate} ${buttonCN.normal}`}>
+          {busy ? 'Saving...' : 'Save'}
+        </button>
+      </header>
+      <SortableList files={files} setFiles={setFiles} />
+      <input type="hidden" name="repo" value={project.repo} />
+      <input type="hidden" name="branch" value={project.branch} />
+      <input type="hidden" name="collectionRoute" value={collection.route} />
+      <input type="hidden" name="files" value={JSON.stringify(files)} />
+    </Form>
+  )
+}
+
+type SortableListProps = {
+  files: CollectionFile[]
+  setFiles: (f: CollectionFile[]) => any
+}
+
+function SortableList({ files, setFiles }: SortableListProps) {
   const [activeId, setActiveId] = useState(null)
   const activeFile = files.find(f => f.id === activeId)
-  const submitFormData = useSubmit()
-  const project = useProject()
-  const { collection } = useLoaderData<LoaderData>()
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -108,15 +157,6 @@ function SortableList({ files: _files }: { files: CollectionFile[] }) {
       const newIndex = files.findIndex(f => f.id === ev.over.id)
       const newFiles = arrayMove(files, oldIndex,  newIndex)
       setFiles(newFiles)
-
-      const data = {
-        repo: project.repo,
-        branch: project.branch,
-        collectionRoute: collection.route,
-        files: JSON.stringify(newFiles)
-      }
-
-      submitFormData(data, { method: 'post', replace: true })
     }
 
     setActiveId(null)
@@ -124,7 +164,7 @@ function SortableList({ files: _files }: { files: CollectionFile[] }) {
 
 
   return (
-    <Form method="post" className="space-y-4">
+    <ul className="space-y-4">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -137,12 +177,12 @@ function SortableList({ files: _files }: { files: CollectionFile[] }) {
         <DragOverlay>
           {
             activeFile
-              ? <ContentListItem file={activeFile} />
+              ? <CollectionListItem file={activeFile} />
               : null
           }
         </DragOverlay>
       </DndContext>
-    </Form>
+    </ul>
   )
 }
 
@@ -159,20 +199,30 @@ function SortableItem({ file, isActive }: { file: CollectionFile; isActive: bool
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isActive ? 0 : 1,
-    pointerEvents: isActive ? 'none' : undefined
+    pointerEvents: isActive ? 'none' : undefined,
+    userSelect: 'none'
   }
 
   return (
     <li ref={setNodeRef} style={style} {...listeners} {...attributes}>
-      <ContentListItem file={file} />
+      <CollectionListItem file={file} />
     </li>
   )
 }
 
-function ContentListItem({ file }: { file: CollectionFile }) {
+function CollectionListItem({ file, clickable = false }: { file: CollectionFile; clickable?: boolean }) {
+  if (clickable) {
+    return (
+      <Link to={file.name} className={listCN}>
+        {file.title}
+      </Link>
+    )
+  }
+
   return (
-    <Link to={file.name} className={listCN}>
-      {file.title}
-    </Link>
+    <div className="flex items-center gap-1">
+      <Bars2Icon className="h-4 w-4" />
+      <p className={listCN}>{file.title}</p>
+    </div>
   )
 }

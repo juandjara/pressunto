@@ -1,5 +1,5 @@
 import { Redis } from "@upstash/redis"
-import { getFileContent, getRepoFiles, saveFile } from "./github"
+import { createBlob, getFileContent, getRepoFiles, pushFolder, saveFile } from "./github"
 import { getDirname, isMarkdown } from "./pathUtils"
 import matter from 'front-matter'
 
@@ -161,4 +161,41 @@ export async function getCollectionFiles(token: string, project: Project, collec
   parsedFiles.sort((a, b) => a.attributes.order - b.attributes.order)
 
   return parsedFiles as CollectionFile[]
+}
+
+type UpdateOrderParams = {
+  repo: string
+  branch: string
+  collectionRoute: string
+  files: CollectionFile[]
+}
+
+export async function updateCollectionFileOrder(token: string, payload: UpdateOrderParams) {
+  const { repo, branch, collectionRoute, files } = payload
+  const blobs = []
+  for (const file of files) {
+    const matter = Object.entries(file.attributes)
+      .map(([key, value]) => `${key}: ${key === 'order' ? files.indexOf(file) : value}`)
+      .join('\n')
+    const content = `---
+${matter}
+---
+
+${file.body}
+`
+    const newBlob = await createBlob(token, repo, content) as { sha: string }
+    blobs.push({
+      sha: newBlob.sha,
+      path: file.path,
+      mode: '100644',
+      type: 'blob'
+    })
+  }
+
+  const commit = await pushFolder(token, repo, branch, {
+    message: `Updated order for files in ${collectionRoute}`,
+    files: blobs
+  })
+
+  return commit
 }
