@@ -12,6 +12,7 @@ import { useEffect, useState } from "react"
 import CodeEditor from "@/components/CodeEditor"
 import MarkdownPreview from "@/components/MarkdownPreview"
 import MarkdownEditor from "@/components/MarkdownEditor"
+import { useHydrated } from "@/lib/useHydrated"
 
 type LoaderData = {
   file: CollectionFile,
@@ -124,7 +125,7 @@ export default function PostEditor() {
   const busy = transition.state === 'submitting'
 
   return (
-    <Form className="py-4 px-2 md:px-4">
+    <Form className="py-4 px-2 md:px-4 mb-8">
       <PostLabel />
       <PostBody />
       {permissions.push ? (

@@ -21,6 +21,7 @@ import { basicDark } from 'cm6-theme-basic-dark'
 import { boldBinding } from "./bold"
 import { italicBinding } from "./italic"
 import { customTheme } from "./customTheme"
+import { baseTheme } from "./baseTheme"
 
 type useCodeMirrorProps = {
   initialValue: string
@@ -73,6 +74,7 @@ export default function useCodeMirror(
         syntaxHighlighting(markdownHighlighting),
         syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
         customTheme,
+        baseTheme,
         basicDark,
         EditorView.lineWrapping,
         EditorView.updateListener.of((ev) => {
@@ -92,6 +94,16 @@ export default function useCodeMirror(
 
     const view = new EditorView({ state, parent: ref.current })
     setView(view)
+
+    const css = (view as any).styleModules.map((t: any) => t.getRules()).reverse().join('\n')
+
+    const existingHeadEl = document.head.querySelector('style')
+    if (!existingHeadEl) {
+      const style = document.createElement('style')
+      style.id = 'codemirror-css'
+      style.innerHTML = css
+      document.head.appendChild(style)
+    }
 
     return () => {
       view.destroy()
