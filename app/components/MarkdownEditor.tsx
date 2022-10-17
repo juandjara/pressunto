@@ -90,8 +90,8 @@ export default function MarkdownEditor({ name, initialValue = '', onChange }: Co
     <div className="relative">
       {view ? (
         <div
-          role={"toolbar"} 
-          className="absolute top-0 left-2 z-10 flex items-center gap-2 my-2">
+          role="toolbar" 
+          className="sticky left-0 top-1 ml-2 -mb-9 z-10 flex items-center gap-2">
           <HeadingMenu view={view} />
           <button
             title="Bold"

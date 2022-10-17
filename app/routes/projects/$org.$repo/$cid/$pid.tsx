@@ -96,7 +96,7 @@ function PostBody() {
 
   return (
     <Tab.Group as="div" className='my-4'>
-      <Tab.List className="mx-1 mt-8 flex items-center gap-2">
+      <Tab.List className="mx-1.5 mb-2 mt-8 flex items-center gap-2">
         <Tab className={tabButtonCN}>Editor</Tab>
         <Tab className={tabButtonCN}>Preview</Tab>
       </Tab.List>
@@ -108,7 +108,7 @@ function PostBody() {
             onChange={setTempContent}
           />
         </Tab.Panel>
-        <Tab.Panel>
+        <Tab.Panel className='-mt-2'>
           <div className='p-3 rounded-md border border-gray-300'>
             <MarkdownPreview code={tempContent} />
           </div>
@@ -135,9 +135,7 @@ export default function PostEditor() {
             name='_op'
             value='save'
             className={`${buttonCN.normal} ${buttonCN.slate}`}>
-            {transition.state === 'submitting' && 'Saving...'}
-            {transition.state === 'loading' && 'Saved!'}
-            {transition.state === 'idle' && 'Save'}
+            {busy ? 'Saving...' : 'Save'}
           </button>
           <Link to='index'>
             <button
