@@ -19,7 +19,7 @@ export async function loader({ request }: LoaderArgs) {
 
 export default function ProjectsList() {
   const { projects } = useLoaderData<LoaderData>()
-  const listCN = 'py-2 px-4 -mx-4 mb-2 rounded-md text-lg bg-slate-100 dark:bg-slate-700'
+  const listCN = 'py-2 px-4 -mx-4 mb-4 rounded-md text-lg bg-slate-100 dark:bg-slate-700'
   
   return (
     <div className="px-3 py-8">

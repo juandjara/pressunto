@@ -18,9 +18,9 @@ import { highlightSelectionMatches, searchKeymap } from '@codemirror/search'
 import { defaultKeymap, historyKeymap, history } from '@codemirror/commands'
 import { closeBracketsKeymap, closeBrackets } from '@codemirror/autocomplete'
 import { basicDark } from 'cm6-theme-basic-dark'
-import { boldBinding } from "./prosemirror/bold"
-import { italicBinding } from "./prosemirror/italic"
-import { customTheme } from "./prosemirror/customTheme"
+import { boldBinding } from "./bold"
+import { italicBinding } from "./italic"
+import { customTheme } from "./customTheme"
 
 type useCodeMirrorProps = {
   initialValue: string
