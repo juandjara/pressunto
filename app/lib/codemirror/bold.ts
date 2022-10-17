@@ -1,8 +1,8 @@
-import type { StateCommand} from "@codemirror/state"
 import { EditorSelection, Text, Transaction } from "@codemirror/state"
-import type { KeyBinding } from "@codemirror/view"
+import type { EditorView, KeyBinding } from "@codemirror/view"
 
-export const insertBoldMarker: StateCommand = ({ state, dispatch }) => {
+export function insertBoldMarker (view: EditorView) {
+  const { state, dispatch } = view
   const changes = state.changeByRange((range) => {
     const isBoldBefore = state.sliceDoc(range.from - 2, range.from) === "**"
     const isBoldAfter = state.sliceDoc(range.to, range.to + 2) === "**"
@@ -41,6 +41,8 @@ export const insertBoldMarker: StateCommand = ({ state, dispatch }) => {
       annotations: Transaction.userEvent.of('input'),
     })
   )
+
+  view.focus()
 
   return true
 }

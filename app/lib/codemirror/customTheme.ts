@@ -3,7 +3,10 @@ import { EditorView } from "@codemirror/view"
 export const customTheme = EditorView.theme({
   '&': {
     fontSize: '16px',
-    borderRadius: '8px'
+    borderRadius: '8px',
+  },
+  '.cm-content, .cm-gutter': {
+    minHeight: '200px'
   },
   '.cm-content': {
     padding: '12px 4px',

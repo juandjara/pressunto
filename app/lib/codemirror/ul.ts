@@ -24,5 +24,7 @@ export function insertUL(view: EditorView) {
     )
   )
 
+  view.focus()
+
   return true
 }

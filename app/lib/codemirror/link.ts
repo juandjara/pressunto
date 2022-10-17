@@ -25,5 +25,7 @@ export function insertLink(view: EditorView) {
     ])
   })
 
+  view.focus()
+
   return true
 }

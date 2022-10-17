@@ -24,5 +24,7 @@ export function insertBlockquote(view: EditorView) {
     )
   )
 
+  view.focus()
+
   return true
 }

@@ -24,11 +24,13 @@ type CodeEditorProps = {
 */
 
 function HeadingMenu({ view }: { view: EditorView }) {
+  const toggleRef = useRef<HTMLButtonElement>(null)
   return (
     <Menu as="div">
       {({ open }) => (
         <>
           <Menu.Button
+            ref={toggleRef}
             title="Open heading menu"
             className={`w-9 text-lg ${buttonCN.small} ${buttonCN.slate}`}>
             <strong>H</strong>
@@ -43,12 +45,13 @@ function HeadingMenu({ view }: { view: EditorView }) {
             leaveTo="scale-y-50 opacity-0">
             <Menu.Items
               static
+              onClick={() => toggleRef.current?.click()}
               className="py-2 space-y-2 absolute left-0 top-full ring-1 ring-black ring-opacity-5">
               <button
                 title="Heading 1"
                 aria-label="Heading 1"
                 type="button"
-                onClick={() => view && insertHeading(1, view)}
+                onClick={() => insertHeading(1, view)}
                 className={`w-9 text-lg ${buttonCN.small} ${buttonCN.slate} font-mono`}>
                 H<small><strong>1</strong></small>
               </button>
@@ -56,7 +59,7 @@ function HeadingMenu({ view }: { view: EditorView }) {
                 title="Heading 2"
                 aria-label="Heading 2"
                 type="button"
-                onClick={() => view && insertHeading(2, view)}
+                onClick={() => insertHeading(2, view)}
                 className={`w-9 text-lg ${buttonCN.small} ${buttonCN.slate} font-mono`}>
                 H<small><strong>2</strong></small>
               </button>
@@ -64,7 +67,7 @@ function HeadingMenu({ view }: { view: EditorView }) {
                 title="Heading 3"
                 aria-label="Heading 3"
                 type="button"
-                onClick={() => view && insertHeading(3, view)}
+                onClick={() => insertHeading(3, view)}
                 className={`w-9 text-lg ${buttonCN.small} ${buttonCN.slate} font-mono`}>
                 H<small><strong>3</strong></small>
               </button>

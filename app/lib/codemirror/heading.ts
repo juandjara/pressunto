@@ -24,5 +24,7 @@ export function insertHeading(level = 2, view: EditorView) {
     )
   )
 
+  view.focus()
+
   return true
 }
