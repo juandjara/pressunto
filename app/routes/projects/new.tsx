@@ -63,7 +63,7 @@ export default function NewProject() {
   return (
     <div className="px-3 py-8 max-w-screen-md">
       <header className="mb-4">
-        <h2 className="font-medium text-4xl mb-2">Create project</h2>
+        <h2 className="font-medium text-4xl mb-2">New project</h2>
         <p>This will create a <InlineCode>pressunto.config.json</InlineCode> in the root of your repository</p>
       </header>
       <Form replace method="post">

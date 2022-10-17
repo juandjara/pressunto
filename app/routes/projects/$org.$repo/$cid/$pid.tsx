@@ -11,6 +11,7 @@ import { Tab } from '@headlessui/react'
 import { useEffect, useState } from "react"
 import CodeEditor from "@/components/CodeEditor"
 import MarkdownPreview from "@/components/MarkdownPreview"
+import MarkdownEditor from "@/components/MarkdownEditor"
 
 type LoaderData = {
   file: CollectionFile,
@@ -86,21 +87,23 @@ function PostBody() {
   }, [file])
 
   const tabButtonCN = ({ selected }: { selected: boolean }) => {
-    const activeStyle = selected ? buttonCN.slate : buttonCN.cancel
+    const activeStyle = selected ? 
+      `${buttonCN.cancel} border border-b-0 border-gray-300 dark:border-gray-500`
+      : buttonCN.cancel
+
     return `${activeStyle} px-4 py-2 rounded-t-md font-medium`
   }
 
   return (
     <Tab.Group as="div" className='my-4'>
-      <Tab.List className="mx-2 mt-8 flex items-center gap-2">
+      <Tab.List className="mx-1 mt-8 flex items-center gap-2">
         <Tab className={tabButtonCN}>Editor</Tab>
         <Tab className={tabButtonCN}>Preview</Tab>
       </Tab.List>
       <Tab.Panels>
         <Tab.Panel>
-          <CodeEditor
+          <MarkdownEditor
             name="markdown"
-            isMarkdown
             initialValue={tempContent || file.body || ''}
             onChange={setTempContent}
           />
@@ -121,7 +124,7 @@ export default function PostEditor() {
   const busy = transition.state === 'submitting'
 
   return (
-    <Form className="p-4">
+    <Form className="py-4 px-2 md:px-4">
       <PostLabel />
       <PostBody />
       {permissions.push ? (
@@ -136,7 +139,7 @@ export default function PostEditor() {
             {transition.state === 'loading' && 'Saved!'}
             {transition.state === 'idle' && 'Save'}
           </button>
-          <Link to='..'>
+          <Link to='index'>
             <button
               type='button'
               className={`ml-2 ${buttonCN.normal} ${buttonCN.cancel}`}>

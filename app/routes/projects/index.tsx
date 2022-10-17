@@ -44,7 +44,7 @@ export default function ProjectsList() {
       <Link to='/projects/new' className="inline-block">
         <button className={`${buttonCN.normal} ${buttonCN.slate} ${buttonCN.iconLeft}`}>
           <PlusIcon className='w-6 h-6' />
-          <p>Create project</p>
+          <p>New project</p>
         </button>
       </Link>
     </div>

@@ -82,7 +82,7 @@ export async function createConfigFile(token: string, project: Project) {
   await saveFile(token, {
     method: 'PUT',
     repo: project.repo,
-    branch: project.branch,
+    branch: project.branch || 'master',
     name: CONFIG_FILE_NAME,
     content: CONFIG_FILE_TEMPLATE,
     message: 'Create config file for Pressunto',
