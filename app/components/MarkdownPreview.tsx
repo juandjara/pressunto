@@ -12,7 +12,7 @@ export default function MarkdownPreview({ code }: { code: string }) {
   }, [code])
 
   return (
-    <div className='prose prose-slate'>
+    <div className='prose prose-slate dark:prose-invert'>
       <div dangerouslySetInnerHTML={{ __html: markdown }} />  
     </div>
   )

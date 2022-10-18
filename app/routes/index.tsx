@@ -6,7 +6,7 @@ import { getSessionData } from "@/lib/session.server"
 export async function loader({ request }: LoaderArgs) {
   const { token } = await getSessionData(request)
   if (token) {
-    return redirect('/repos')
+    return redirect('/projects')
   }
 
   return null

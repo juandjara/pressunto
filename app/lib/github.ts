@@ -1,6 +1,7 @@
 import parseLink from 'parse-link-header'
 import * as mime from 'mime'
 import isbinary from 'is-binary-path'
+import { isMarkdown } from './pathUtils'
 
 const OAUTH_URL = 'https://github.com/login/oauth'
 const API_URL = 'https://api.github.com'
@@ -142,8 +143,6 @@ export async function searchRepos(token: string, {
   const fullUrl = new URL(url.toString() + `&q=${q}`)
   const { data, headers } = await callGithubAPI(token, fullUrl)
 
-  // console.log(data.items[0])
-
   data.items = data.items.map((r: any) => ({
     name: r.name,
     full_name: r.full_name,
@@ -227,11 +226,11 @@ export type ParsedFile = ReturnType<typeof parseFile>
 type FileRequest = {
   repo: string
   file: string
-  isNew: boolean
+  isNew?: boolean
   branch?: string
 }
 
-export async function getFileContent(token: string, { repo, file, isNew, branch }: FileRequest) {
+export async function getFileContent(token: string, { repo, file, isNew = false, branch }: FileRequest) {
   if (isNew) {
     return null
   }
@@ -280,11 +279,6 @@ function b64EncodeUnicode(str: string) {
   }))
 }
 
-function isMarkdown(file: string) {
-  const regex = new RegExp(/.(md|mdx|mkdn?|mdown|markdown)$/)
-  return !!(regex.test(file))
-}
-
 function extensionToCodeMirrorLang(extension: string) {
   if (isMarkdown(extension)) return 'gfm'
   if (['js', 'json'].indexOf(extension) !== -1) return 'javascript'
@@ -314,13 +308,81 @@ export type CommitParams = {
 
 export async function saveFile(token: string, params: CommitParams) {
   const { method, repo, message, branch, sha, path, name, content } = params
-  const committer = {
-    name: 'Pressunto',
-    email: 'commitbot@pressun.to'
-  }
 
   const url = `/repos/${repo}/contents/${path}${name}`
-  const body = { message, sha, committer, branch, content: b64EncodeUnicode(content) }
+  const body = { message, sha, branch, content: b64EncodeUnicode(content) }
   const { data } = await callGithubAPI(token, url, { method, body: JSON.stringify(body) })
   return data
+}
+
+export async function createBlob(token: string, repo: string, content: string) {
+  const body = {
+    encoding: 'base64',
+    content: b64EncodeUnicode(content)
+  }
+
+  const url = `/repos/${repo}/git/blobs`
+  const { data } = await callGithubAPI(token, url, { method: 'POST', body: JSON.stringify(body) })
+
+  return data
+}
+
+type TreeCreatePayload = {
+  base_tree: string
+  tree: Array<{
+    sha: string
+    path: string
+    mode: string
+    type: string
+  }>
+}
+
+export async function createTree(token: string, repo: string, tree: TreeCreatePayload) {
+  const url = `/repos/${repo}/git/trees`
+  const { data } = await callGithubAPI(token, url, { method: 'POST', body: JSON.stringify(tree) })
+  return data
+}
+
+export async function getBranch(token: string, repo: string, branch: string) {
+  const { data } = await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch || 'master'}`)
+  return data
+}
+
+type CommitPayload = {
+  message: string
+  branchSha: string
+  tree: string // SHA of the tree returned by `createTree`
+}
+
+type PushFilesPayload = {
+  message: string
+  files: Array<{
+    sha: string
+    path: string
+    mode: string
+    type: string
+  }>
+}
+
+export async function pushFolder(token: string, repo: string, branch: string, payload: PushFilesPayload) {
+  const branchData = await getBranch(token, repo, branch)
+  const tree = await createTree(token, repo, {
+    base_tree: branchData.object.sha,
+    tree: payload.files
+  })
+
+  const commitBody = {
+    message: payload.message,
+    tree: tree.sha,
+    parents: [branchData.object.sha]
+  }
+
+  const { data: commitData } = await callGithubAPI(token, `/repos/${repo}/git/commits`, { method: 'POST', body: JSON.stringify(commitBody) })
+  
+  await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch || 'master'}`, {
+    method: 'PUT',
+    body: JSON.stringify({ sha: commitData.sha })
+  })
+
+  return commitData
 }

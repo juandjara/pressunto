@@ -6,6 +6,8 @@ import type { LoaderArgs } from "@remix-run/node"
 import { Form, Link, useLoaderData, useSearchParams, useTransition } from "@remix-run/react"
 import useCurrentUser from "@/lib/useCurrentUser"
 import { getRecentRepos } from "@/lib/recentsCookie.server"
+import { checkboxCN, inputCN } from '@/lib/styles'
+import Spinner from "@/components/Spinner"
 
 type LoaderData = {
   orgs: string[]
@@ -43,32 +45,6 @@ export async function loader({ request }: LoaderArgs) {
     }
   })
 }
-
-const focusCN = [
-  `focus:border-rose-300`,
-  'focus:ring',
-  `focus:ring-rose-200`,
-  'focus:ring-opacity-50',
-  'focus:ring-offset-0'
-].join(' ')
-
-const inputCN = [
-  'block',
-  'w-full',
-  'rounded-md',
-  'border-gray-300',
-  'text-slate-700',
-  'shadow-sm',
-  'disabled:opacity-50'
-].concat(focusCN).join(' ')
-
-const checkboxCN = [
-  'rounded',
-  `text-rose-600`,
-  'border-gray-300',
-  'shadow-sm',
-  'disabled:opacity-50'
-].concat(focusCN).join(' ')
 
 export default function RepoSearch() {
   const user = useCurrentUser()
@@ -133,10 +109,7 @@ export default function RepoSearch() {
               style={{ top: 3, right: 3 }}
               className="absolute p-2 disabled:pointer-events-none hover:bg-slate-100 hover:bg-opacity-50 rounded-r-md">
               {busy ? (
-                <svg className="animate-spin h-5 w-5 text-rose-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+                <Spinner />
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />

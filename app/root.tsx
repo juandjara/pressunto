@@ -13,7 +13,7 @@ import {
 import GlobalSpinner from "./components/GlobalSpiner"
 import Header from "./components/Header"
 import { getSessionData } from "./lib/session.server"
-import LiveReload from "./LiveReload"
+import LiveReload from "./components/LiveReload"
 import tailwind from "./tailwind.css"
 import animate from './animate.css'
 
@@ -43,9 +43,9 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="dark:text-slate-100 dark:bg-slate-700 text-slate-700">
+      <body className="dark:text-slate-100 dark:bg-slate-800 text-slate-700">
         <GlobalSpinner />
-        <div className="container mx-auto">
+        <div className="container mx-auto min-h-screen">
           <Header user={user} />
           <Outlet />
         </div>
@@ -90,11 +90,8 @@ export function CatchBoundary() {
         <Links />
       </head>
       <body>
-        <div className="h-screen flex flex-col items-center justify-center text-slate-700 text-center">
+        <div className="min-h-screen flex flex-col items-center justify-center text-slate-700 text-center">
           <p className="grayscale text-7xl text-center">🐷</p>
-          <p className="text-lg">
-            {status === 404 ? 'No piggy here' : 'Sad piggy'}
-          </p>
           <div className="my-6">
             <p className="text-xl font-semibold">{title}</p>
             <p className="text-base">{data?.message}</p>
