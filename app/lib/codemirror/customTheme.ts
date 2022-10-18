@@ -5,12 +5,16 @@ export const customTheme = EditorView.theme({
     fontSize: '16px',
     borderRadius: '8px',
   },
+  '.cm-scroller': {
+    paddingTop: '42px',
+    maxHeight: '700px',
+    overflow: 'auto'
+  },
   '.cm-content, .cm-gutter': {
     minHeight: '200px'
   },
   '.cm-content': {
     padding: '12px 4px',
-    paddingTop: '54px',
     maxWidth: '75ch'
   },
   '&.cm-editor.cm-focused': {

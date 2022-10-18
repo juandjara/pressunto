@@ -2,20 +2,12 @@ import Modal from "@/components/Modal"
 import type { Project, ProjectConfig} from "@/lib/projects.server"
 import { updateConfigFile } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
+import slugify from "@/lib/slugify"
 import { buttonCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
-import { ActionFunction, json, LoaderFunction} from "@remix-run/node"
+import type { ActionFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { Form, useNavigate, useParams, useTransition } from "@remix-run/react"
-
-function slugify(text: string) {
-  return text.toString().toLowerCase()
-    .replace(/\s+/g, '-')       // Replace spaces with -
-    .replace(/[^\w-]+/g, '')    // Remove all non-word chars
-    .replace(/--+/g, '-')       // Replace multiple - with single -
-    .replace(/^-+/, '')         // Trim - from start of text
-    .replace(/-+$/, '')         // Trim - from end of text
-}
 
 export const action: ActionFunction = async ({ request, params }) => {
   const { token } = await requireUserSession(request)

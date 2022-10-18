@@ -50,34 +50,6 @@ export default function ProjectSettings() {
   )
 }
 
-function CollectionForm() {
-  return (
-    <form className="md:flex space-y-4 items-end gap-3 py-3">
-      <div>
-        <label htmlFor="name" className={labelCN}>Name</label>
-        <input name="name" type="text" className={inputCN} />
-      </div>
-      <div>
-        <label htmlFor="route" className={labelCN}>Route</label>
-        <input name="route" type="text" className={inputCN} />
-      </div>
-      <button className={`${buttonCN.slate} ${buttonCN.normal}`}>New collection</button>
-    </form>
-  )
-}
-
-function TemplateForm() {
-  return (
-    <form className="md:flex space-y-4 items-end gap-3 py-3">
-      <div>
-        <label htmlFor="name" className={labelCN}>Name</label>
-        <input name="name" type="text" className={inputCN} />
-      </div>
-      <button className={`${buttonCN.slate} ${buttonCN.normal}`}>New template</button>
-    </form>
-  )
-}
-
 function DraftsForm() {
   return (
     <div>

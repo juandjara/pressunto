@@ -45,7 +45,7 @@ export default function App() {
       </head>
       <body className="dark:text-slate-100 dark:bg-slate-800 text-slate-700">
         <GlobalSpinner />
-        <div className="container mx-auto h-screen">
+        <div className="container mx-auto min-h-screen">
           <Header user={user} />
           <Outlet />
         </div>
@@ -90,7 +90,7 @@ export function CatchBoundary() {
         <Links />
       </head>
       <body>
-        <div className="h-screen flex flex-col items-center justify-center text-slate-700 text-center">
+        <div className="min-h-screen flex flex-col items-center justify-center text-slate-700 text-center">
           <p className="grayscale text-7xl text-center">🐷</p>
           <div className="my-6">
             <p className="text-xl font-semibold">{title}</p>

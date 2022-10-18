@@ -1,5 +1,6 @@
 import { Redis } from "@upstash/redis"
-import { createBlob, getFileContent, getRepoFiles, ParsedFile, pushFolder, saveFile } from "./github"
+import type { ParsedFile } from "./github"
+import { createBlob, getFileContent, getRepoFiles, pushFolder, saveFile } from "./github"
 import { getDirname, isMarkdown } from "./pathUtils"
 import matter from 'front-matter'
 
@@ -127,7 +128,7 @@ export type CollectionFile = {
   body: string
 }
 
-export function processFileContent(fileContent: ParsedFile) {
+export function processFileContent(fileContent: Pick<ParsedFile, 'content' | 'name' | 'sha' | 'path'>) {
   const data = matter<{ title: string; order: number }>(fileContent.content)
   const title = data.attributes.title || fileContent.name
   return {
