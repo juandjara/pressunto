@@ -1,7 +1,6 @@
 import { buttonCN, checkboxCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
-import { PencilIcon, PlusCircleIcon, TrashIcon } from "@heroicons/react/20/solid"
-import { Link, Outlet, useFetcher } from "@remix-run/react"
+import { Link, Outlet } from "@remix-run/react"
 
 const groupCN = 'py-2'
 const listCN = [

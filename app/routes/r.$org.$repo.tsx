@@ -1,7 +1,7 @@
 import FileTree from "@/components/FileTree"
 import { getRepoBranches, getRepoFiles } from "@/lib/github"
 import type { TreeItem } from '@/lib/github'
-import { requireUserSession, sessionStorage } from "@/lib/session.server"
+import { requireUserSession } from "@/lib/session.server"
 import { json } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
 import { Form, Link, Outlet, useLoaderData, useParams } from "@remix-run/react"

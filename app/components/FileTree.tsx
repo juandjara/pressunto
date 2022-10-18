@@ -1,4 +1,4 @@
-import { Link, useLocation, useParams, useSearchParams } from '@remix-run/react'
+import { Link, useLocation, useParams } from '@remix-run/react'
 import clsx from 'clsx'
 import type { TreeItem } from '@/lib/github'
 

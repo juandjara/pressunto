@@ -1,5 +1,5 @@
 import FileDetails from "@/components/FileDetails"
-import { CommitParams, getFileContent, getRepoDetails, saveFile } from "@/lib/github"
+import { getFileContent, getRepoDetails, saveFile } from "@/lib/github"
 import { requireUserSession } from "@/lib/session.server"
 import type { ActionArgs, LoaderArgs} from "@remix-run/node"
 import { redirect } from "@remix-run/node"

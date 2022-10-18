@@ -14,7 +14,7 @@ import { markdown, markdownLanguage } from "@codemirror/lang-markdown"
 import { syntaxHighlighting, HighlightStyle, defaultHighlightStyle, bracketMatching } from "@codemirror/language"
 import { tags } from "@lezer/highlight"
 import { searchKeymap } from '@codemirror/search'
-import { defaultKeymap, historyKeymap, history } from '@codemirror/commands'
+import { historyKeymap, history } from '@codemirror/commands'
 import { basicDark } from 'cm6-theme-basic-dark'
 import { boldBinding } from "./bold"
 import { italicBinding } from "./italic"

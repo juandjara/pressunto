@@ -348,12 +348,6 @@ export async function getBranch(token: string, repo: string, branch: string) {
   return data
 }
 
-type CommitPayload = {
-  message: string
-  branchSha: string
-  tree: string // SHA of the tree returned by `createTree`
-}
-
 type PushFilesPayload = {
   message: string
   files: Array<{

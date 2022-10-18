@@ -1,6 +1,6 @@
 import { buttonCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
-import { Cog6ToothIcon, PencilIcon, TrashIcon } from "@heroicons/react/20/solid"
+import { Cog6ToothIcon } from "@heroicons/react/20/solid"
 import { Link } from "@remix-run/react"
 
 const listCN = 'flex items-center pl-4 p-2 rounded-md text-lg bg-slate-100 dark:bg-slate-700'

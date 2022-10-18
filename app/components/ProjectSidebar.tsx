@@ -1,7 +1,6 @@
-import type { ProjectCollection } from "@/lib/projects.server"
 import useProjectConfig from "@/lib/useProjectConfig"
-import { CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, FolderIcon, PlusIcon } from "@heroicons/react/20/solid"
-import { Link, NavLink } from "@remix-run/react"
+import { CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, FolderIcon } from "@heroicons/react/20/solid"
+import { NavLink } from "@remix-run/react"
 
 const baseLinkCN = [
   'flex items-center gap-3 rounded-l-md py-1 px-2',
