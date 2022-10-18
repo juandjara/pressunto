@@ -1,5 +1,6 @@
 import { buttonCN, checkboxCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
+import { PlusIcon } from "@heroicons/react/20/solid"
 import { Link, Outlet } from "@remix-run/react"
 
 const groupCN = 'py-2'
@@ -16,35 +17,53 @@ export default function ProjectSettings() {
       <h2 className="font-medium text-4xl">Settings</h2>
       <Outlet />
       <div>
-        <h3 className="mb-1 font-medium text-xl border-b-2 border-gray-200 dark:border-gray-600">Collections</h3>
+        <header className="flex items-center justify-between mb-1 border-gray-200 dark:border-gray-600">
+          <h3 className="font-medium text-xl">Collections</h3>
+          <Link to='collections/new'>
+            <button
+              type="button"
+              title="Create new collection"
+              aria-label="Create new collection"
+              className="flex items-center gap-2 ml-2 pl-3 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-100/25">
+              <span>New</span>
+              <PlusIcon className="w-6 h-6" />
+            </button>
+          </Link>
+        </header>
         <div className={groupCN}>
           {config.collections.length === 0 && (
             <p>You don't have any saved collection.</p>
           )}
-          <ul className="space-y-4 mt-4">
+          <ul className="space-y-4">
             {config.collections.map((c) => (
               <li key={c.id} className={listCN}>
                 <Link to={`collections/${c.id}`} className="flex-grow">{c.name}</Link>
               </li>
             ))}
           </ul>
-          <Link to='collections/new'>
-            <button className={`mt-4 ${buttonCN.slate} ${buttonCN.normal}`}>New collection</button>
-          </Link>
         </div>
       </div>
       <div>
-        <h3 className="mb-1 font-medium text-xl border-b-2 border-gray-200 dark:border-gray-600">Templates</h3>
+        <header className="flex items-center justify-between mb-1 border-gray-200 dark:border-gray-600">
+          <h3 className="font-medium text-xl">Templates</h3>
+          <Link to='templates/new'>
+            <button
+              type="button"
+              title="Create new template"
+              aria-label="Create new template"
+              className="flex items-center gap-2 ml-2 pl-3 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-100/25">
+              <span>New</span>
+              <PlusIcon className="w-6 h-6" />
+            </button>
+          </Link>
+        </header>
         <div className={groupCN}>
           {config.templates.length === 0 && (
             <p>You don't have any saved template.</p>
           )}
-          <Link to='templates/new'>
-            <button className={`mt-4 ${buttonCN.slate} ${buttonCN.normal}`}>New template</button>
-          </Link>
         </div>
       </div>
-      <DraftsForm />
+      {/* <DraftsForm /> */}
     </div>
   )
 }
