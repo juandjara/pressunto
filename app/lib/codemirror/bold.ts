@@ -4,6 +4,13 @@ import type { EditorView, KeyBinding } from "@codemirror/view"
 export function insertBoldMarker (view: EditorView) {
   const { state, dispatch } = view
   const changes = state.changeByRange((range) => {
+    if (range.empty) {
+      const wordRange = view.state.wordAt(range.head)
+      if (wordRange) {
+        range = wordRange
+      }
+    }
+
     const isBoldBefore = state.sliceDoc(range.from - 2, range.from) === "**"
     const isBoldAfter = state.sliceDoc(range.to, range.to + 2) === "**"
     const changes = []

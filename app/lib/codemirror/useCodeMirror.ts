@@ -46,6 +46,11 @@ export default function useCodeMirror(
 ) {
   const ref = useRef(null)
   const [view, setView] = useState<EditorView>()
+  const [flags, setFlags] = useState({
+    isHeading: false,
+    isBold: false,
+    isItalic: false
+  })
 
   useEffect(() => {
     if (!ref.current) {
@@ -76,6 +81,27 @@ export default function useCodeMirror(
         basicDark,
         EditorView.lineWrapping,
         EditorView.updateListener.of((ev) => {
+          const range = ev.state.wordAt(ev.state.selection.main.head)
+
+          let isBold = false
+          let isItalic = false
+          if (range) {
+            const singleWord = ev.state.sliceDoc(range.from - 1, range.to + 1).trim()
+            const doubleWord = ev.state.sliceDoc(range.from - 2, range.to + 2).trim()
+
+            isBold = doubleWord.startsWith('**') && doubleWord.endsWith('**')
+            isItalic = singleWord.startsWith('_') && singleWord.endsWith('_')
+          }
+
+          const line = ev.state.doc.lineAt(ev.state.selection.main.head)
+          const isHeading = ev.state.sliceDoc(line.from, line.to).startsWith('#')
+
+          setFlags({
+            isHeading,
+            isBold,
+            isItalic
+          })
+
           if (ev.docChanged) {
             setValue(ev.state.doc.toString())
           }
@@ -108,5 +134,5 @@ export default function useCodeMirror(
     }
   }, [ref, textarea])
 
-  return [ref, view] as [typeof ref, typeof view]
+  return [ref, view, flags] as [typeof ref, typeof view, typeof flags]
 }

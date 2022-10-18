@@ -11,13 +11,13 @@ import { Menu, Transition } from "@headlessui/react"
 import { CodeBracketIcon, LinkIcon, ListBulletIcon } from "@heroicons/react/20/solid"
 import { useRef } from "react"
 
-const headingButtonCN = [
+const headingButtonCN = (flag: boolean) => [
   `p-1 w-8 h-8`,
-  `text-slate-100 bg-slate-600 hover:bg-slate-900`,
+  `text-slate-100 ${flag ? 'bg-slate-900' : 'bg-slate-600 hover:bg-slate-900'}`,
   buttonCN.common
 ].join(' ')
 
-function HeadingMenu({ view }: { view: EditorView }) {
+function HeadingMenu({ active, view }: { active: boolean; view: EditorView }) {
   const toggleRef = useRef<HTMLButtonElement>(null)
   return (
     <Menu as="div">
@@ -26,7 +26,7 @@ function HeadingMenu({ view }: { view: EditorView }) {
           <Menu.Button
             ref={toggleRef}
             title="Open heading menu"
-            className={headingButtonCN}>
+            className={headingButtonCN(active)}>
             <strong>H</strong>
           </Menu.Button>
           <Transition
@@ -46,7 +46,7 @@ function HeadingMenu({ view }: { view: EditorView }) {
                 aria-label="Heading 1"
                 type="button"
                 onClick={() => insertHeading(1, view)}
-                className={headingButtonCN}>
+                className={headingButtonCN(active)}>
                 H<small><strong>1</strong></small>
               </button>
               <button
@@ -54,7 +54,7 @@ function HeadingMenu({ view }: { view: EditorView }) {
                 aria-label="Heading 2"
                 type="button"
                 onClick={() => insertHeading(2, view)}
-                className={headingButtonCN}>
+                className={headingButtonCN(active)}>
                 H<small><strong>2</strong></small>
               </button>
               <button
@@ -62,7 +62,7 @@ function HeadingMenu({ view }: { view: EditorView }) {
                 aria-label="Heading 3"
                 type="button"
                 onClick={() => insertHeading(3, view)}
-                className={headingButtonCN}>
+                className={headingButtonCN(active)}>
                 H<small><strong>3</strong></small>
               </button>
             </Menu.Items>
@@ -73,13 +73,22 @@ function HeadingMenu({ view }: { view: EditorView }) {
   )
 }
 
-const iconButtonCN = [
+const iconButtonCN = (flag?: boolean) => [
   `p-1 w-8 h-8 flex justify-center items-center`,
-  `font-mono text-slate-100 bg-slate-600 hover:bg-slate-900`,
+  `font-mono text-slate-100 ${flag ? 'bg-slate-900' : 'bg-slate-600 hover:bg-slate-900'}`,
   buttonCN.common
 ].join(' ')
 
-export default function MarkdownToolbar({ view }: { view?: EditorView }) {
+type MarkdownToolbarProps = {
+  view?: EditorView
+  flags: {
+    isHeading: boolean
+    isBold: boolean
+    isItalic: boolean
+  }
+}
+
+export default function MarkdownToolbar({ view, flags }: MarkdownToolbarProps) {
   if (!view) {
     return null
   }
@@ -88,13 +97,13 @@ export default function MarkdownToolbar({ view }: { view?: EditorView }) {
     <div
       role="toolbar" 
       className="sticky left-0 top-1 ml-2 -mb-10 z-10 flex items-center gap-2">
-      <HeadingMenu view={view} />
+      <HeadingMenu active={flags.isHeading} view={view} />
       <button
         title="Bold"
         aria-label="Bold" 
         type="button"
         onClick={() => insertBoldMarker(view)}
-        className={iconButtonCN}>
+        className={iconButtonCN(flags.isBold)}>
         <strong>B</strong>
       </button>
       <button
@@ -102,7 +111,7 @@ export default function MarkdownToolbar({ view }: { view?: EditorView }) {
         aria-label="Italic" 
         type="button"
         onClick={() => insertItalicMarker(view)}
-        className={iconButtonCN}>
+        className={iconButtonCN(flags.isItalic)}>
         <em>I</em>
       </button>
       <button
@@ -110,7 +119,7 @@ export default function MarkdownToolbar({ view }: { view?: EditorView }) {
         aria-label="Code"
         type="button"
         onClick={() => insertCodeMarker(view)}
-        className={iconButtonCN}>
+        className={iconButtonCN()}>
         <CodeBracketIcon className="w-5 h-5" />
       </button>
       <button
@@ -118,7 +127,7 @@ export default function MarkdownToolbar({ view }: { view?: EditorView }) {
         aria-label="Link"
         type="button"
         onClick={() => insertLink(view)}
-        className={iconButtonCN}>
+        className={iconButtonCN()}>
         <LinkIcon className="w-5 h-5" />
       </button>
       <button
@@ -126,7 +135,7 @@ export default function MarkdownToolbar({ view }: { view?: EditorView }) {
         aria-label="Blockqoute"
         type="button"
         onClick={() => insertBlockquote(view)}
-        className={iconButtonCN}>
+        className={iconButtonCN()}>
         ""
       </button>
       <button
@@ -134,7 +143,7 @@ export default function MarkdownToolbar({ view }: { view?: EditorView }) {
         aria-label="List"
         type="button"
         onClick={() => insertUL(view)}
-        className={iconButtonCN}>
+        className={iconButtonCN()}>
         <ListBulletIcon className="w-5 h-5" />
       </button>
     </div>

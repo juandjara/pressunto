@@ -1,15 +1,20 @@
-import { cursorLineStart } from "@codemirror/commands"
 import type { EditorView } from "@codemirror/view"
 
 export function insertHeading(level = 2, view: EditorView) {
-  cursorLineStart(view)
-
   const changes = view.state.changeByRange((range) => {
+    const line = view.state.doc.lineAt(range.head)
+
     const markup = `${'#'.repeat(level) } `
-    const isHeading = view.state.sliceDoc(range.from, range.to + level + 1) === markup 
+    const lineHeadingLevel = view.state.sliceDoc(line.from, line.to)
+      .slice(0, 4)
+      .split('')
+      .filter(c => c === '#')
+      .length
+
+    const isHeading = lineHeadingLevel > 0
     const change = isHeading 
-      ? { from: range.from, to: range.to + level + 1, insert: '' } 
-      : { from: range.from, to: range.to, insert: markup }
+      ? { from: line.from, to: line.from + lineHeadingLevel + 1, insert: level === lineHeadingLevel ? '' : markup } 
+      : { from: line.from, to: line.from, insert: markup }
 
     return {
       range,

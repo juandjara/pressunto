@@ -12,14 +12,14 @@ type CodeEditorProps = {
 
 export default function MarkdownEditor({ name, initialValue = '', onChange }: CodeEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const [ref, view] = useCodeMirror(textareaRef, {
+  const [ref, view, flags] = useCodeMirror(textareaRef, {
     initialValue,
     setValue: onChange
   })
 
   return (
     <div className="relative">
-      <MarkdownToolbar view={view} />
+      <MarkdownToolbar view={view} flags={flags} />
       <div ref={ref} className="border border-gray-300 dark:border-gray-500 md:rounded-md"></div>
       <textarea
         ref={textareaRef}

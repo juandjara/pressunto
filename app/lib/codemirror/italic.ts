@@ -4,6 +4,13 @@ import type { EditorView, KeyBinding } from "@codemirror/view"
 export function insertItalicMarker (view: EditorView) {
   const { state, dispatch } = view
   const changes = state.changeByRange((range) => {
+    if (range.empty) {
+      const wordRange = view.state.wordAt(range.head)
+      if (wordRange) {
+        range = wordRange
+      }
+    }
+
     const isBoldBefore = state.sliceDoc(range.from - 1, range.from) === "_"
     const isBoldAfter = state.sliceDoc(range.to, range.to + 1) === "_"
     const changes = []
