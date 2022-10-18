@@ -13,7 +13,11 @@ export default function MarkdownPreview({ code }: { code: string }) {
 
   return (
     <div className='prose prose-slate dark:prose-invert'>
-      <div dangerouslySetInnerHTML={{ __html: markdown }} />  
+      {markdown.length ? (
+        <div dangerouslySetInnerHTML={{ __html: markdown }} />
+      ) : (
+        <p>Nothing to preview</p>
+      )}
     </div>
   )
 }

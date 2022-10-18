@@ -48,6 +48,7 @@ const buttonCommon = [
 ].join(' ')
 
 export const buttonCN = {
+  common: buttonCommon,
   small: `px-2 py-1 text-sm ${buttonCommon}`,
   normal: `px-4 py-2 ${buttonCommon}`,
   big: `px-5 py-3 text-lg ${buttonCommon}`,

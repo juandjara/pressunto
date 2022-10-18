@@ -153,13 +153,15 @@ function PostAttributes() {
           <div className={`${labelCN} flex items-center`}>
             <label htmlFor={entry.field} className="capitalize">{entry.field}</label>
             <div className="flex-grow"></div>
-            <button
-              type='button'
-              onClick={() => removeField(entry.field)}
-              className={`${buttonCN.iconLeft} ${buttonCN.small}`}>
-              <XMarkIcon className="w-5 h-5" />
-              <span>delete field</span>
-            </button>
+            {entry.field !== 'title' && (
+              <button
+                type='button'
+                onClick={() => removeField(entry.field)}
+                className={`flex items-center gap-1 ${buttonCN.small}`}>
+                <XMarkIcon className="w-5 h-5" />
+                <span>delete field</span>
+              </button>
+            )}
           </div>
           <input type='text' name={`meta__${entry.field}`} defaultValue={entry.value} className={inputCN} />
         </div>
@@ -169,7 +171,7 @@ function PostAttributes() {
         onClick={addField}
         className={`${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconLeft} pr-3`}>
         <PlusIcon className="w-5 h-5" />
-        <span>New field</span>
+        <span>Add field</span>
       </button>
       <input type='hidden' name='meta_fields' value={attrs.map(f => f.field).join(',')} />
     </fieldset>
@@ -195,8 +197,8 @@ function PostBody() {
   }
 
   return (
-    <Tab.Group as="div" className='my-4'>
-      <Tab.List className="mx-1.5 mb-2 mt-8 flex items-center gap-2">
+    <Tab.Group as="div" className='-mx-2 md:mx-0 my-4'>
+      <Tab.List className="md:mx-1.5 mb-2 mt-8 flex items-center gap-2">
         <Tab className={tabButtonCN}>Editor</Tab>
         <Tab className={tabButtonCN}>Preview</Tab>
       </Tab.List>
@@ -209,7 +211,7 @@ function PostBody() {
           />
         </Tab.Panel>
         <Tab.Panel className='-mt-2'>
-          <div className='p-3 rounded-md border border-gray-300'>
+          <div className='p-3 md:rounded-md border border-gray-300'>
             <MarkdownPreview code={tempContent} />
           </div>
         </Tab.Panel>

@@ -3,10 +3,10 @@ import { EditorView } from "@codemirror/view"
 export const customTheme = EditorView.theme({
   '&': {
     fontSize: '16px',
-    borderRadius: '8px',
+    // borderRadius: '8px',
   },
   '.cm-scroller': {
-    paddingTop: '42px',
+    paddingTop: '36px',
     maxHeight: '700px',
     overflow: 'auto'
   },
