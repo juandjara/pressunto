@@ -6,7 +6,9 @@ export function insertUL(view: EditorView) {
 
   const changes = view.state.changeByRange((range) => {
     const markup = `- `
-    const isApplied = view.state.sliceDoc(range.from, range.to + markup.length) === markup 
+    const otherMarkup = `* `
+    const rangeText = view.state.sliceDoc(range.from, range.to + markup.length)
+    const isApplied = rangeText === markup || rangeText === otherMarkup
     const change = isApplied 
       ? { from: range.from, to: range.to + markup.length, insert: '' } 
       : { from: range.from, to: range.to, insert: markup }
