@@ -1,6 +1,8 @@
+import { buttonCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, FolderIcon } from "@heroicons/react/20/solid"
 import { NavLink } from "@remix-run/react"
+import { useRef } from "react"
 
 const baseLinkCN = [
   'flex items-center gap-3 rounded-l-md py-1 px-2',
@@ -21,9 +23,10 @@ const iconCN = {
 
 export default function ProjectSidebar() {
   const { collections } = useProjectConfig()
+  const summaryRef = useRef<HTMLElement>(null)
 
-  return (
-    <aside className="md:max-w-xs w-full flex-shrink-0 py-4 border-r border-slate-200 dark:border-gray-600">
+  const nav = (
+    <>
       <nav>
         <NavLink to='' end className={linkCN}>
           <FolderIcon className={iconCN.big} />
@@ -50,6 +53,18 @@ export default function ProjectSidebar() {
           <span className="text-lg">Settings</span>
         </NavLink>
       </nav>
+    </>
+  )
+
+  return (
+    <aside className="md:max-w-xs w-full flex-shrink-0 py-2 md:py-4 border-r border-slate-200 dark:border-gray-600">
+      <details className="md:hidden">
+        <summary ref={summaryRef} className={`${buttonCN.normal} ${buttonCN.cancel}`}>MENU</summary>
+        <div onClick={() => summaryRef.current?.click()}>
+          {nav}
+        </div>
+      </details>
+      <div className="hidden md:block">{nav}</div>
     </aside>
   )
 }
