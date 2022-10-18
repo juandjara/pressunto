@@ -1,22 +1,20 @@
-import { useRef, useState, useEffect, MutableRefObject } from "react"
-import { Compartment, EditorSelection, EditorState, Extension, StateCommand, Text, Transaction } from "@codemirror/state"
+import type { MutableRefObject } from "react"
+import { useRef, useState, useEffect } from "react"
+import { EditorState } from "@codemirror/state"
+import type { KeyBinding } from "@codemirror/view"
 import {
   EditorView,
   lineNumbers,
-  highlightActiveLine,
-  highlightActiveLineGutter,
   highlightSpecialChars,
   dropCursor,
   drawSelection,
-  keymap,
-  KeyBinding,
+  keymap
 } from "@codemirror/view"
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown"
 import { syntaxHighlighting, HighlightStyle, defaultHighlightStyle, bracketMatching } from "@codemirror/language"
 import { tags } from "@lezer/highlight"
-import { highlightSelectionMatches, searchKeymap } from '@codemirror/search'
+import { searchKeymap } from '@codemirror/search'
 import { defaultKeymap, historyKeymap, history } from '@codemirror/commands'
-import { closeBracketsKeymap, closeBrackets } from '@codemirror/autocomplete'
 import { basicDark } from 'cm6-theme-basic-dark'
 import { boldBinding } from "./bold"
 import { italicBinding } from "./italic"

@@ -1,7 +1,8 @@
 import FileDetails from "@/components/FileDetails"
 import { CommitParams, getFileContent, getRepoDetails, saveFile } from "@/lib/github"
 import { requireUserSession } from "@/lib/session.server"
-import { ActionArgs, LoaderArgs, redirect } from "@remix-run/node"
+import type { ActionArgs, LoaderArgs} from "@remix-run/node"
+import { redirect } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
 
