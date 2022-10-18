@@ -3,14 +3,14 @@ import useProjectConfig from "@/lib/useProjectConfig"
 import { Cog6ToothIcon } from "@heroicons/react/20/solid"
 import { Link } from "@remix-run/react"
 
-const listCN = 'flex items-center pl-4 p-2 rounded-md text-lg bg-slate-100 dark:bg-slate-700'
+const listCN = 'flex items-center pl-4 p-1 rounded-md text-lg bg-slate-100 dark:bg-slate-700'
 
 export default function Collections() {
   const { collections } = useProjectConfig()
 
   return (
     <div className="p-4">
-      <h2 className="font-medium text-4xl mb-2">Content</h2>
+      <h2 className="font-medium text-4xl my-4">Content</h2>
       {collections.length === 0 && (
         <>        
           <p className="dark:text-stone-200">

@@ -79,7 +79,7 @@ function CollectionLinks({ onToggleMode }: DisplayModeProps) {
 
   return (
     <div className="p-4">
-      <header className="flex items-center mt-4 mb-8">
+      <header className="flex items-center my-4">
         <h2 className="font-medium text-4xl">{collection.name}</h2>
         <div className="flex-grow"></div>
         <Link to='new'>
