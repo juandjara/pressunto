@@ -41,30 +41,17 @@ function HeadingMenu({ active, view }: { active: boolean; view: EditorView }) {
               static
               onClick={() => toggleRef.current?.click()}
               className="py-2 space-y-2 absolute left-0 top-full ring-1 ring-black ring-opacity-5">
-              <button
-                title="Heading 1"
-                aria-label="Heading 1"
-                type="button"
-                onClick={() => insertHeading(1, view)}
-                className={headingButtonCN(active)}>
-                H<small><strong>1</strong></small>
-              </button>
-              <button
-                title="Heading 2"
-                aria-label="Heading 2"
-                type="button"
-                onClick={() => insertHeading(2, view)}
-                className={headingButtonCN(active)}>
-                H<small><strong>2</strong></small>
-              </button>
-              <button
-                title="Heading 3"
-                aria-label="Heading 3"
-                type="button"
-                onClick={() => insertHeading(3, view)}
-                className={headingButtonCN(active)}>
-                H<small><strong>3</strong></small>
-              </button>
+              {[1, 2, 3, 4].map((n) => (
+                <button
+                  key={`heading_${n}`}
+                  title={`Heading ${n}`}
+                  aria-label={`Heading ${n}`}
+                  type="button"
+                  onClick={() => insertHeading(n, view)}
+                  className={headingButtonCN(active)}>
+                  H<small><strong>{n}</strong></small>
+                </button>
+              ))}
             </Menu.Items>
           </Transition>
         </>
