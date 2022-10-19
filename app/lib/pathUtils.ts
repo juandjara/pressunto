@@ -7,6 +7,6 @@ export function getBasename(path: string) {
 }
 
 export function isMarkdown(file: string) {
-  const regex = new RegExp(/.(md|mdx|mkdn?|mdown|markdown)$/)
+  const regex = /.(md|mdx|mkdn?|mdown|markdown)$/
   return !!(regex.test(file))
 }

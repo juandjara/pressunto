@@ -108,17 +108,21 @@ function getBasename(path: string) {
   return path.split('/').slice(-1)[0]
 }
 
+function escapeRegex(str: string) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 function getSubTree(tree: TreeItem[], path?: string) {
   if (!path) {
     return tree
   }
 
-  return tree.filter(f => new RegExp(`^${path}/`).test(f.path))
+  return tree.filter(f => new RegExp(`^${escapeRegex(path)}/`).test(f.path))
 }
 
 function getBaseTree(tree: TreeItem[], path?: string) {
   return tree.filter(f => {
-    const part = path ? f.path.replace(new RegExp(`^${path}/`), '') : f.path
+    const part = path ? f.path.replace(new RegExp(`^${escapeRegex(path)}/`), '') : f.path
     return part.split('/').length === 1
   })
 }
