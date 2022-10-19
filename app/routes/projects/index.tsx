@@ -19,17 +19,17 @@ export async function loader({ request }: LoaderArgs) {
 
 export default function ProjectsList() {
   const { projects } = useLoaderData<LoaderData>()
-  const listCN = 'py-2 px-4 -mx-4 mb-4 rounded-md text-lg bg-slate-100 dark:bg-slate-700'
+  const listCN = 'py-2 px-4 rounded-md text-lg bg-slate-100 dark:bg-slate-700'
   
   return (
     <div className="px-3 py-8">
-      <h2 className="font-medium text-4xl mb-6">Projects</h2>
+      <h2 className="font-medium text-4xl mb-4">Projects</h2>
       {projects.length === 0 && (
         <p className="dark:text-stone-200">
           You don't have any project saved yet
         </p>
       )}
-      <ul className="mb-8">
+      <ul className="mb-4 space-y-4">
         {projects.map((p) => (
           <li key={p.repo} className={listCN}>
             <Link className="block text-xl pb-1" to={p.repo}>{p.title}</Link>
