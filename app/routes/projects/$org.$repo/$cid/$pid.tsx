@@ -1,5 +1,5 @@
 import { getFileContent, getRepoDetails, saveFile } from "@/lib/github"
-import type { CollectionFile, ProjectCollection } from "@/lib/projects.server"
+import type { CollectionFile, ProjectCollection, ProjectConfig } from "@/lib/projects.server"
 import { processFileContent } from "@/lib/projects.server"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
@@ -19,7 +19,7 @@ import slugify from "@/lib/slugify"
 
 type LoaderData = {
   file: CollectionFile,
-  collection: ProjectCollection
+  config: ProjectConfig,
   permissions: {
     admin: boolean
     push: boolean
@@ -60,7 +60,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   ])
 
   return json<LoaderData>({
-    collection,
+    config,
     file: processFileContent(file || blankFile),
     permissions: details.permissions
   })
@@ -124,11 +124,9 @@ export async function action({ request, params }: ActionArgs) {
 
 function PostAttributes() {
   const { cid } = useParams()
-  const config = useProjectConfig()
+  const { config, file } = useLoaderData<LoaderData>()
   const collection = config.collections.find((c) => c.id === cid)
   const template = collection && config.templates.find((t) => t.id === collection.template)
-
-  const { file } = useLoaderData<LoaderData>()
 
   const [attrs, setAttrs] = useState(() => {
     const fields = template?.fields || []
@@ -251,10 +249,9 @@ function PostBody() {
 }
 
 export default function PostEditor() {
-  const { file, permissions } = useLoaderData<LoaderData>()
-  const project = useProject()
   const { cid: collectionId } = useParams()
-  const config = useProjectConfig()
+  const { config, file, permissions } = useLoaderData<LoaderData>()
+  const project = useProject()
   const collection = config.collections.find((c) => c.id === collectionId)
   const transition = useTransition()
   const busy = transition.state === 'submitting'
