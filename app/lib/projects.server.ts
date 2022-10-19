@@ -103,7 +103,7 @@ export async function updateConfigFile(token: string, project: Project, config: 
     repo: project.repo,
     branch: project.branch || 'master',
     name: CONFIG_FILE_NAME,
-    content: JSON.stringify(config),
+    content: JSON.stringify(config, null, 2),
     message: 'Update config file for Pressunto',
     path: '',
   })
