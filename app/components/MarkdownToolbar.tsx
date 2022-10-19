@@ -2,13 +2,14 @@ import { insertBlockquote } from "@/lib/codemirror/blockquote"
 import { insertBoldMarker } from "@/lib/codemirror/bold"
 import { insertCodeMarker } from "@/lib/codemirror/code"
 import { insertHeading } from "@/lib/codemirror/heading"
+import { insertImage } from "@/lib/codemirror/imageFormat"
 import { insertItalicMarker } from "@/lib/codemirror/italic"
 import { insertLink } from "@/lib/codemirror/link"
 import { insertUL } from "@/lib/codemirror/ul"
 import { buttonCN } from "@/lib/styles"
 import type { EditorView } from "@codemirror/view"
 import { Menu, Transition } from "@headlessui/react"
-import { CodeBracketIcon, LinkIcon, ListBulletIcon } from "@heroicons/react/20/solid"
+import { CodeBracketIcon, LinkIcon, ListBulletIcon, PhotoIcon } from "@heroicons/react/20/solid"
 import { useRef } from "react"
 
 const headingButtonCN = (flag: boolean) => [
@@ -76,6 +77,8 @@ type MarkdownToolbarProps = {
 }
 
 export default function MarkdownToolbar({ view, flags }: MarkdownToolbarProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   if (!view) {
     return null
   }
@@ -133,6 +136,23 @@ export default function MarkdownToolbar({ view, flags }: MarkdownToolbarProps) {
         className={iconButtonCN()}>
         <ListBulletIcon className="w-5 h-5" />
       </button>
+      <div>
+        <input
+          ref={fileInputRef}
+          type='file'
+          accept='image/*'
+          className='hidden'
+          onChange={ev => ev.target.files && insertImage(view, ev.target.files[0])}
+        />
+        <button
+          title="Image"
+          aria-label="Image"
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className={iconButtonCN()}>
+          <PhotoIcon className="w-5 h-5" />
+        </button>
+      </div>
     </div>
   )
 }

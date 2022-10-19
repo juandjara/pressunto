@@ -1,5 +1,5 @@
 import { getFileContent, getRepoDetails, saveFile } from "@/lib/github"
-import type { CollectionFile, ProjectCollection, ProjectConfig } from "@/lib/projects.server"
+import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
 import { processFileContent } from "@/lib/projects.server"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
@@ -12,7 +12,7 @@ import { Tab } from '@headlessui/react'
 import { useEffect, useState } from "react"
 import MarkdownPreview from "@/components/MarkdownPreview"
 import MarkdownEditor from "@/components/MarkdownEditor"
-import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
+import { useProject } from "@/lib/useProjectConfig"
 import { getBasename } from "@/lib/pathUtils"
 import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
 import slugify from "@/lib/slugify"
@@ -174,7 +174,7 @@ function PostAttributes() {
       {attrs.map((entry) => (
         <div key={entry.field}>
           <div className={`${labelCN} ${entry.hidden ? 'hidden' : 'flex'} items-center`}>
-            <label htmlFor={entry.field} className="capitalize">{entry.name || entry.field}</label>
+            <label htmlFor={`meta__${entry.field}`} className="capitalize">{entry.name || entry.field}</label>
             <div className="flex-grow"></div>
             {entry.field !== 'title' && (
               <button

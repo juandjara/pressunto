@@ -27,5 +27,11 @@ export const customTheme = EditorView.theme({
     minWidth: '36px',
     textAlign: 'right',
     paddingRight: '4px',
+  },
+  '.cm-image-overflow': {
+    whiteSpace: 'nowrap',
+    maxWidth: '100%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
   }
 })

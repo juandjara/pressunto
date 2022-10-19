@@ -116,7 +116,7 @@ export default function EditTemplate() {
                     </div>
                   </summary>
                   <div className="space-y-4 mt-4">
-                    <label className="dark:text-slate-300 text-slate-600 inline-flex items-center">
+                    <label className="flex items-center">
                       <input
                         name={`field__${f.field}__hidden`}
                         type="checkbox"
@@ -127,7 +127,13 @@ export default function EditTemplate() {
                     </label>
                     <div>
                       <label htmlFor={`field__${f.field}__name`} className={labelCN}>Label</label>
-                      <input type='text' className={inputCN} name={`field__${f.field}__name`} defaultValue={f.name} />
+                      <input
+                        type='text'
+                        className={inputCN}
+                        name={`field__${f.field}__name`}
+                        defaultValue={f.name}
+                        placeholder={f.field}
+                      />
                     </div>
                     <div>
                       <label htmlFor={`field__${f.field}__default`} className={labelCN}>Default</label>

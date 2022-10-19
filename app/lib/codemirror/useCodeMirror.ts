@@ -20,6 +20,7 @@ import { boldBinding } from "./bold"
 import { italicBinding } from "./italic"
 import { customTheme } from "./customTheme"
 import { baseTheme } from "./baseTheme"
+import { imageFormat, insertImage } from "./imageFormat"
 
 type useCodeMirrorProps = {
   initialValue: string
@@ -79,7 +80,16 @@ export default function useCodeMirror(
         customTheme,
         baseTheme,
         basicDark,
+        imageFormat(),
         EditorView.lineWrapping,
+        EditorView.domEventHandlers({
+          drop: (ev, view) => {
+            const file = ev.dataTransfer?.files[0]
+            if (file) {
+              insertImage(view, file)
+            }
+          },
+        }),
         EditorView.updateListener.of((ev) => {
           const cursorRange = ev.state.selection.main
           const range = cursorRange.empty ? ev.state.wordAt(cursorRange.head) : cursorRange
