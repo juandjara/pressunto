@@ -1,11 +1,11 @@
-import { getDirname } from "@/lib/pathUtils"
+import { getBasename, getDirname } from "@/lib/pathUtils"
 import { inputCN } from "@/lib/styles"
 import { useParams } from "@remix-run/react"
 
 export default function FileLabel() {
   const path = useParams()['*'] || ''
   const basename = getBasename(path)
-  const folder = getDirname(path) + '/'
+  const folder = getDirname(path) + path === basename ? '' : '/'
 
   return (
     <div className='flex-grow min-w-0 flex items-center text-slate-500 dark:text-slate-200 truncate'>
@@ -24,8 +24,4 @@ export default function FileLabel() {
       />
     </div>
   )
-}
-
-function getBasename(path: string) {
-  return path.split('/').slice(-1)[0]
 }
