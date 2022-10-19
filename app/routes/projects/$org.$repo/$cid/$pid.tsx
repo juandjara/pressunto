@@ -123,16 +123,35 @@ export async function action({ request, params }: ActionArgs) {
 }
 
 function PostAttributes() {
+  const { cid } = useParams()
+  const config = useProjectConfig()
+  const collection = config.collections.find((c) => c.id === cid)
+  const template = collection && config.templates.find((t) => t.id === collection.template)
+
   const { file } = useLoaderData<LoaderData>()
 
   const [attrs, setAttrs] = useState(() => {
-    return Object.entries({
-      ...file.attributes,
-      title: file.attributes.title || ''
-    }).map(e => ({
-      field: e[0],
-      value: e[1]
-    }))
+    const fields = template?.fields || []
+    const fieldMap = Object.fromEntries(fields.map((f) => [f.field, f]))
+
+    const keys = new Set([
+      'title',
+      ...Object.keys(file.attributes),
+      ...fields.map((f) => f.field)
+    ])
+
+    return Array.from(keys).map((key) => {
+      const conf = fieldMap[key] || {
+        field: key,
+        name: '',
+        hidden: false,
+        default: '',
+      }
+      return {
+        ...conf,
+        value: file.attributes[key] || ''
+      }
+    })
   })
 
   function removeField(key: string) {
@@ -142,7 +161,13 @@ function PostAttributes() {
   function addField() {
     const key = window.prompt('Enter new field')
     if (key) {
-      setAttrs(a => a.concat({ field: key, value: '' }))
+      setAttrs(a => a.concat({
+        field: key,
+        name: key,
+        hidden: false,
+        default: '',
+        value: '',
+      }))
     }
   }
 
@@ -150,8 +175,8 @@ function PostAttributes() {
     <fieldset className="space-y-6 mb-10">
       {attrs.map((entry) => (
         <div key={entry.field}>
-          <div className={`${labelCN} flex items-center`}>
-            <label htmlFor={entry.field} className="capitalize">{entry.field}</label>
+          <div className={`${labelCN} ${entry.hidden ? 'hidden' : 'flex'} items-center`}>
+            <label htmlFor={entry.field} className="capitalize">{entry.name || entry.field}</label>
             <div className="flex-grow"></div>
             {entry.field !== 'title' && (
               <button
@@ -163,7 +188,12 @@ function PostAttributes() {
               </button>
             )}
           </div>
-          <input type='text' name={`meta__${entry.field}`} defaultValue={entry.value} className={inputCN} />
+          <input
+            type={entry.hidden ? 'hidden' : 'text'}
+            name={`meta__${entry.field}`}
+            defaultValue={entry.value || entry.default || ''}
+            className={inputCN}
+          />
         </div>
       ))}
       <button

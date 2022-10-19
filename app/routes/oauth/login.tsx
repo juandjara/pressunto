@@ -8,6 +8,5 @@ export async function action() {
   })
   const ru = process.env.REDIRECT_URI || 'http://localhost:3000/oauth/callback'
   const oauthUrl = `https://github.com/login/oauth/authorize?${params.toString()}&redirect_uri=${ru}`
-  console.log(oauthUrl)
   return redirect(oauthUrl)
 }

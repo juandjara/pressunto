@@ -127,11 +127,11 @@ export default function EditTemplate() {
                     </label>
                     <div>
                       <label htmlFor={`field__${f.field}__name`} className={labelCN}>Label</label>
-                      <input type='text' className={inputCN} name={`${f.field}__name`} defaultValue={f.name} />
+                      <input type='text' className={inputCN} name={`field__${f.field}__name`} defaultValue={f.name} />
                     </div>
                     <div>
                       <label htmlFor={`field__${f.field}__default`} className={labelCN}>Default</label>
-                      <input type='text' className={inputCN} name={`${f.field}__default`} defaultValue={f.default} />
+                      <input type='text' className={inputCN} name={`field__${f.field}__default`} defaultValue={f.default} />
                     </div>
                   </div>
                 </details>
