@@ -35,10 +35,6 @@ type FieldConfig = {
 export type ProjectConfig = {
   collections: ProjectCollection[]
   templates: ProjectTemplates[]
-  drafts: {
-    enabled: boolean
-    route: string
-  }
 }
 
 export async function getUserProjects(user: string) {
@@ -62,14 +58,17 @@ export async function saveProject(user: string, project: Project) {
   ])
 }
 
+export async function deleteProject(user: string, repo: string) {
+  return Promise.all([
+    db.srem(`user:${user}:projects`, repo),
+    db.del(`project:${user}:${repo}`)
+  ])
+}
+
 export const CONFIG_FILE_NAME = 'pressunto.config.json'
 export const CONFIG_FILE_TEMPLATE = `{
   "collections": [],
-  "templates": [],
-  "drafts": {
-    "enabled": false,
-    "route": "/drafts"
-  }
+  "templates": []
 }
 `
 

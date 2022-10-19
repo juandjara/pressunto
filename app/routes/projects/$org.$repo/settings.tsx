@@ -1,7 +1,10 @@
-import { checkboxCN, inputCN, labelCN } from "@/lib/styles"
+import { deleteProject } from "@/lib/projects.server"
+import { requireUserSession } from "@/lib/session.server"
+import { buttonCN, checkboxCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { PlusIcon } from "@heroicons/react/20/solid"
-import { Link, Outlet } from "@remix-run/react"
+import { ActionFunction, redirect } from "@remix-run/node"
+import { Form, Link, Outlet, useTransition } from "@remix-run/react"
 
 const groupCN = 'py-2'
 const listCN = [
@@ -17,7 +20,7 @@ export default function ProjectSettings() {
       <h2 className="font-medium text-4xl my-4">Settings</h2>
       <Outlet />
       <div>
-        <header className="flex items-center justify-between mb-1 border-gray-200 dark:border-gray-600">
+        <header className="flex items-center justify-between mb-1">
           <h3 className="font-medium text-xl">Collections</h3>
           <Link to='collections/new'>
             <button
@@ -44,7 +47,7 @@ export default function ProjectSettings() {
         </div>
       </div>
       <div>
-        <header className="flex items-center justify-between mb-1 border-gray-200 dark:border-gray-600">
+        <header className="flex items-center justify-between mb-1">
           <h3 className="font-medium text-xl">Templates</h3>
           <Link to='templates/new'>
             <button
@@ -70,29 +73,48 @@ export default function ProjectSettings() {
           </ul>
         </div>
       </div>
-      {/* <DraftsForm /> */}
+      <DangerZone />
     </div>
   )
 }
 
-function DraftsForm() {
+export const action: ActionFunction = async ({ request, params }) => {
+  const { user } = await requireUserSession(request)
+  const repo = `${params.org}/${params.repo}`
+  const formData = await request.formData()
+  const op = formData.get('operation')
+
+  if (op === 'delete') {
+    await deleteProject(user.name, repo)
+  }
+
+  return redirect('/')
+}
+
+function DangerZone() {
+  const transition = useTransition()
+  const busy = transition.state === 'submitting'
+
+  function handleSubmit(ev: React.MouseEvent) {
+    if (!window.confirm('¿Are you sure you want to delete this project?')) {
+      ev.preventDefault()
+    }
+  }
+
   return (
-    <div>
-      <h3 className="font-medium text-xl mb-1 border-b-2 border-gray-200 dark:border-gray-600">Drafts</h3>
-      <div className={`${groupCN} space-y-4`}>
-        <label className="dark:text-slate-300 text-slate-600 inline-flex items-center">
-          <input
-            name="enabled"
-            type="checkbox"
-            className={`mr-2 ${checkboxCN}`}
-          />
-          Enabled
-        </label>
-        <div>
-          <label className={labelCN} htmlFor="route">Route</label>
-          <input required name='route' type='text' className={inputCN} />
-        </div>
+    <div className="pt-12">
+      <h3 className="font-medium text-xl mb-1">Danger zone</h3>
+      <Form method="post" className="mt-4">
+        <button
+          name="operation"
+          value="delete"
+          type="submit"
+          disabled={busy}
+          onClick={handleSubmit}
+          className={`${buttonCN.big} bg-red-600 hover:bg-red-700 text-white`}>
+          Delete Project
+        </button>
+      </Form>
       </div>
-    </div>
   )
 }

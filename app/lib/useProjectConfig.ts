@@ -12,4 +12,3 @@ export function useProject() {
   const match = useMatches().find(r => r.id === PARENT_ROUTE_ID)
   return match?.data.project as Project
 }
-
