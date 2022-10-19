@@ -1,7 +1,8 @@
-import { deleteProject } from "@/lib/projects.server"
+import { getFileContent, saveFile } from "@/lib/github"
+import { CONFIG_FILE_NAME, deleteProject } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
-import { buttonCN } from "@/lib/styles"
-import useProjectConfig from "@/lib/useProjectConfig"
+import { buttonCN, checkboxCN } from "@/lib/styles"
+import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
 import { PlusIcon } from "@heroicons/react/20/solid"
 import type { ActionFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
@@ -80,19 +81,43 @@ export default function ProjectSettings() {
 }
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const { user } = await requireUserSession(request)
+  const { token, user } = await requireUserSession(request)
   const repo = `${params.org}/${params.repo}`
   const formData = await request.formData()
   const op = formData.get('operation')
+  const delete_config_file = formData.get('delete_config_file') === 'on'
+  const branch = formData.get('branch') as string
 
   if (op === 'delete') {
     await deleteProject(user.name, repo)
+  }
+
+  if (delete_config_file) {
+    const file = await getFileContent(token, {
+      repo,
+      file: CONFIG_FILE_NAME,
+      branch
+    })
+
+    if (file) {
+      await saveFile(token, {
+        repo,
+        branch,
+        message: '[skip ci] Delete config file for Pressunto',
+        method: 'DELETE',
+        sha: file?.sha,
+        path: CONFIG_FILE_NAME,
+        name: '',
+        content: file.content
+      })
+    }
   }
 
   return redirect('/')
 }
 
 function DangerZone() {
+  const project = useProject()
   const transition = useTransition()
   const busy = transition.state === 'submitting'
 
@@ -106,6 +131,15 @@ function DangerZone() {
     <div className="pt-12">
       <h3 className="font-medium text-xl mb-1">Danger zone</h3>
       <Form method="post" className="mt-4">
+        <input type='hidden' name='branch' value={project.branch || 'master'} />
+        <label className="mb-4 flex items-center dark:text-slate-300 text-slate-600">
+          <input
+            name="delete_config_file"
+            type="checkbox"
+            className={`mr-2 ${checkboxCN}`}
+          />
+          Delete config file in repository
+        </label>
         <button
           name="operation"
           value="delete"
