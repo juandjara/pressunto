@@ -1,5 +1,6 @@
 // NOTE: adapted from here: https://github.com/voracious/ink-mde/blob/main/src/vendor/extensions/images.ts
 
+import { cursorLineDown, insertBlankLine } from "@codemirror/commands"
 import { syntaxTree } from "@codemirror/language"
 import type { EditorState, Extension, Range} from "@codemirror/state"
 import { RangeSet, StateField } from "@codemirror/state"
@@ -45,12 +46,14 @@ function getDecorations(state: EditorState) {
         const result = IMAGE_REGEX.exec(state.doc.sliceString(from, to))
         const title = result?.groups?.title as string
         const url = result?.groups?.url as string
-        const line = state.doc.lineAt(from)
-        const deco = Decoration
-          .replace({ widget: new ImageFormatWidget({ url, title }), block: true })
-          .range(line.from, line.to)
-
-        decorations.push(deco)
+        if (url.startsWith('data:')) {
+          const line = state.doc.lineAt(from)
+          const deco = Decoration
+            .replace({ widget: new ImageFormatWidget({ url, title }), block: true })
+            .range(line.from, line.to)
+  
+          decorations.push(deco)
+        }
       }
     },
   })
@@ -93,6 +96,9 @@ export function insertImage(view: EditorView, file: File) {
         changes,
       )
     )
+
+    insertBlankLine(view)
+    cursorLineDown(view)
   })
   reader.readAsDataURL(file)
 }
