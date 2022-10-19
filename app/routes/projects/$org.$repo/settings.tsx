@@ -1,12 +1,61 @@
 import { getFileContent, saveFile } from "@/lib/github"
-import { CONFIG_FILE_NAME, deleteProject } from "@/lib/projects.server"
+import { CONFIG_FILE_NAME, deleteProject, updateProject } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
-import { buttonCN, checkboxCN } from "@/lib/styles"
+import { buttonCN, checkboxCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
 import { PlusIcon } from "@heroicons/react/20/solid"
 import type { ActionFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { Form, Link, Outlet, useTransition } from "@remix-run/react"
+
+export const action: ActionFunction = async ({ request, params }) => {
+  const { token, user } = await requireUserSession(request)
+  const repo = `${params.org}/${params.repo}`
+  const formData = await request.formData()
+  const op = formData.get('operation')
+  const delete_config_file = formData.get('delete_config_file') === 'on'
+  const branch = formData.get('branch') as string
+  const isDelete = op === 'delete'
+
+  if (op === 'update') {
+    const title = formData.get('title') as string
+    await updateProject(user.name, {
+      repo,
+      branch,
+      title
+    })
+  }
+
+  if (op === 'delete') {
+    await deleteProject(user.name, repo)
+    if (delete_config_file) {
+      const file = await getFileContent(token, {
+        repo,
+        file: CONFIG_FILE_NAME,
+        branch
+      })
+  
+      if (file) {
+        await saveFile(token, {
+          repo,
+          branch,
+          message: '[skip ci] Delete config file for Pressunto',
+          method: 'DELETE',
+          sha: file?.sha,
+          path: CONFIG_FILE_NAME,
+          name: '',
+          content: file.content
+        })
+      }
+    }
+  }
+
+  return redirect(isDelete ? '/' : `/projects/${repo}/settings`, {
+    headers: new Headers({
+      'cache-control': 'no-cache'
+    })
+  })
+}
 
 const groupCN = 'py-2'
 const listCN = [
@@ -75,45 +124,38 @@ export default function ProjectSettings() {
           </ul>
         </div>
       </div>
+      <EditProject />
       <DangerZone />
     </div>
   )
 }
 
-export const action: ActionFunction = async ({ request, params }) => {
-  const { token, user } = await requireUserSession(request)
-  const repo = `${params.org}/${params.repo}`
-  const formData = await request.formData()
-  const op = formData.get('operation')
-  const delete_config_file = formData.get('delete_config_file') === 'on'
-  const branch = formData.get('branch') as string
+function EditProject() {
+  const project = useProject()
+  const transition = useTransition()
+  const busy = transition.state === 'submitting'
 
-  if (op === 'delete') {
-    await deleteProject(user.name, repo)
-  }
-
-  if (delete_config_file) {
-    const file = await getFileContent(token, {
-      repo,
-      file: CONFIG_FILE_NAME,
-      branch
-    })
-
-    if (file) {
-      await saveFile(token, {
-        repo,
-        branch,
-        message: '[skip ci] Delete config file for Pressunto',
-        method: 'DELETE',
-        sha: file?.sha,
-        path: CONFIG_FILE_NAME,
-        name: '',
-        content: file.content
-      })
-    }
-  }
-
-  return redirect('/')
+  return (
+    <Form method='post' replace className="space-y-4">
+      <h3 className="font-medium text-xl mb-1">Project</h3>
+      <div>
+        <label className={labelCN}>Title</label>
+        <input required type="text" name="title" defaultValue={project.title} className={inputCN} />
+      </div>
+      <div>
+        <label className={labelCN}>Branch</label>
+        <input type="text" name="branch" defaultValue={project.branch} placeholder="master" className={inputCN} />
+      </div>
+      <button
+        name="operation"
+        value="update"
+        type="submit"
+        disabled={busy}
+        className={`${buttonCN.normal} ${buttonCN.slate}`}>
+        {busy ? 'Saving...' : 'Save'}
+      </button>
+    </Form>
+  )
 }
 
 function DangerZone() {
@@ -128,7 +170,7 @@ function DangerZone() {
   }
 
   return (
-    <div className="pt-12">
+    <div className="pt-4">
       <h3 className="font-medium text-xl mb-1">Danger zone</h3>
       <Form method="post" className="mt-4">
         <input type='hidden' name='branch' value={project.branch || 'master'} />
@@ -146,10 +188,10 @@ function DangerZone() {
           type="submit"
           disabled={busy}
           onClick={handleSubmit}
-          className={`${buttonCN.big} bg-red-600 hover:bg-red-700 text-white`}>
+          className={`${buttonCN.normal} bg-red-700 hover:bg-red-800 text-white`}>
           Delete Project
         </button>
       </Form>
-      </div>
+    </div>
   )
 }

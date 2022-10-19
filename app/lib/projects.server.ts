@@ -58,6 +58,10 @@ export async function saveProject(user: string, project: Project) {
   ])
 }
 
+export async function updateProject(user: string, project: Project) {
+  return db.set(`project:${user}:${project.repo}`, project)
+}
+
 export async function deleteProject(user: string, repo: string) {
   return Promise.all([
     db.srem(`user:${user}:projects`, repo),
