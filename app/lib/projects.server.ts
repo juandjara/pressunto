@@ -85,7 +85,7 @@ export async function createConfigFile(token: string, project: Project) {
     branch: project.branch || 'master',
     name: CONFIG_FILE_NAME,
     content: CONFIG_FILE_TEMPLATE,
-    message: 'Create config file for Pressunto',
+    message: '[skip ci] Create config file for Pressunto',
     path: '',
   })
 }
@@ -103,7 +103,7 @@ export async function updateConfigFile(token: string, project: Project, config: 
     branch: project.branch || 'master',
     name: CONFIG_FILE_NAME,
     content: JSON.stringify(config, null, 2),
-    message: 'Update config file for Pressunto',
+    message: '[skip ci] Update config file for Pressunto',
     path: '',
   })
 }
