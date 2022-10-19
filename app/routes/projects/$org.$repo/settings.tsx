@@ -61,6 +61,13 @@ export default function ProjectSettings() {
           {config.templates.length === 0 && (
             <p>You don't have any saved template.</p>
           )}
+          <ul className="space-y-4">
+            {config.templates.map((t) => (
+              <li key={t.id} className={listCN}>
+                <Link to={`templates/${t.id}`} className="flex-grow">{t.name}</Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
       {/* <DraftsForm /> */}

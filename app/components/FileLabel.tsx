@@ -5,14 +5,12 @@ import { useParams } from "@remix-run/react"
 export default function FileLabel() {
   const path = useParams()['*'] || ''
   const basename = getBasename(path)
-  const folder = getDirname(path) + path === basename ? '' : '/'
+  const folder = getDirname(path)
 
   return (
     <div className='flex-grow min-w-0 flex items-center text-slate-500 dark:text-slate-200 truncate'>
-      {folder ? (
-        <p className="text-lg font-semibold hidden md:inline md:mr-2">{folder}</p>
-      ) : null}
-      <input type="hidden" name="path" value={folder} />
+      <p className="text-lg font-semibold hidden md:inline md:mr-2">{folder}{'/'}</p>
+      <input type="hidden" name="path" value={folder + (path === basename ? '' : '/')} />
       <input
         name="filename"
         type="text"

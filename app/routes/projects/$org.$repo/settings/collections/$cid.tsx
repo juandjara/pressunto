@@ -98,12 +98,12 @@ export default function EditCollection() {
           </div>
           <div>
             <label htmlFor="template" className={labelCN}>Template</label>
-            <input
-              name="template"
-              type="text"
-              className={inputCN}
-              defaultValue={collection?.template}
-            />
+            <select name="template" defaultValue={collection?.template} className={inputCN}>
+              <option value="">No template</option>
+              {config.templates.map((t) => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </select>
           </div>
         </fieldset>
         <div className="flex items-center mt-4">
