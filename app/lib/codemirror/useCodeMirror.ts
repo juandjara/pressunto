@@ -81,7 +81,8 @@ export default function useCodeMirror(
         basicDark,
         EditorView.lineWrapping,
         EditorView.updateListener.of((ev) => {
-          const range = ev.state.wordAt(ev.state.selection.main.head)
+          const cursorRange = ev.state.selection.main
+          const range = cursorRange.empty ? ev.state.wordAt(cursorRange.head) : cursorRange
 
           let isBold = false
           let isItalic = false
