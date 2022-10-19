@@ -71,8 +71,20 @@ export default function ProjectSettings() {
       <h2 className="font-medium text-4xl my-4">Settings</h2>
       <Outlet />
       <div>
-        <header className="flex items-center justify-between mb-1">
-          <h3 className="font-medium text-xl">Collections</h3>
+        <header className="flex items-end justify-between mb-1">
+          <div>
+            <h3 className="font-medium text-2xl mb-2">Collections</h3>
+            <details>
+              <summary className="text-slate-700 dark:text-slate-300 mb-2">What is this?</summary>
+              <p>
+                Collections map to folders in your repository.
+                <br />
+                Every collection you define will be showed in the left sidebar.
+                <br />
+                Every collection you define will list the markdown files of that folder as posts, but not the ones in subfolders.
+              </p>
+            </details>
+          </div>
           <Link to='collections/new'>
             <button
               type="button"
@@ -98,8 +110,18 @@ export default function ProjectSettings() {
         </div>
       </div>
       <div>
-        <header className="flex items-center justify-between mb-1">
-          <h3 className="font-medium text-xl">Templates</h3>
+        <header className="flex items-end justify-between gap-3 mb-1">
+          <div>
+            <h3 className="font-medium text-2xl mb-2">Templates</h3>
+            <details>
+              <summary className="text-slate-700 dark:text-slate-300 mb-2">What is this?</summary>
+              <p>
+                Templates are a predefined set of fields you can add to any content collection.
+                <br />
+                Adding a template to a collection will add all the fields that are not already present there to every post of the collection
+              </p>
+            </details>
+          </div>
           <Link to='templates/new'>
             <button
               type="button"
