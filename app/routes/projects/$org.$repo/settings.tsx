@@ -1,9 +1,10 @@
 import { deleteProject } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
-import { buttonCN, checkboxCN, inputCN, labelCN } from "@/lib/styles"
+import { buttonCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { PlusIcon } from "@heroicons/react/20/solid"
-import { ActionFunction, redirect } from "@remix-run/node"
+import type { ActionFunction} from "@remix-run/node"
+import { redirect } from "@remix-run/node"
 import { Form, Link, Outlet, useTransition } from "@remix-run/react"
 
 const groupCN = 'py-2'
