@@ -2,14 +2,12 @@ import {  useEffect, useState } from 'react'
 import CodeEditor from './CodeEditor'
 import type { ParsedFile } from '@/lib/github'
 import FileLabel from './FileLabel'
-import { Tab } from '@headlessui/react'
-import { Form, Link, useLoaderData, useLocation, useParams, useTransition } from '@remix-run/react'
-import MarkdownPreview from './MarkdownPreview'
+import { Form, Link, useLoaderData, useParams, useTransition } from '@remix-run/react'
+import { buttonCN } from '@/lib/styles'
 
 type LoaderData = {
-  org: string
-  repo: string
-  content: ParsedFile
+  branch: string
+  file: ParsedFile
   permissions: {
     admin: boolean
     push: boolean
@@ -17,13 +15,12 @@ type LoaderData = {
   }
 }
 
-function useBackLink() {
-  const { org, repo } = useParams()
-  const { search } = useLocation()
-  const params = new URLSearchParams(search)
-  params.delete('new')
-
-  return `/r/${org}/${repo}?${params}`
+function BackIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  )
 }
 
 function FileContents({ file }: { file?: ParsedFile }) {
@@ -35,40 +32,20 @@ function FileContents({ file }: { file?: ParsedFile }) {
     }
   }, [file])
 
-  const tabButtonCN = ({ selected }: { selected: boolean }) => {
-    const activeStyle = selected ? 'bg-slate-100 text-slate-700' : 'hover:underline'
-    return `rounded-md px-4 py-2 ${activeStyle}`
-  }
-
   if (!file || file.isMarkdown) {
     return (
-      <Tab.Group as="div" className='mt-4'>
-        <Tab.List className="mx-1">
-          <Tab className={tabButtonCN}>Editor</Tab>
-          <Tab className={tabButtonCN}>Preview</Tab>
-        </Tab.List>
-        <Tab.Panels className="-mt-1">
-          <Tab.Panel>
-            <CodeEditor
-              name="markdown"
-              isMarkdown={file ? file.isMarkdown : true}
-              initialValue={tempContent || file?.content || ''}
-              onChange={setTempContent}
-            />
-          </Tab.Panel>
-          <Tab.Panel>
-            <div className='p-3 rounded-md border text-slate-700 bg-white border-gray-300'>
-              <MarkdownPreview code={tempContent} />
-            </div>
-          </Tab.Panel>
-        </Tab.Panels>
-      </Tab.Group>
+      <CodeEditor
+        name="markdown"
+        isMarkdown={file ? file.isMarkdown : true}
+        initialValue={tempContent || file?.content || ''}
+        onChange={setTempContent}
+      />
     )
   }
 
   if (file.format === 'image') {
     return (
-      <div className='p-3 border border-slate-300 rounded-md mt-2'>
+      <div className='p-3 border border-slate-300 rounded-md'>
         <div>
           <img
             alt="content from github"
@@ -82,7 +59,7 @@ function FileContents({ file }: { file?: ParsedFile }) {
 
   if (file.isBinary) {
     return (
-      <div className='p-3 border border-slate-300 rounded-md mt-2 text-center'>
+      <div className='p-3 border border-slate-300 rounded-md text-center'>
         <p className='text-sm font-medium mb-2'>This file is not a text format or image that can be edited by this application.</p>
         <a className='underline' target='_blank' rel='noreferrer' href={file.html_url}>See raw file</a>
       </div>
@@ -100,48 +77,44 @@ function FileContents({ file }: { file?: ParsedFile }) {
 }
 
 export default function FileDetails() {
+  const { branch, file, permissions } = useLoaderData<LoaderData>()
+  const path = useParams()['*']
   const transition = useTransition()
-  const { org, repo, content: file, permissions } = useLoaderData<LoaderData>()
-  const { '*': path } = useParams()
-  const backlink = useBackLink()
-
   const busy = transition.state === 'submitting'
 
+  function handleSubmit(ev: React.MouseEvent) {
+    const isDelete = (ev.target as HTMLButtonElement).value === 'delete'
+    if (isDelete && !window.confirm('¿Are you sure you want to delete this file?')) {
+      ev.preventDefault()
+    }
+  }
+
   return (
-    <Form
-      action={`/r/${org}/${repo}/${path}`}
-      method='post'
-      onSubmit={(ev) => {
-        const op = ((ev.nativeEvent as SubmitEvent).submitter as HTMLButtonElement)?.value
-        if (op === 'delete' && !confirm('¿Estas seguro de que quieres borrar este archivo?')) {
-          ev.preventDefault()
-        }
-      }}
-      className="mt-1 flex-grow min-w-0 px-2">
-      <div className='flex items-center justify-start mb-2'>
-        <Link className='md:hidden mr-2' to={backlink} title='Back to file tree'>
+    <Form method='post' action={path}>
+      <div className='flex items-center justify-start'>
+        <Link className='md:hidden mr-2' to='../source' title='Back to file tree'>
           <BackIcon />
         </Link>
         <FileLabel />
       </div>
-      <FileContents file={file} />
+      <div className='my-4'>
+        <FileContents file={file} />
+      </div>
 
       {permissions.push ? (
-        <div className='flex items-center mt-2'>
+        <div className='flex items-center'>
           <button
             disabled={busy}
             type='submit'
             name='_op'
             value='save'
-            className='disabled:opacity-50 disabled:pointer-events-none py-2 px-4 rounded-md bg-slate-600 text-white hover:bg-slate-700'>
-            {transition.state === 'submitting' && 'Saving...'}
-            {transition.state === 'loading' && 'Saved!'}
-            {transition.state === 'idle' && 'Save'}
+            className={`${buttonCN.normal} ${buttonCN.slate}`}>
+            {busy ? 'Saving...' : 'Save'}
           </button>
-          <Link to={backlink}>
+          <Link to='../source'>
             <button
               type='button'
-              className='py-2 px-4 ml-2 rounded-md hover:text-slate-700 hover:bg-slate-100'>
+              className={`ml-2 ${buttonCN.normal} ${buttonCN.cancel}`}>
               Cancel
             </button>
           </Link>
@@ -151,24 +124,18 @@ export default function FileDetails() {
             type='submit'
             name='_op'
             value='delete'
+            onClick={handleSubmit}
             className='disabled:opacity-50 disabled:pointer-events-none py-2 px-4 rounded-md bg-red-50 text-red-700 hover:bg-red-100'>
             Delete
           </button>
           <input type="hidden" name="sha" value={file?.sha} />
+          <input type="hidden" name="branch" value={branch} />
         </div>
       ) : (
-        <div className="text-right text-red-800 rounded-xl p-3 mt-2">
+        <div className="text-right text-red-800 rounded-xl p-3">
           <p className="text-lg">You don't have permission to push to this repo</p>
         </div>
       )}
     </Form>
-  )
-}
-
-function BackIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
   )
 }

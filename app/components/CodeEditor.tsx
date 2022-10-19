@@ -16,7 +16,7 @@ export default function CodeEditor({ name, isMarkdown = true, initialValue = '',
         defaultValue={initialValue}
         title="file contents"
         aria-label="file contents"
-        placeholder="file contents"
+        placeholder="...here goes something"
         onChange={ev => onChange(ev.target.value)}
         rows={20}
       />

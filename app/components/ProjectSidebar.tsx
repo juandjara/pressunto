@@ -44,9 +44,9 @@ export default function ProjectSidebar() {
         </ul>
       </nav>
       <nav className="space-y-2 mt-12">
-        <NavLink to='rawsite' className={linkCN}>
+        <NavLink to='source' className={linkCN}>
           <CodeBracketIcon className={iconCN.big} />
-          <span className="text-lg">Raw Site</span>
+          <span className="text-lg">Source code</span>
         </NavLink>
         <NavLink to='settings' className={linkCN}>
           <Cog6ToothIcon className={iconCN.big} />

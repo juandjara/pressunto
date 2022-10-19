@@ -231,7 +231,7 @@ export default function PostEditor() {
 
   function handleSubmit(ev: React.MouseEvent) {
     const isDelete = (ev.target as HTMLButtonElement).value === 'delete'
-    if (isDelete && !window.confirm('¿Are you sure you want to delete this collection?')) {
+    if (isDelete && !window.confirm('¿Are you sure you want to delete this post?')) {
       ev.preventDefault()
     }
   }

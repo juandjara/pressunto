@@ -26,7 +26,7 @@ export const inputCN = [
   'dark:text-slate-100',
   'dark:bg-slate-800',
   'placeholder:text-slate-400',
-  'dark:placeholder:text-slate-300',
+  'dark:placeholder:text-slate-500',
   focusCN
 ].join(' ')
 

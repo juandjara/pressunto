@@ -1,4 +1,4 @@
-import { buttonCN, checkboxCN, inputCN, labelCN } from "@/lib/styles"
+import { checkboxCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { PlusIcon } from "@heroicons/react/20/solid"
 import { Link, Outlet } from "@remix-run/react"
@@ -14,7 +14,7 @@ export default function ProjectSettings() {
 
   return (
     <div className="p-4 space-y-8">
-      <h2 className="font-medium text-4xl">Settings</h2>
+      <h2 className="font-medium text-4xl my-4">Settings</h2>
       <Outlet />
       <div>
         <header className="flex items-center justify-between mb-1 border-gray-200 dark:border-gray-600">

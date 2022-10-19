@@ -1,4 +1,4 @@
-import { Link, useLocation, useParams } from '@remix-run/react'
+import { Link, useParams } from '@remix-run/react'
 import clsx from 'clsx'
 import type { TreeItem } from '@/lib/github'
 
@@ -46,23 +46,13 @@ function TreeItemIcon({ item }: { item: TreeItem }) {
   return null
 }
 
-const LIStyle = 'hover:text-slate-600 hover:bg-gray-100 flex items-center my-1 p-2 rounded cursor-pointer'
-
-function useBasePath() {
-  const { org, repo } = useParams()
-  return `/r/${org}/${repo}`
-}
+const LIStyle = 'dark:hover:bg-slate-600 hover:bg-gray-100 flex items-center my-1 p-2 rounded cursor-pointer'
 
 function FileItem(f: TreeItem) {
   const file = useParams()['*']
-  const base = useBasePath()
-  const { search } = useLocation()
-  const params = new URLSearchParams(search)
-  params.delete('new')
-
   const linkStyle = clsx(LIStyle, { 'text-slate-600 bg-gray-100': f.path === file })
   return (
-    <Link to={`${base}/${f.path}?${params}`} className={linkStyle}>
+    <Link to={f.path} className={linkStyle}>
       <TreeItemIcon item={f} />
       <p className="ml-2 font-medium">{getBasename(f.path)}</p>
     </Link>
@@ -70,13 +60,10 @@ function FileItem(f: TreeItem) {
 }
 
 function NewFileItem({ path }: { path: string }) {
-  const base = useBasePath()
-  const { search } = useLocation()
-  const params = new URLSearchParams(search)
-  params.set('new', 'true')
-
+  const file = useParams()['*']
+  const linkStyle = clsx(LIStyle, { 'text-slate-600 bg-gray-100': file === `${path}/new` })
   return (
-    <Link to={`${base}${path}?${params}`} className={LIStyle}>
+    <Link to={`${path}/new`} className={linkStyle}>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-slate-400">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
@@ -111,7 +98,7 @@ export default function FileTree({ tree, subpath }: { tree: TreeItem[]; subpath?
         </li>
       ))}
       <li>
-        <NewFileItem path={`/${subpath || ''}`} />
+        <NewFileItem path={subpath || ''} />
       </li>
     </ul>
   )
