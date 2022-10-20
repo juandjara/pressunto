@@ -37,7 +37,7 @@ export default function ComboBox<T>({
 }: ComboBoxProps<T>) {
   return (
     <Combobox name={name} defaultValue={defaultValue}>
-      <div className="relative mt-1">
+      <div className="relative">
         <div className={`${inputCN} ${focusWithinCN}`}>
           <Combobox.Input
             ref={inputRef}
