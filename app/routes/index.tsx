@@ -16,11 +16,14 @@ export default function Index() {
   return (
     <div className="my-6 max-w-md mx-auto flex flex-col items-center justify-center">
       <p className="text-6xl">🐷</p>
-      <h1 className="text-slate-500 font-medium text-2xl font-serif">
+      <h1 className="text-slate-500 dark:text-slate-300 font-medium text-2xl font-serif">
         <em>Press</em>unto
       </h1>
       <p className="text-lg my-6 text-center">
-        Pressunto is a content editor for GitHub designed for managing websites.
+        Pressunto is a content editor for GitHub designed for managing markdown files in static websites.
+      </p>
+      <p className="mt-6 mb-2 text-slate-500 dark:text-slate-300">
+        Log in with GitHub
       </p>
       <LoginButton />
     </div>

@@ -1,6 +1,7 @@
 import type { User } from "@/lib/github"
 import { Link, useFetcher, useLocation, useMatches } from "@remix-run/react"
 import { Menu, Transition } from '@headlessui/react'
+import { inputCN } from "@/lib/styles"
 
 export const HEADER_HEIGHT = '65px'
 
@@ -79,8 +80,12 @@ export function LoginButton() {
   const busy = fetcher.state === 'submitting'
 
   return (
-    <fetcher.Form action='/oauth/login' method='post'>
-      <button disabled={busy} className="disabled:opacity-50 flex rounded-lg text-white bg-slate-900 px-4 py-2">
+    <fetcher.Form action='/oauth/login' method='post' className="flex gap-3">
+      <select name='scope' className={inputCN}>
+        <option value='public_repo'>Public repos only</option>
+        <option value='repo'>Public and Private repos</option>
+      </select>
+      <button disabled={busy} className="flex-shrink-0 disabled:opacity-50 flex rounded-lg text-white bg-slate-900 px-4 py-2">
         {busy ? 'Logging in...' : 'Log in'}
       </button>
     </fetcher.Form>
