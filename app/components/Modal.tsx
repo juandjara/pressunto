@@ -3,7 +3,7 @@ import { Fragment } from "react"
 
 const panelCN = [
   'bg-slate-50 dark:bg-slate-700',
-  'w-full max-w-md p-4 transform overflow-hidden rounded-lg shadow-xl transition-all'
+  'w-full max-w-md p-4 transform rounded-lg shadow-xl transition-all'
 ].join(' ')
 
 type ModalProps = {
