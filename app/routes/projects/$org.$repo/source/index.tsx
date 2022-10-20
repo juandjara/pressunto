@@ -22,7 +22,6 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
 export default function ProjectSource() {
   const { tree } = useLoaderData<LoaderData>()
-  console.log(tree)
   return (
     <div className="p-4">
       <h2 className="font-medium text-4xl my-4">Source Code</h2>
