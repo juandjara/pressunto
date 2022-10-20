@@ -5,10 +5,10 @@ import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 import Spinner from './Spinner'
 import { inputCN, focusWithinCN } from '@/lib/styles'
 
-type ComboBoxProps<T> = {
-  inputRef: MutableRefObject<HTMLInputElement | null>,
+export type ComboBoxProps<T> = {
+  inputRef?: MutableRefObject<HTMLInputElement | null>,
   name: string
-  loading: boolean
+  loading?: boolean
   options: T[]
   onSelect?: (opt: string) => void
   onSearch: (q: string) => void
@@ -18,7 +18,7 @@ type ComboBoxProps<T> = {
 }
 
 const optionsWrapperCN = [
-  'absolute z-10',
+  'absolute z-30',
   'mt-1 py-1 max-h-60 w-full',
   'bg-white dark:bg-slate-700',
   'overflow-auto rounded-md text-base shadow-lg',
@@ -72,7 +72,7 @@ export default function ComboBox<T>({
                 <Combobox.Option
                   key={String(opt[valueKey])}
                   className={({ active }) => [
-                    'relative cursor-default select-none py-2 pl-10 pr-4',
+                    'relative cursor-default select-none py-2 pr-10 pl-4',
                     active ? 'bg-slate-100 dark:bg-slate-600' : ''
                   ].join(' ')}
                   value={opt[valueKey]}
@@ -87,7 +87,7 @@ export default function ComboBox<T>({
                         {String(opt[labelKey])}
                       </span>
                       {selected ? (
-                        <span className='absolute inset-y-0 left-0 flex items-center pl-3'>
+                        <span className='absolute inset-y-0 right-0 flex items-center pr-3'>
                           <CheckIcon className="h-5 w-5" aria-hidden="true" />
                         </span>
                       ) : null}
