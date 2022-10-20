@@ -1,10 +1,11 @@
-import { Form, Link, useActionData, useFetcher, useSearchParams, useTransition } from "@remix-run/react"
+import { Form, Link, useActionData, useFetcher, useLoaderData, useSearchParams, useTransition } from "@remix-run/react"
 import { buttonCN, inputCN, labelCN } from '@/lib/styles'
 import ComboBox from "@/components/ComboBox"
 import type { RepoItem } from "@/lib/github"
+import { getOrgs } from "@/lib/github"
 import { useEffect, useMemo, useRef } from "react"
 import debounce from 'debounce'
-import type { ActionFunction} from "@remix-run/node"
+import type { ActionFunction, LoaderArgs} from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { requireUserSession } from "@/lib/session.server"
 import { createConfigFile, saveProject } from "@/lib/projects.server"
@@ -34,7 +35,19 @@ export const action: ActionFunction = async ({ request }) => {
   return redirect(`/projects/${repo}`)
 }
 
+type LoaderData = {
+  orgs: string[]
+  user: string
+}
+
+export async function loader({ request }: LoaderArgs) {
+  const { user, token } = await requireUserSession(request)
+  const orgs = await getOrgs(token)
+  return json<LoaderData>({ orgs, user: user.name })
+}
+
 export default function NewProject() {
+  const { orgs, user } = useLoaderData<LoaderData>()
   const fetcher = useFetcher<RepoItem[]>()
   const transition = useTransition()
   const busy = transition.state === 'submitting'
@@ -42,13 +55,17 @@ export default function NewProject() {
   const actionData = useActionData<ActionData>()
   const errors = actionData?.errors
   const selectRef = useRef<HTMLInputElement>(null)
+  const orgSelectRef = useRef<HTMLSelectElement>(null)
 
   const [params] = useSearchParams()
   const defaultRepo = params.get('repo') || undefined
 
   const debouncedSearchFn = useMemo(
     () => debounce(
-      (q: string) => fetcher.load(`/api/search-repo?q=${q}`),
+      (q: string) => {
+        const org = orgSelectRef.current?.value
+        return fetcher.load(`/api/search-repo?q=${q}&org=${org}`)
+      },
       DEBOUNCE_TIME
     ),
     [fetcher]
@@ -73,23 +90,35 @@ export default function NewProject() {
             <input required name='title' type='text' className={inputCN} />
           </div>
           <div>
-            <label className={labelCN} htmlFor="repo">
-              GitHub repo (user / repo)
-              {" "}
+            <div className="flex items-end justify-between">
+              <label htmlFor="repo">
+                <p className={labelCN}>GitHub repo</p>
+                <p className="text-sm mb-1">This search field will only list the repositories where you can <InlineCode>push</InlineCode> code </p>
+              </label>
               {errors?.repo ? (
-                <span className="text-red-600 dark:text-red-400">{errors.repo}</span>
+                <p className="text-sm mb-1 text-red-600 dark:text-red-400">{errors.repo}</p>
               ) : null}
-            </label>
-            <ComboBox<RepoItem>
-              inputRef={selectRef}
-              name='repo'
-              loading={fetcher.state === 'loading'}
-              options={fetcher.data || []}
-              onSearch={debouncedSearchFn}
-              labelKey='full_name'
-              valueKey='full_name'
-              defaultValue={defaultRepo}
-            />
+            </div>
+            <div className="flex items-center gap-2">
+              <select ref={orgSelectRef} name="org" className={inputCN} style={{ flexBasis: '150px' }}>
+                <option value={user}>{user}</option>
+                {orgs.map((k) => (
+                  <option key={k} value={k}>{k}</option>
+                ))}
+              </select>
+              <div className="flex-grow">
+                <ComboBox<RepoItem>
+                  inputRef={selectRef}
+                  name='repo'
+                  loading={fetcher.state === 'loading'}
+                  options={fetcher.data || []}
+                  onSearch={debouncedSearchFn}
+                  labelKey='full_name'
+                  valueKey='full_name'
+                  defaultValue={defaultRepo}
+                />
+              </div>
+            </div>
           </div>
           <div>
             <label className={labelCN} htmlFor="branch">Branch</label>

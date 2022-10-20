@@ -141,18 +141,22 @@ export async function searchRepos(token: string, {
   }
 
   const fullUrl = new URL(url.toString() + `&q=${q}`)
+  console.log(token)
+  console.log(fullUrl)
   const { data, headers } = await callGithubAPI(token, fullUrl)
 
-  data.items = data.items.map((r: any) => ({
-    name: r.name,
-    full_name: r.full_name,
-    description: r.description,
-    language: r.language,
-    default_branch: r.default_branch,
-    pushed_at: r.pushed_at,
-    fork: r.fork,
-    private: r.private
-  }))
+  data.items = data.items
+    .filter((r: any) => r.permissions.push) // keep only permissions you have write access to
+    .map((r: any) => ({ // keep only relevant data
+      name: r.name,
+      full_name: r.full_name,
+      description: r.description,
+      language: r.language,
+      default_branch: r.default_branch,
+      pushed_at: r.pushed_at,
+      fork: r.fork,
+      private: r.private
+    }))
 
   const pageData = parseLink(headers.get('link'))
 
