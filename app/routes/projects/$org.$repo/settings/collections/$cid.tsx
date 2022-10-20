@@ -1,20 +1,30 @@
+import type { ComboBoxProps } from "@/components/ComboBox"
+import ComboBox from "@/components/ComboBox"
 import Modal from "@/components/Modal"
-import type { Project, ProjectConfig} from "@/lib/projects.server"
+import type { TreeItem } from "@/lib/github"
+import { getRepoFiles } from "@/lib/github"
+import type { Project, ProjectConfig, ProjectTemplates} from "@/lib/projects.server"
 import { updateConfigFile } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
 import slugify from "@/lib/slugify"
 import { buttonCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
-import type { ActionFunction} from "@remix-run/node"
+import type { ActionFunction, LoaderFunction} from "@remix-run/node"
+import { json} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
-import { Form, useNavigate, useParams, useTransition } from "@remix-run/react"
+import { Form, useLoaderData, useNavigate, useParams, useTransition } from "@remix-run/react"
+import { useMemo, useState } from "react"
 
 export const action: ActionFunction = async ({ request, params }) => {
   const { token } = await requireUserSession(request)
   const formData = await request.formData()
 
   const name = formData.get('name') as string
-  const route = formData.get('route') as string
+  let route = formData.get('route') as string
+  if (!route.startsWith('/')) {
+    route = '/' + route
+  }
+
   const template = (formData.get('template') || '') as string
   const config = JSON.parse((formData.get('config') || '') as string) as ProjectConfig
   const project = JSON.parse((formData.get('project') || '') as string) as Project
@@ -50,6 +60,38 @@ export const action: ActionFunction = async ({ request, params }) => {
   })
 }
 
+export const loader: LoaderFunction = async ({ params, request }) => {
+  const { token } = await requireUserSession(request)
+  const repo = `${params.org}/${params.repo}`
+  const tree = await getRepoFiles(token, repo)
+  return json({ tree: tree.filter((t) => t.type === 'tree') })
+}
+
+type LocalComboBoxProps<T> = Pick<
+  ComboBoxProps<T>,
+  'options' | 'labelKey' | 'valueKey' | 'name' | 'defaultValue'
+>
+
+function LocalComboBox<T>(props: LocalComboBoxProps<T>) {
+  const [query, setQuery] = useState('')
+  const filteredOptions = useMemo(() => {
+    return (props.options as T[]).filter(t => (
+      query ? (t[props.labelKey] as string || '').includes(query.trim().toLowerCase()) : true
+    ))
+  }, [query, props.options, props.labelKey])
+
+  return (
+    <ComboBox<T>
+      name={props.name}
+      options={filteredOptions}
+      labelKey={props.labelKey}
+      valueKey={props.valueKey}
+      defaultValue={props.defaultValue}
+      onSearch={setQuery}
+    />
+  )
+}
+
 export default function EditCollection() {
   const navigate = useNavigate()
   const { cid: collectionId } = useParams()
@@ -58,6 +100,8 @@ export default function EditCollection() {
   const project = useProject()
   const transition = useTransition()
   const busy = transition.state === 'submitting'
+  const { tree } = useLoaderData<{ tree: TreeItem[] }>()
+  const templateOptions = [{ id: '', name: 'No template', fields: [] as any }].concat(config.templates)
 
   function closeModal() {
     navigate('..')
@@ -87,23 +131,24 @@ export default function EditCollection() {
             />
           </div>
           <div>
-            <label htmlFor="route" className={labelCN}>Route</label>
-            <input
-              required
-              name="route"
-              type="text"
-              className={inputCN}
-              defaultValue={collection?.route}
+            <label htmlFor="route" className={labelCN}>Folder</label>
+            <LocalComboBox<TreeItem>
+              name='repo'
+              options={tree}
+              labelKey='path'
+              valueKey='path'
+              defaultValue={collection?.route.replace(/^\//, '')}
             />
           </div>
           <div>
             <label htmlFor="template" className={labelCN}>Template</label>
-            <select name="template" defaultValue={collection?.template} className={inputCN}>
-              <option value="">No template</option>
-              {config.templates.map((t) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </select>
+            <LocalComboBox<ProjectTemplates>
+              name='repo'
+              options={templateOptions}
+              labelKey='name'
+              valueKey='id'
+              defaultValue={collection?.template}
+            />
           </div>
         </fieldset>
         <div className="flex items-center mt-4">
