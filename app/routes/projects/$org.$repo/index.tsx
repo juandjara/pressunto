@@ -10,7 +10,7 @@ export default function Collections() {
 
   return (
     <div className="p-4">
-      <h2 className="font-medium text-4xl my-4">Content</h2>
+      <h2 className="font-medium text-4xl my-4">Collections</h2>
       {collections.length === 0 && (
         <>        
           <p className="dark:text-stone-200">

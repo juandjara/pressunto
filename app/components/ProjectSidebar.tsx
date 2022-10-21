@@ -1,6 +1,6 @@
 import { buttonCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
-import { CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, EyeSlashIcon, FolderIcon } from "@heroicons/react/20/solid"
+import { BookOpenIcon, CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, EyeSlashIcon, FolderIcon } from "@heroicons/react/20/solid"
 import { Link, NavLink } from "@remix-run/react"
 import { useRef } from "react"
 
@@ -30,7 +30,7 @@ export default function ProjectSidebar() {
       <nav>
         <NavLink to='' end className={linkCN}>
           <FolderIcon className={iconCN.big} />
-          <span className="text-lg">Content</span>
+          <span className="text-lg">Collections</span>
         </NavLink>
         <ul className="block ml-0.5 my-2 space-y-2 h-full">
           {collections.map((c) => (
@@ -55,6 +55,10 @@ export default function ProjectSidebar() {
         <NavLink to='/privacy' className={linkCN}>
           <EyeSlashIcon className={iconCN.big} />
           <span>Privacy</span>
+        </NavLink>
+        <NavLink to='/doc' className={linkCN}>
+          <BookOpenIcon className={iconCN.big} />
+          <span>Documentation</span>
         </NavLink>
       </nav>
     </>

@@ -121,7 +121,9 @@ function CollectionReorder({ onToggleMode }: DisplayModeProps) {
   return (
     <Form replace method="post" className="p-4" onSubmit={() => onToggleMode('links')}>
       <header className="flex items-center mt-4 mb-8">
-        <h2 className="font-medium text-4xl truncate">{collection.name}</h2>
+        <h2 className="font-medium text-4xl truncate">
+          {collection.name} <small className="text-base opacity-75">reorder</small>
+        </h2>
         <div className="flex-grow"></div>
         <button
           type="button"
