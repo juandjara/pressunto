@@ -26,7 +26,7 @@ export function links() {
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
-  title: '🐷 Pressunto',
+  title: 'Pressunto',
   viewport: "width=device-width,initial-scale=1",
 })
 
