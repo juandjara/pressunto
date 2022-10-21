@@ -30,7 +30,8 @@ export default function Index() {
         <p className="text-sm my-4">
           Your login data will be used only to read the user name and profile picture, which organizations the user belongs to and to read and write code from the repositories (public or private). No other information will be accesed, such as issues, PRs, discussions, actions or other keys and settings.
           For more information on how data is accesed, you can check the{' '}
-          <a className="underline" href="https://github.com/juandjara/pressunto/blob/master/app/lib/github.ts">public source code</a>
+          <a className="underline" href="https://github.com/juandjara/pressunto/blob/master/app/lib/github.ts">public source code</a>{' '}
+          or read <a className="underline" href='/privacy'>the privacy page</a>
         </p>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { buttonCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
-import { CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, FolderIcon } from "@heroicons/react/20/solid"
-import { NavLink } from "@remix-run/react"
+import { CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, EyeSlashIcon, FolderIcon } from "@heroicons/react/20/solid"
+import { Link, NavLink } from "@remix-run/react"
 import { useRef } from "react"
 
 const baseLinkCN = [
@@ -52,12 +52,16 @@ export default function ProjectSidebar() {
           <Cog6ToothIcon className={iconCN.big} />
           <span className="text-lg">Settings</span>
         </NavLink>
+        <NavLink to='/privacy' className={linkCN}>
+          <EyeSlashIcon className={iconCN.big} />
+          <span>Privacy</span>
+        </NavLink>
       </nav>
     </>
   )
 
   return (
-    <aside className="md:max-w-xs w-full flex-shrink-0 py-2 md:py-4 border-r border-slate-200 dark:border-gray-600">
+    <aside className="md:max-w-sm w-full flex-shrink-0 py-2 md:py-4 border-r border-slate-200 dark:border-gray-600">
       <details className="md:hidden">
         <summary ref={summaryRef} className={`${buttonCN.normal} ${buttonCN.cancel}`}>MENU</summary>
         <div onClick={() => summaryRef.current?.click()}>

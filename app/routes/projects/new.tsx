@@ -93,7 +93,7 @@ export default function NewProject() {
             <div className="flex items-end justify-between">
               <label htmlFor="repo">
                 <p className={labelCN}>GitHub repo</p>
-                <p className="text-sm mb-1">This search field will only list the repositories where you can <InlineCode>push</InlineCode> code </p>
+                <p className="text-sm mb-1">This search field will only list the repositories where you can push code </p>
               </label>
               {errors?.repo ? (
                 <p className="text-sm mb-1 text-red-600 dark:text-red-400">{errors.repo}</p>

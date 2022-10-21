@@ -37,7 +37,7 @@ export const handle = {
 
 export default function ProjectDetails() {
   return (
-    <div className="md:flex items-stretch" style={{ height: `calc(100vh - ${HEADER_HEIGHT})` }}>
+    <div className="md:flex items-stretch" style={{ minHeight: `calc(100vh - ${HEADER_HEIGHT})` }}>
       <ProjectSidebar />
       <div className="flex-grow">
         <Outlet />
