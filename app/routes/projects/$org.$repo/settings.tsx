@@ -1,4 +1,5 @@
 import { getFileContent, saveFile } from "@/lib/github"
+import metaTitle from "@/lib/metaTitle"
 import { CONFIG_FILE_NAME, deleteProject, updateProject } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
 import { buttonCN, checkboxCN, inputCN, labelCN } from "@/lib/styles"
@@ -55,6 +56,10 @@ export const action: ActionFunction = async ({ request, params }) => {
       'cache-control': 'no-cache'
     })
   })
+}
+
+export const meta = {
+  title: metaTitle('Settings')
 }
 
 const groupCN = 'py-2'

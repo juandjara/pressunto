@@ -1,3 +1,4 @@
+import metaTitle from "@/lib/metaTitle"
 import type { Project } from "@/lib/projects.server"
 import { getUserProjects } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
@@ -9,6 +10,10 @@ import { Link, useLoaderData } from "@remix-run/react"
 
 type LoaderData = {
   projects: Project[]
+}
+
+export const meta = {
+  title: metaTitle('Projects')
 }
 
 export async function loader({ request }: LoaderArgs) {

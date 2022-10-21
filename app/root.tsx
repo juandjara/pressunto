@@ -16,6 +16,7 @@ import { getSessionData } from "./lib/session.server"
 import LiveReload from "./components/LiveReload"
 import tailwind from "./tailwind.css"
 import animate from './animate.css'
+import metaTitle from "./lib/metaTitle"
 
 export function links() {
   return [
@@ -26,7 +27,7 @@ export function links() {
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
-  title: 'Pressunto',
+  title: metaTitle(''),
   viewport: "width=device-width,initial-scale=1",
 })
 

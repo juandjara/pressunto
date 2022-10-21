@@ -10,8 +10,13 @@ import { json, redirect } from "@remix-run/node"
 import { requireUserSession } from "@/lib/session.server"
 import { createConfigFile, saveProject } from "@/lib/projects.server"
 import InlineCode from "@/components/InlineCode"
+import metaTitle from "@/lib/metaTitle"
 
 const DEBOUNCE_TIME = 300
+
+export const meta = {
+  title: metaTitle('New Project')
+}
 
 type ActionData = undefined | { errors: { repo: string } }
 
