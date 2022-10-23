@@ -21,6 +21,14 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const name = formData.get('name') as string
   let route = formData.get('route') as string
+
+  if (!name) {
+    throw new Response('Parameter "name" is mandatory', { status: 400, statusText: 'Bad Request' })
+  }
+  if (!route) {
+    throw new Response('Parameter "route" is mandatory', { status: 400, statusText: 'Bad Request' })
+  }
+
   if (!route.startsWith('/')) {
     route = '/' + route
   }
