@@ -133,7 +133,7 @@ export default function EditCollection() {
           <div>
             <label htmlFor="route" className={labelCN}>Folder</label>
             <LocalComboBox<TreeItem>
-              name='repo'
+              name='route'
               options={tree}
               labelKey='path'
               valueKey='path'
@@ -143,7 +143,7 @@ export default function EditCollection() {
           <div>
             <label htmlFor="template" className={labelCN}>Template</label>
             <LocalComboBox<ProjectTemplates>
-              name='repo'
+              name='template'
               options={templateOptions}
               labelKey='name'
               valueKey='id'
