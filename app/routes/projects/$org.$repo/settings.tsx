@@ -73,8 +73,13 @@ export default function ProjectSettings() {
 
   return (
     <div className="p-4 space-y-8">
-      <h2 className="font-medium text-4xl my-4">Settings</h2>
       <Outlet />
+      <div>
+        <h2 className="font-medium text-4xl my-4">Settings</h2>
+        <p className="max-w-prose font-medium">
+          Here you can edit the configuration for your project, how content is organized and what defaults field are added to every content collection 
+        </p>
+      </div>
       <div>
         <header className="flex items-end justify-between mb-1">
           <div>
