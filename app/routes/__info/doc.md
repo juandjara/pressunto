@@ -59,19 +59,19 @@ You can also reorder the post list. This works by writing a numeric `order` attr
 
 This screen contiains the main functionality for the platform. Here you can edit your post content and frontmatter. Every post in a collection will have the fields defined in the collection **template** plus any other field that the specific file has saved. You can add any arbitrary field to a post using the **new field** button and delete any field from the document using the **delete field** button.
 
-The editor below the frontmatter fields supports GitHub Flavored Markddown with all its features. You can write markdown in the Editor tab and switch to the Preview tab immediately to see how your content will look. Your edits and changes will be saved while you do not close the tab or navigate away.
+The editor below the frontmatter fields supports **GitHub Flavored Markddown** with all its features. You can write markdown in the Editor tab and switch to the Preview tab immediately to see how your content will look. Your edits and changes will be saved while you do not close the browser tab or navigate away.
 
 The editor also supports emoji markup using the `:+1:` syntax
 
-The editor also supports image drag and drop. When you drop an image into the editor, a Data URI will be created and a graphical placeholder will be shown for your image (raw data uris as of raw markdown image format themselves will be too large to show there)
+The editor also supports **image drag and drop**. When you drop an image into the editor, a Data URI will be created and a graphical placeholder will be shown for your image (original markdown image markup for data URIs will be too long to show)
 
 ### Source Code
 
-
-### Source Code Detail
-
+In this view you can browse all the files in your repo, so you can know which routes to configure in the collection sections. The files here can be edited plain, as they are in the github repo. This lets you tweak little details in the code of your application not related to the content you are tracking in your collection. The interface is almost the same as the interface for editing markdown posts, and you can also delete individual files from here.
 
 ### Settings
+
+Here you can edit the configuration for your project, how content is organized and what defaults field are added to every content collection 
 
 
 #### Collection settings
