@@ -8,7 +8,7 @@ export default function DocLayout() {
     <div className="p-4 mb-8">
       <button
         onClick={() => navigate(-1)} 
-        className={`-ml-2 mb-8 ${buttonCN.small} ${buttonCN.iconLeft} ${buttonCN.cancel}`}>
+        className={`-ml-1 mb-8 ${buttonCN.small} ${buttonCN.iconLeft} ${buttonCN.cancel}`}>
         <ArrowLeftIcon className='w-5 h-5' />
         <span>Back</span>
       </button>
