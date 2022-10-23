@@ -82,6 +82,7 @@ export function ErrorBoundary({ error }: { error: Error }) {
 export function CatchBoundary() {
   const { status, statusText, data } = useCatch()
   const title = `${status} ${statusText}`
+  const message = typeof data === 'string' ? data : data?.message
 
   return (
     <html>
@@ -95,7 +96,7 @@ export function CatchBoundary() {
           <p className="grayscale text-7xl text-center">🐷</p>
           <div className="my-6">
             <p className="text-xl font-semibold">{title}</p>
-            <p className="text-base">{data?.message}</p>
+            <p className="text-base">{message}</p>
           </div>
           <Link to="/" className="bg-slate-700 text-white rounded-lg px-4 py-2">Take me home</Link>
         </div>
