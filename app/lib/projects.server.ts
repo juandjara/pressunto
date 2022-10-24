@@ -25,7 +25,7 @@ export type ProjectTemplates = {
   fields: FieldConfig[]
 }
 
-type FieldConfig = {
+export type FieldConfig = {
   name: string
   field: string
   default: string
@@ -43,8 +43,8 @@ export async function getUserProjects(user: string) {
     return []
   }
 
-  const projects = await db.mget(...keys.map(k => `project:${user}:${k}`))
-  return projects as Project[]
+  const projects = await db.mget(...keys.map(k => `project:${user}:${k}`)) as Project[]
+  return projects.sort((a, b) => a.title.localeCompare(b.title))
 }
 
 export async function getProject(user: string, repo: string) {

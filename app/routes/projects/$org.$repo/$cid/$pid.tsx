@@ -133,7 +133,6 @@ function PostAttributes() {
     const fieldMap = Object.fromEntries(fields.map((f) => [f.field, f]))
 
     const keys = new Set([
-      'title',
       ...Object.keys(file.attributes),
       ...fields.map((f) => f.field)
     ])
@@ -176,15 +175,13 @@ function PostAttributes() {
           <div className={`${labelCN} ${entry.hidden ? 'hidden' : 'flex'} items-center`}>
             <label htmlFor={`meta__${entry.field}`} className="capitalize">{entry.name || entry.field}</label>
             <div className="flex-grow"></div>
-            {entry.field !== 'title' && (
-              <button
-                type='button'
-                onClick={() => removeField(entry.field)}
-                className={`flex items-center gap-1 ${buttonCN.small}`}>
-                <XMarkIcon className="w-5 h-5" />
-                <span>delete field</span>
-              </button>
-            )}
+            <button
+              type='button'
+              onClick={() => removeField(entry.field)}
+              className={`flex items-center gap-1 ${buttonCN.small}`}>
+              <XMarkIcon className="w-5 h-5" />
+              <span>delete field</span>
+            </button>
           </div>
           <input
             type={entry.hidden ? 'hidden' : 'text'}

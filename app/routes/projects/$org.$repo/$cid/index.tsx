@@ -9,10 +9,10 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import { Form, Link, useLoaderData, useTransition } from "@remix-run/react"
 import { useState } from "react"
-import { CSS } from '@dnd-kit/utilities'
 import { useProject } from "@/lib/useProjectConfig"
 import { ArrowsUpDownIcon, Bars2Icon, PlusIcon } from "@heroicons/react/20/solid"
 import { buttonCN } from "@/lib/styles"
+import SortableItem from "@/components/SortableItem"
 
 type LoaderData = {
   files: CollectionFile[]
@@ -183,7 +183,11 @@ function SortableList({ files, setFiles }: SortableListProps) {
         onDragEnd={handleDragEnd}
       >
         <SortableContext items={files} strategy={verticalListSortingStrategy}>
-          {files.map((f) => <SortableItem key={f.id} file={f} isActive={activeId === f.id} />)}
+          {files.map((f) => (
+            <SortableItem key={f.id} id={f.id} isActive={activeId === f.id}>
+              <CollectionListItem file={f} />
+            </SortableItem>
+          ))}
         </SortableContext>
         <DragOverlay>
           {
@@ -194,30 +198,6 @@ function SortableList({ files, setFiles }: SortableListProps) {
         </DragOverlay>
       </DndContext>
     </ul>
-  )
-}
-
-function SortableItem({ file, isActive }: { file: CollectionFile; isActive: boolean }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition
-  } = useSortable({ id: file.id })
-
-  const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isActive ? 0 : 1,
-    pointerEvents: isActive ? 'none' : undefined,
-    userSelect: 'none',
-  }
-
-  return (
-    <li ref={setNodeRef} style={style} {...listeners} {...attributes}>
-      <CollectionListItem file={file} />
-    </li>
   )
 }
 
