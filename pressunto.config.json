@@ -1,4 +1,11 @@
 {
-  "collections": [],
+  "collections": [
+    {
+      "id": "info-pages",
+      "name": "Info pages",
+      "route": "/app/routes/__info",
+      "template": ""
+    }
+  ],
   "templates": []
 }
