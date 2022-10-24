@@ -5,7 +5,7 @@ meta:
 
 ## Documentation
 
-(WIP) This page describes how to get the most of Pressunto and how different pages work together.
+This page describes how to get the most of Pressunto and how different pages work together.
 
 ### Login
 
@@ -73,21 +73,47 @@ In this view you can browse all the files in your repo, so you can know which ro
 
 Here you can edit the configuration for your project, how content is organized and what defaults field are added to every content collection 
 
-
 #### Collection settings
 
-
-#### New collection
-
+This section contains a little description of the concept of collections. Clicking the list items will open a modal with the information of the collection. Clicking the _"new +"_ button will open the same modal for creating a new collection. There you can name your collection, select a folder from your repository and select a template from the available templates.
 
 #### Template settings
 
+This section contains a little description of the concept of templates. Clicking the list items will open a modal with the information of the templates. Clicking the _"new +"_ button will open the same modal for creating a new template. There you can name your template, and configure the fields that will be added when this template is used. When saved to the config file, templates have the following stucture:
 
-#### New template
+```json
+{
+  "id": "blog",
+  "name": "Blog",
+  "fields": [
+    {
+      "name": "Tag",
+      "field": "tag",
+      "hidden": false,
+      "default": ""
+    },
+    {
+      "name": "Date",
+      "field": "date",
+      "hidden": false,
+      "default": ""
+    }
+  ]
+}
+```
 
+- The **id** field is created automatically as a slug created from the `name` field.
+- The **name** field is the label that is displayed in the templates list.
+- For every element in the **fields** array:
+  - The **field** property is what identifies this element, the key that will added to the yaml frontmatter
+  - The **name** property correspond to the **label** input in the modal and is the label that will be shown in the markdown post editor
+  - The **hidden** property marks whether or not this field is displayed in the markdown post editor 
+  - The **default** property holds the default value that will be asigned to this field when a post is created
 
 #### Project settings
 
+In this section you can edit your project title, and change the branch of the repository that your project is using.
 
 #### Danger Zone
 
+This is the section where you can delete your project and all related information to it. You can also mark to delete the configuration file stored in your repository, so editing in this platform leaves no trace in your repository.
