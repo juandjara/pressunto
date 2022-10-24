@@ -250,7 +250,7 @@ function FieldEdit({ fields, setFields }: FieldListProps) {
         {fields.map((f) => (
           <li key={f.field} className="p-2 bg-slate-200/50 dark:bg-slate-600 rounded-md">
             <details>
-              <summary className="pl-1">
+              <summary className="pl-1 cursor-pointer">
                 <div style={{ width: 'calc(100% - 16px)' }} className="pl-1 inline-flex items-center justify-between">
                   <p>{f.field}</p>
                   <button
