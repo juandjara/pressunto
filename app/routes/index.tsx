@@ -2,6 +2,7 @@ import { LoginButton } from "@/components/Header"
 import type { LoaderArgs } from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { getSessionData } from "@/lib/session.server"
+import { Link } from "@remix-run/react"
 
 export async function loader({ request }: LoaderArgs) {
   const { token } = await getSessionData(request)
@@ -27,13 +28,18 @@ export default function Index() {
           Log in with GitHub
         </p>
         <LoginButton />
-        <p className="text-sm my-4">
+        <p className="text-sm my-6">
           Your login data will be used only to read the user name and profile picture, which organizations the user belongs to and to read and write code from the repositories (public or private). No other information will be accesed, such as issues, PRs, discussions, actions or other keys and settings.
           For more information on how data is accesed, you can check the{' '}
           <a className="underline" href="https://github.com/juandjara/pressunto/blob/master/app/lib/github.ts">public source code</a>{' '}
           or read <a className="underline" href='/privacy'>the privacy page</a>
         </p>
       </div>
+      <footer className="-mx-2 mt-6 flex items-center gap-2 text-sm">
+        <Link className="p-2 hover:underline" to='/doc'>Documentation</Link>
+        <div className="h-6 border-r border-slate-300"></div>
+        <Link className="p-2 hover:underline" to='/privacy'>Privacy</Link>
+      </footer>
     </div>
   )
 }
