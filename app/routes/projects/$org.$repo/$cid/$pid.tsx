@@ -4,7 +4,7 @@ import { processFileContent } from "@/lib/projects.server"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
 import { buttonCN } from "@/lib/styles"
-import type { ActionArgs, LoaderFunction} from "@remix-run/node"
+import type { ActionArgs, LoaderFunction, MetaFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import { Form, Link, useLoaderData, useParams, useTransition } from "@remix-run/react"
@@ -21,6 +21,13 @@ type LoaderData = {
     admin: boolean
     push: boolean
     pull: boolean
+  }
+}
+
+export const meta: MetaFunction = ({ data, params, location }) => {
+  const title = (data as LoaderData).file.title
+  return {
+    title: `${title} | Pressunto`
   }
 }
 
@@ -136,7 +143,7 @@ export default function PostDetails() {
 
   return (
     <Form method='post' className="py-4 px-2 md:px-4 mb-8">
-      <div className="flex flex-wrap items-stretch gap-4 mb-4">
+      <div className="lg:flex flex-wrap items-stretch gap-4 mb-4">
         <PostEditor />
         <FrontmatterEditor />
       </div>
