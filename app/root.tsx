@@ -46,7 +46,7 @@ export default function App() {
       </head>
       <body className="dark:text-slate-100 dark:bg-slate-800 text-slate-700">
         <GlobalSpinner />
-        <div className="container mx-auto min-h-screen">
+        <div className="lg:container mx-auto min-h-screen">
           <Header user={user} />
           <Outlet />
         </div>

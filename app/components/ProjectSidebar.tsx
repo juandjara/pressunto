@@ -1,11 +1,11 @@
 import { buttonCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { BookOpenIcon, CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, EyeSlashIcon, FolderIcon } from "@heroicons/react/20/solid"
-import { Link, NavLink } from "@remix-run/react"
+import { NavLink } from "@remix-run/react"
 import { useRef } from "react"
 
 const baseLinkCN = [
-  'flex items-center gap-3 rounded-l-md py-1 px-2',
+  'flex items-center gap-3 rounded-md py-1 px-2',
   'text-slate-500 dark:text-slate-200',
   'hover:bg-slate-100 hover:dark:bg-slate-700'
 ].join(' ')
@@ -65,7 +65,7 @@ export default function ProjectSidebar() {
   )
 
   return (
-    <aside className="md:max-w-xs w-full flex-shrink-0 py-2 md:py-4 border-r border-slate-200 dark:border-gray-600">
+    <aside className="md:max-w-xs w-full flex-shrink-0 px-2 py-2 md:py-4 border-r border-slate-200 dark:border-gray-600">
       <details className="md:hidden">
         <summary ref={summaryRef} className={`${buttonCN.normal} ${buttonCN.cancel}`}>MENU</summary>
         <div onClick={() => summaryRef.current?.click()}>

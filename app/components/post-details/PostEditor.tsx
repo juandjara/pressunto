@@ -35,7 +35,7 @@ export default function PostEditor() {
   }
 
   return (
-    <Tab.Group as="div" className='-mx-2 md:mx-0 flex-shrink-0'>
+    <Tab.Group as="div" className='-mx-2 md:mx-0 pt-1'>
       <Tab.List className="md:mx-1.5 mb-2 flex items-center gap-2">
         <Tab className={tabButtonCN}>Editor</Tab>
         <Tab className={tabButtonCN}>Preview</Tab>
