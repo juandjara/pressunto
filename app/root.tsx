@@ -23,13 +23,33 @@ export function links() {
   return [
     { rel: "stylesheet", href: tailwind },
     { rel: "stylesheet", href: animate },
+    { rel: 'shortcut icon', type: 'image/x-icon', href: '/favicon.ico' },
+    { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+    { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+    { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+    { rel: 'manifest', href: '/site.webmanifest' }
   ]
 }
 
+const description = 'Pressunto is a content editor for GitHub designed for managing markdown files in static websites.'
+const image = 'https://pressunto.fly.dev/screenshot.png'
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
-  title: metaTitle(''),
   viewport: "width=device-width,initial-scale=1",
+  title: metaTitle(''),
+  'og:title': metaTitle(''),
+  description,
+  'og:description': description,
+  'twitter:card': 'summary_large_iamge',
+  'twitter:domain': 'pressunto.fly.dev',
+  'twitter:title': metaTitle(''),
+  'twitter:description': description,
+  'twitter:image': image,
+  'og:image': image,
+  'og:image:alt': 'Screenshot of Settings page of the platform',
+  'og:image:width': '1641',
+  'og:image:height': '1055',
+  'og:site_name': metaTitle('')
 })
 
 export const loader: LoaderFunction = async ({ request }) => {

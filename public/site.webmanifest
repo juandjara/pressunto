@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "short_name": "",
+  "name": "Pressunto: a content editor for GitHub",
+  "short_name": "Pressunto",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -14,6 +14,6 @@
     }
   ],
   "theme_color": "#ffffff",
-  "background_color": "#ffffff",
+  "background_color": "#1e293b",
   "display": "standalone"
 }
