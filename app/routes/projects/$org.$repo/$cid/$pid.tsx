@@ -13,6 +13,7 @@ import { getBasename } from "@/lib/pathUtils"
 import slugify from "@/lib/slugify"
 import FrontmatterEditor from "@/components/post-details/FrontmatterEditor"
 import PostEditor from "@/components/post-details/PostEditor"
+import metaTitle from "@/lib/metaTitle"
 
 type LoaderData = {
   file: CollectionFile,
@@ -24,10 +25,9 @@ type LoaderData = {
   }
 }
 
-export const meta: MetaFunction = ({ data, params, location }) => {
-  const title = (data as LoaderData).file.title
+export const meta: MetaFunction = ({ data }) => {
   return {
-    title: `${title} | Pressunto`
+    title: metaTitle((data as LoaderData).file.title)
   }
 }
 

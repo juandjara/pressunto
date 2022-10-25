@@ -1,4 +1,4 @@
-import type { LoaderFunction, MetaFunction } from "@remix-run/node"
+import type { ActionArgs, LoaderFunction, MetaFunction } from "@remix-run/node"
 import { json } from '@remix-run/node'
 import {
   Link,
@@ -17,6 +17,7 @@ import LiveReload from "./components/LiveReload"
 import tailwind from "./tailwind.css"
 import animate from './animate.css'
 import metaTitle from "./lib/metaTitle"
+import { getTheme, toggleTheme } from "./lib/themeCookie.server"
 
 export function links() {
   return [
@@ -33,13 +34,24 @@ export const meta: MetaFunction = () => ({
 
 export const loader: LoaderFunction = async ({ request }) => {
   const { user } = await getSessionData(request)
-  return json({ user })
+  const theme = await getTheme(request)
+
+  return json({ user, theme })
+}
+
+export async function action({ request }: ActionArgs) {
+  const cookie = await toggleTheme(request)
+  return json({ ok: true }, {
+    headers: {
+      'Set-Cookie': cookie
+    }
+  })
 }
 
 export default function App() {
-  const { user } = useLoaderData()
+  const { user, theme } = useLoaderData()
   return (
-    <html lang="en">
+    <html lang="en" className={theme}>
       <head>
         <Meta />
         <Links />

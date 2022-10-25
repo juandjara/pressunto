@@ -2,6 +2,7 @@ import type { User } from "@/lib/github"
 import { Link, useFetcher, useLocation, useMatches } from "@remix-run/react"
 import { Menu, Transition } from '@headlessui/react'
 import { inputCN } from "@/lib/styles"
+import DarkModeToggler from "./DarkModeToggler"
 
 export const HEADER_HEIGHT = '65px'
 
@@ -30,6 +31,7 @@ export default function Header({ user }: { user: User }) {
       </Link>
       <ul className="flex items-center justify-start ml-2 space-x-2">{breadcrumbs}</ul>
       <div className="flex-grow"></div>
+      <DarkModeToggler />
       <UserMenu user={user} />
     </nav>
   )
