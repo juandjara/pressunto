@@ -144,9 +144,11 @@ function PostAttributes() {
         hidden: false,
         default: '',
       }
+
+      const value = file.attributes[key] || ''
       return {
         ...conf,
-        value: file.attributes[key] || ''
+        value: typeof value === 'object' ? JSON.stringify(value) : value
       }
     })
   })

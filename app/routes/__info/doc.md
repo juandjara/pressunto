@@ -1,5 +1,5 @@
 ---
-meta: [object Object]
+meta: { title: 'Documentation | Pressunto' }
 ---
 
 ## Documentation
