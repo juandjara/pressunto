@@ -63,7 +63,7 @@ export default function FrontmatterEditor() {
   }
 
   return (
-    <fieldset className="space-y-6 mb-10 mt-4 flex-grow flex-shrink-0">
+    <fieldset className="space-y-6 mb-10 mt-5 flex-grow flex-shrink-0">
       {attrs.map((entry) => (
         <div key={entry.field}>
           <div className={`${labelCN} ${entry.hidden ? 'hidden' : 'flex'} items-center`}>
