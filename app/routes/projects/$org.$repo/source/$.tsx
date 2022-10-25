@@ -1,4 +1,4 @@
-import FileDetails from "@/components/FileDetails"
+import FileDetails from "@/components/source-files/FileDetails"
 import { getFileContent, getRepoDetails, saveFile } from "@/lib/github"
 import { getBasename } from "@/lib/pathUtils"
 import { getProject } from "@/lib/projects.server"
@@ -44,10 +44,6 @@ export async function action({ request, params }: ActionArgs) {
   if (!name) {
     throw new Response(`"filename" param is required in form data`, { status: 400, statusText: 'Bad Request' })
   }
-
-  // if (!body) {
-  //   throw new Response(`"markdown" param is required in form data`, { status: 400, statusText: 'Bad Request' })
-  // }
 
   const isNew = !sha
   const message = op === 'delete' 

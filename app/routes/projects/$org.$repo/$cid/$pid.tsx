@@ -3,19 +3,16 @@ import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
 import { processFileContent } from "@/lib/projects.server"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
-import { buttonCN, inputCN, labelCN } from "@/lib/styles"
+import { buttonCN } from "@/lib/styles"
 import type { ActionArgs, LoaderFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import { Form, Link, useLoaderData, useParams, useTransition } from "@remix-run/react"
-import { Tab } from '@headlessui/react'
-import { useEffect, useState } from "react"
-import MarkdownPreview from "@/components/MarkdownPreview"
-import MarkdownEditor from "@/components/MarkdownEditor"
 import { useProject } from "@/lib/useProjectConfig"
 import { getBasename } from "@/lib/pathUtils"
-import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
 import slugify from "@/lib/slugify"
+import FrontmatterEditor from "@/components/post-details/FrontmatterEditor"
+import PostEditor from "@/components/post-details/PostEditor"
 
 type LoaderData = {
   file: CollectionFile,
@@ -122,132 +119,7 @@ export async function action({ request, params }: ActionArgs) {
   return redirect(redirectPath)
 }
 
-function PostAttributes() {
-  const { cid } = useParams()
-  const { config, file } = useLoaderData<LoaderData>()
-  const collection = config.collections.find((c) => c.id === cid)
-  const template = collection && config.templates.find((t) => t.id === collection.template)
-
-  const [attrs, setAttrs] = useState(() => {
-    const fields = template?.fields || []
-    const fieldMap = Object.fromEntries(fields.map((f) => [f.field, f]))
-
-    const keys = new Set([
-      ...Object.keys(file.attributes),
-      ...fields.map((f) => f.field)
-    ])
-
-    return Array.from(keys).map((key) => {
-      const conf = fieldMap[key] || {
-        field: key,
-        name: '',
-        hidden: false,
-        default: '',
-      }
-
-      const value = file.attributes[key] || ''
-      return {
-        ...conf,
-        value: typeof value === 'object' ? JSON.stringify(value) : value
-      }
-    })
-  })
-
-  function removeField(key: string) {
-    setAttrs(a => a.filter(f => f.field !== key))
-  }
-
-  function addField() {
-    const key = window.prompt('Enter new field')
-    if (key) {
-      setAttrs(a => a.concat({
-        field: key,
-        name: key,
-        hidden: false,
-        default: '',
-        value: '',
-      }))
-    }
-  }
-
-  return (
-    <fieldset className="space-y-6 mb-10 mt-4 md:max-w-xs w-full flex-grow flex-shrink-0">
-      {attrs.map((entry) => (
-        <div key={entry.field}>
-          <div className={`${labelCN} ${entry.hidden ? 'hidden' : 'flex'} items-center`}>
-            <label htmlFor={`meta__${entry.field}`} className="capitalize">{entry.name || entry.field}</label>
-            <div className="flex-grow"></div>
-            <button
-              type='button'
-              onClick={() => removeField(entry.field)}
-              className={`flex items-center gap-1 ${buttonCN.small}`}>
-              <XMarkIcon className="w-5 h-5" />
-              <span>delete field</span>
-            </button>
-          </div>
-          <input
-            type={entry.hidden ? 'hidden' : 'text'}
-            name={`meta__${entry.field}`}
-            defaultValue={entry.value || entry.default || ''}
-            className={inputCN}
-          />
-        </div>
-      ))}
-      <button
-        type="button"
-        onClick={addField}
-        className={`${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconLeft} pr-3`}>
-        <PlusIcon className="w-5 h-5" />
-        <span>Add field</span>
-      </button>
-      <input type='hidden' name='meta_fields' value={attrs.map(f => f.field).join(',')} />
-    </fieldset>
-  )
-}
-
-function PostBody() {
-  const { file } = useLoaderData<LoaderData>()
-  const [tempContent, setTempContent] = useState('')
-
-  useEffect(() => {
-    if (file) {
-      setTempContent(file.body || '')
-    }
-  }, [file])
-
-  const tabButtonCN = ({ selected }: { selected: boolean }) => {
-    const activeStyle = selected ? 
-      `${buttonCN.cancel} border border-b-0 border-gray-300 dark:border-gray-500`
-      : buttonCN.cancel
-
-    return `${activeStyle} px-4 py-2 rounded-t-md font-medium`
-  }
-
-  return (
-    <Tab.Group as="div" className='-mx-2 md:mx-0 flex-grow'>
-      <Tab.List className="md:mx-1.5 mb-2 flex items-center gap-2">
-        <Tab className={tabButtonCN}>Editor</Tab>
-        <Tab className={tabButtonCN}>Preview</Tab>
-      </Tab.List>
-      <Tab.Panels>
-        <Tab.Panel>
-          <MarkdownEditor
-            name="markdown"
-            initialValue={tempContent || file.body || ''}
-            onChange={setTempContent}
-          />
-        </Tab.Panel>
-        <Tab.Panel className='-mt-2'>
-          <div className='p-3 md:rounded-md border border-gray-300'>
-            <MarkdownPreview code={tempContent} />
-          </div>
-        </Tab.Panel>
-      </Tab.Panels>
-    </Tab.Group>
-  )
-}
-
-export default function PostEditor() {
+export default function PostDetails() {
   const { cid: collectionId } = useParams()
   const { config, file, permissions } = useLoaderData<LoaderData>()
   const project = useProject()
@@ -264,9 +136,9 @@ export default function PostEditor() {
 
   return (
     <Form method='post' className="py-4 px-2 md:px-4 mb-8">
-      <div className="md:flex items-stretch gap-4 mb-4">
-        <PostBody />
-        <PostAttributes />
+      <div className="flex flex-wrap items-stretch gap-4 mb-4">
+        <PostEditor />
+        <FrontmatterEditor />
       </div>
       <input type='hidden' name='path' value={file.path} />
       <input type='hidden' name='branch' value={project.branch} />

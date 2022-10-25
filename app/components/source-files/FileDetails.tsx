@@ -1,5 +1,5 @@
 import {  useEffect, useState } from 'react'
-import CodeEditor from './CodeEditor'
+import FileEditor from './FileEditor'
 import type { ParsedFile } from '@/lib/github'
 import FileLabel from './FileLabel'
 import { Form, Link, useLoaderData, useParams, useTransition } from '@remix-run/react'
@@ -34,7 +34,7 @@ function FileContents({ file }: { file?: ParsedFile }) {
 
   if (!file || file.isMarkdown) {
     return (
-      <CodeEditor
+      <FileEditor
         name="markdown"
         isMarkdown={file ? file.isMarkdown : true}
         initialValue={tempContent || file?.content || ''}
@@ -67,7 +67,7 @@ function FileContents({ file }: { file?: ParsedFile }) {
   }
 
   return (
-    <CodeEditor
+    <FileEditor
       name="markdown"
       isMarkdown={file?.isMarkdown}
       initialValue={tempContent || file?.content || ''}

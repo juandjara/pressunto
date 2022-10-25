@@ -1,4 +1,4 @@
-import FileTree from "@/components/FileTree"
+import FileTree from "@/components/source-files/FileTree"
 import type { TreeItem } from "@/lib/github"
 import { getRepoFiles } from "@/lib/github"
 import { getProject } from "@/lib/projects.server"

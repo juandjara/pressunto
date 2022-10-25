@@ -3,14 +3,14 @@ import useCodeMirror from "@/lib/codemirror/useCodeMirror"
 import { useRef } from "react"
 import MarkdownToolbar from "./MarkdownToolbar"
 
-type CodeEditorProps = {
+type MarkdownEditorProps = {
   name: string
   isMarkdown?: boolean
   initialValue?: string
   onChange: (s: string) => void
 }
 
-export default function MarkdownEditor({ name, initialValue = '', onChange }: CodeEditorProps) {
+export default function MarkdownEditor({ name, initialValue = '', onChange }: MarkdownEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [ref, view, flags] = useCodeMirror(textareaRef, {
     initialValue,

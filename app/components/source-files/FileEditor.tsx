@@ -1,13 +1,13 @@
 import { inputCN } from "@/lib/styles"
 
-type CodeEditorProps = {
+type FileEditorProps = {
   name: string
   isMarkdown?: boolean
   initialValue?: string
   onChange: (s: string) => void
 }
 
-export default function CodeEditor({ name, isMarkdown = true, initialValue = '', onChange }: CodeEditorProps) {
+export default function FileEditor({ name, isMarkdown = true, initialValue = '', onChange }: FileEditorProps) {
   return (
     <div>
       <textarea
