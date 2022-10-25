@@ -171,7 +171,7 @@ function PostAttributes() {
   }
 
   return (
-    <fieldset className="space-y-6 mb-10 mt-4 flex-grow">
+    <fieldset className="space-y-6 mb-10 mt-4 md:max-w-xs w-full flex-grow flex-shrink-0">
       {attrs.map((entry) => (
         <div key={entry.field}>
           <div className={`${labelCN} ${entry.hidden ? 'hidden' : 'flex'} items-center`}>

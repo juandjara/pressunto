@@ -65,7 +65,7 @@ export default function ProjectSidebar() {
   )
 
   return (
-    <aside className="md:max-w-sm w-full flex-shrink-0 py-2 md:py-4 border-r border-slate-200 dark:border-gray-600">
+    <aside className="md:max-w-xs w-full flex-shrink-0 py-2 md:py-4 border-r border-slate-200 dark:border-gray-600">
       <details className="md:hidden">
         <summary ref={summaryRef} className={`${buttonCN.normal} ${buttonCN.cancel}`}>MENU</summary>
         <div onClick={() => summaryRef.current?.click()}>

@@ -11,7 +11,7 @@ export const customTheme = EditorView.theme({
     overflow: 'auto'
   },
   '.cm-content, .cm-gutter': {
-    minHeight: '200px'
+    minHeight: '300px'
   },
   '.cm-content': {
     padding: '12px 4px',
