@@ -88,7 +88,7 @@ export default function FrontmatterEditor() {
       <button
         type="button"
         onClick={addField}
-        className={`${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconLeft} pr-3`}>
+        className={`${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconLeft} pr-3 mt-7`}>
         <PlusIcon className="w-5 h-5" />
         <span>Add field</span>
       </button>
