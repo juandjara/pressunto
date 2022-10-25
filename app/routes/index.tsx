@@ -29,7 +29,7 @@ export default function Index() {
         </p>
         <LoginButton />
         <p className="text-sm my-6">
-          Your login data will be used only to read the user name and profile picture, which organizations the user belongs to and to read and write code from the repositories (public or private). No other information will be accesed, such as issues, PRs, discussions, actions or other keys and settings.
+          By clicking login you allow this website to store a <strong>login cookie</strong> in your browser. Your login data will be used only to read the user name and profile picture, which organizations the user belongs to and to read and write code from the repositories (public or private). No other information will be accesed, such as issues, PRs, discussions, actions or other keys and settings.
           For more information on how data is accesed, you can check the{' '}
           <a className="underline" href="https://github.com/juandjara/pressunto/blob/master/app/lib/github.ts">public source code</a>{' '}
           or read <a className="underline" href='/privacy'>the privacy page</a>
