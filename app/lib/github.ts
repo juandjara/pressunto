@@ -141,8 +141,6 @@ export async function searchRepos(token: string, {
   }
 
   const fullUrl = new URL(url.toString() + `&q=${q}`)
-  console.log(token)
-  console.log(fullUrl)
   const { data, headers } = await callGithubAPI(token, fullUrl)
 
   data.items = data.items
@@ -223,6 +221,7 @@ type File = {
   path: string
   download_url: string
   html_url: string
+  encoding: 'base64' | 'none'
 }
 
 export type ParsedFile = ReturnType<typeof parseFile>
@@ -244,7 +243,19 @@ export async function getFileContent(token: string, { repo, file, isNew = false,
     branch = details.default_branch
   }
 
-  const { data } = await callGithubAPI(token, `/repos/${repo}/contents/${file}?ref=${branch}`)
+  // console.log({ token, url: `${API_URL}/repos/${repo}/contents/${file}?ref=${branch}` })
+  const fileURL = `/repos/${repo}/contents/${file}?ref=${branch}`
+  const { data } = await callGithubAPI(token, fileURL)
+  if (data.encoding === 'none') {
+    const res = await fetch(API_URL + fileURL, {
+      headers: new Headers({
+        'Accept': 'application/vnd.github.v3.raw',
+        'Authorization': `Bearer ${token}`,
+      })
+    })
+    data.content = await res.text()
+  }
+
   return parseFile(data)
 }
 
@@ -254,6 +265,12 @@ export function parseFile(file: File) {
   const mimeType = mime.getType(file.name)
   const format = mimeType?.split('/')[0] || ''
   const isBinary = isbinary(file.name)
+
+  let content = file.content
+  if (!isBinary && file.encoding === 'base64') {
+    content = b64DecodeUnicode(file.content)
+  }
+
   return {
     ...file,
     lang,
@@ -261,7 +278,7 @@ export function parseFile(file: File) {
     mimeType,
     isBinary,
     isMarkdown: isMarkdown(file.name),
-    content: isBinary ? file.content : b64DecodeUnicode(file.content)
+    content
   }
 }
 
