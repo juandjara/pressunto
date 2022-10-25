@@ -15,7 +15,7 @@ export const customTheme = EditorView.theme({
   },
   '.cm-content': {
     padding: '12px 4px',
-    maxWidth: '75ch'
+    maxWidth: 'min(75ch, calc(100vw - 46px))'
   },
   '&.cm-editor.cm-focused': {
     outline: '2px solid #cbd5e1'
