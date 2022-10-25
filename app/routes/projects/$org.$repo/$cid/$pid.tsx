@@ -171,7 +171,7 @@ function PostAttributes() {
   }
 
   return (
-    <fieldset className="space-y-6 mb-10">
+    <fieldset className="space-y-6 mb-10 mt-4 flex-grow">
       {attrs.map((entry) => (
         <div key={entry.field}>
           <div className={`${labelCN} ${entry.hidden ? 'hidden' : 'flex'} items-center`}>
@@ -224,8 +224,8 @@ function PostBody() {
   }
 
   return (
-    <Tab.Group as="div" className='-mx-2 md:mx-0 my-4'>
-      <Tab.List className="md:mx-1.5 mb-2 mt-8 flex items-center gap-2">
+    <Tab.Group as="div" className='-mx-2 md:mx-0 flex-grow'>
+      <Tab.List className="md:mx-1.5 mb-2 flex items-center gap-2">
         <Tab className={tabButtonCN}>Editor</Tab>
         <Tab className={tabButtonCN}>Preview</Tab>
       </Tab.List>
@@ -264,8 +264,10 @@ export default function PostEditor() {
 
   return (
     <Form method='post' className="py-4 px-2 md:px-4 mb-8">
-      <PostAttributes />
-      <PostBody />
+      <div className="md:flex items-stretch gap-4 mb-4">
+        <PostBody />
+        <PostAttributes />
+      </div>
       <input type='hidden' name='path' value={file.path} />
       <input type='hidden' name='branch' value={project.branch} />
       {permissions.push ? (
