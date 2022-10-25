@@ -3,6 +3,7 @@ import type { LoaderArgs } from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { getSessionData } from "@/lib/session.server"
 import { Link } from "@remix-run/react"
+import DarkModeToggler from "@/components/DarkModeToggler"
 
 export async function loader({ request }: LoaderArgs) {
   const { token } = await getSessionData(request)
@@ -15,7 +16,10 @@ export async function loader({ request }: LoaderArgs) {
 
 export default function Index() {
   return (
-    <div className="p-3 my-6 max-w-md mx-auto flex flex-col items-center justify-center">
+    <div className="p-3 my-6 max-w-md mx-auto flex flex-col items-center justify-center relative">
+      <div className="mb-6">
+        <DarkModeToggler />
+      </div>
       <p className="text-6xl">🐷</p>
       <h1 className="text-slate-500 dark:text-slate-300 font-medium text-2xl font-serif">
         <em>Press</em>unto
