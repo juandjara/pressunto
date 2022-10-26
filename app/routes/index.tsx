@@ -25,7 +25,9 @@ export default function Index() {
         <em>Press</em>unto
       </h1>
       <p className="text-lg my-6 text-center">
-        Pressunto is a content editor for GitHub designed for managing markdown files in static websites.
+        Pressunto is a content editor for GitHub that <strong>does not get in your way</strong> designed for managing <strong>markdown</strong> files in static websites. 
+        <br /><br />
+        It aims to be the <strong>simplest</strong> editing experience you could hope for, preserving the original structure of your content, so you can <strong>own your data</strong>.
       </p>
       <div>
         <p className="mt-6 mb-2 text-slate-500 dark:text-slate-300">

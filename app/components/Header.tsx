@@ -1,7 +1,7 @@
 import type { User } from "@/lib/github"
 import { Link, useFetcher, useLocation, useMatches } from "@remix-run/react"
 import { Menu, Transition } from '@headlessui/react'
-import { inputCN } from "@/lib/styles"
+import { buttonCN, inputCN } from "@/lib/styles"
 import DarkModeToggler from "./DarkModeToggler"
 
 export const HEADER_HEIGHT = '65px'
@@ -87,7 +87,7 @@ export function LoginButton() {
         <option value='public_repo'>Public repos only</option>
         <option value='repo'>Public and Private repos</option>
       </select>
-      <button disabled={busy} className="flex-shrink-0 disabled:opacity-50 flex rounded-lg text-white bg-slate-900 px-4 py-2">
+      <button disabled={busy} className={`flex-shrink-0 ${buttonCN.normal} ${buttonCN.slate}`}>
         {busy ? 'Logging in...' : 'Log in'}
       </button>
     </fetcher.Form>

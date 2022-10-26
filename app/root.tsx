@@ -31,7 +31,7 @@ export function links() {
   ]
 }
 
-const description = 'Pressunto is a content editor for GitHub designed for managing markdown files in static websites.'
+const description = 'Pressunto is a content editor for GitHub that does not get in your way designed for managing markdown files in static websites. It aims the simplest editing experience you could hope for while preserving your original content structure.'
 const image = 'https://pressunto.fly.dev/screenshot.png'
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
