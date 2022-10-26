@@ -1,7 +1,7 @@
 import { getFileContent, saveFile } from "@/lib/github"
 import metaTitle from "@/lib/metaTitle"
 import { CONFIG_FILE_NAME, deleteProject, updateProject } from "@/lib/projects.server"
-import { requireUserSession } from "@/lib/session.server"
+import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { buttonCN, checkboxCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
 import { PlusIcon } from "@heroicons/react/20/solid"
@@ -18,6 +18,8 @@ export const action: ActionFunction = async ({ request, params }) => {
   const branch = formData.get('branch') as string
   const isDelete = op === 'delete'
 
+  let flashMessage = ''
+
   if (op === 'update') {
     const title = formData.get('title') as string
     await updateProject(user.name, {
@@ -25,6 +27,8 @@ export const action: ActionFunction = async ({ request, params }) => {
       branch,
       title
     })
+
+    flashMessage = 'Project updated successfully'
   }
 
   if (op === 'delete') {
@@ -49,13 +53,16 @@ export const action: ActionFunction = async ({ request, params }) => {
         })
       }
     }
+
+    flashMessage = 'Project deleted successfully'
   }
 
-  return redirect(isDelete ? '/' : `/projects/${repo}/settings`, {
-    headers: new Headers({
-      'cache-control': 'no-cache'
-    })
+  const headers = new Headers({
+    'cache-control': 'no-cache',
+    'Set-Cookie': await setFlashMessage(request, flashMessage)
   })
+
+  return redirect(isDelete ? '/' : `/projects/${repo}/settings`, { headers })
 }
 
 export const meta = {

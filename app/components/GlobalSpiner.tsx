@@ -18,7 +18,7 @@ export default function GlobalSpinner() {
       className={containerCN}
     >
       <div
-        className="w-full h-full bg-gradient-to-r from-pink-500 to-rose-500 linearloading"
+        className="animate-nprogress w-full h-full bg-gradient-to-r from-pink-500 to-rose-500"
       />
     </div>
   )

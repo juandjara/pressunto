@@ -2,7 +2,7 @@ import { getFileContent, getRepoDetails, saveFile } from "@/lib/github"
 import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
 import { processFileContent } from "@/lib/projects.server"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
-import { requireUserSession } from "@/lib/session.server"
+import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { buttonCN } from "@/lib/styles"
 import type { ActionArgs, LoaderFunction, MetaFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
@@ -123,7 +123,13 @@ export async function action({ request, params }: ActionArgs) {
   const returnPath = isDelete ? '' : getBasename(fullPath)
   const redirectPath = `/projects/${repo}/${params.cid}/${returnPath}`
 
-  return redirect(redirectPath)
+  const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
+
+  return redirect(redirectPath, {
+    headers: {
+      'Set-Cookie': cookie
+    }
+  })
 }
 
 export default function PostDetails() {

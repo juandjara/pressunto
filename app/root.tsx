@@ -12,17 +12,16 @@ import {
 } from "@remix-run/react"
 import GlobalSpinner from "./components/GlobalSpiner"
 import Header from "./components/Header"
-import { getSessionData } from "./lib/session.server"
+import { getFlashMessage, getSessionData } from "./lib/session.server"
 import LiveReload from "./components/LiveReload"
 import tailwind from "./tailwind.css"
-import animate from './animate.css'
 import metaTitle from "./lib/metaTitle"
 import { getTheme, toggleTheme } from "./lib/themeCookie.server"
+import FlashMessage from "./components/FlashMessage"
 
 export function links() {
   return [
     { rel: "stylesheet", href: tailwind },
-    { rel: "stylesheet", href: animate },
     { rel: 'shortcut icon', type: 'image/x-icon', href: '/favicon.ico' },
     { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
     { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
@@ -55,8 +54,13 @@ export const meta: MetaFunction = () => ({
 export const loader: LoaderFunction = async ({ request }) => {
   const { user } = await getSessionData(request)
   const theme = await getTheme(request)
+  const { newCookie, flashMessage } = await getFlashMessage(request)
 
-  return json({ user, theme })
+  return json({ user, theme, flashMessage }, {
+    headers: {
+      'Set-Cookie': newCookie
+    }
+  })
 }
 
 export async function action({ request }: ActionArgs) {
@@ -78,7 +82,8 @@ export default function App() {
       </head>
       <body className="dark:text-slate-100 dark:bg-slate-800 text-slate-700">
         <GlobalSpinner />
-        <div className="lg:container mx-auto min-h-screen">
+        <div className="lg:container mx-auto min-h-screen relative">
+          <FlashMessage />
           <Header user={user} />
           <Outlet />
         </div>

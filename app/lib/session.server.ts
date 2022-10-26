@@ -8,10 +8,27 @@ export const sessionStorage = createCookieSessionStorage({
     sameSite: "lax", // this helps with CSRF
     path: "/", // remember to add this so the cookie will work in all routes
     httpOnly: true, // for security reasons, make this cookie http only
-    secrets: [env.secret], // replace this with an actual secret
+    secrets: [env.secret],
     secure: process.env.NODE_ENV === "production", // enable this in prod only
   },
 })
+
+export async function getFlashMessage(request: Request) {
+  const cookie = request.headers.get("cookie")
+  const session = await sessionStorage.getSession(cookie)
+  const flashMessage = session.get('flashMessage') as string
+  const newCookie = await sessionStorage.commitSession(session)
+
+  return { newCookie, flashMessage }
+}
+
+export async function setFlashMessage(request: Request, message: string) {
+  const cookie = request.headers.get("cookie")
+  const session = await sessionStorage.getSession(cookie)
+  session.flash('flashMessage', message)
+  const newCookie = await sessionStorage.commitSession(session)
+  return newCookie
+}
 
 export async function getSessionData(request: Request) {
   const cookie = request.headers.get("cookie")

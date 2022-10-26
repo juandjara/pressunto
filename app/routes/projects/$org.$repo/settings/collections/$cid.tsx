@@ -5,7 +5,7 @@ import type { TreeItem } from "@/lib/github"
 import { getRepoFiles } from "@/lib/github"
 import type { Project, ProjectConfig, ProjectTemplates} from "@/lib/projects.server"
 import { updateConfigFile } from "@/lib/projects.server"
-import { requireUserSession } from "@/lib/session.server"
+import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import slugify from "@/lib/slugify"
 import { buttonCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
@@ -63,7 +63,8 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   return redirect(`/projects/${params.org}/${params.repo}/settings`, {
     headers: new Headers({
-      'cache-control': 'no-cache'
+      'cache-control': 'no-cache',
+      'Set-Cookie': await setFlashMessage(request, 'Project settings updated')
     })
   })
 }

@@ -2,7 +2,7 @@ import FileDetails from "@/components/source-files/FileDetails"
 import { getFileContent, getRepoDetails, saveFile } from "@/lib/github"
 import { getBasename } from "@/lib/pathUtils"
 import { getProject } from "@/lib/projects.server"
-import { requireUserSession } from "@/lib/session.server"
+import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import type { ActionArgs, LoaderArgs} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { json } from "@remix-run/node"
@@ -68,7 +68,13 @@ export async function action({ request, params }: ActionArgs) {
   const returnPath = isDelete ? '' : path + name
   const redirectPath = `/projects/${repo}/source/${returnPath}`
 
-  return redirect(redirectPath)
+  const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
+
+  return redirect(redirectPath, {
+    headers: {
+      'Set-Cookie': cookie
+    }
+  })
 }
 
 export default function ProjectSourceDetails() {
