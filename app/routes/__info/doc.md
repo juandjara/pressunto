@@ -6,6 +6,10 @@ meta: { title: 'Documentation | Pressunto' }
 
 This page describes how to get the most of Pressunto and how different pages work together.
 
+### Inspiration
+
+**Press**unto takes inspiration from other pre-existing sites like [Prose](https://prose.io), [Coisas](http://coisas.fiatjaf.com/) or [Siteleaf](https://siteleaf.com) in designing a editing experience that does not get in your way and preserves the original structure of your content. All editing is based on reads and writes to the GitHub API, proxied by the server hosting this site. The value added by this site resides on the seamless editing interface and unobtrusive models that are built on top.
+
 ### Login
 
 This is the first page that you will see when you enter the platform. It presents the different login options to log in with github, along with a privacy and data transparency disclaimer. The purpose of the disclaimer is to inform you of how the data you are about to give is going to be used. You can select to give access to only public repos or to repos private and public. When you click the login button, you will be redirected to github oauth login screen, and if successfull the project list page.
