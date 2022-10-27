@@ -63,7 +63,7 @@ function NewFileItem({ path }: { path: string }) {
   const file = useParams()['*']
   const linkStyle = clsx(LIStyle, { 'text-slate-600 bg-gray-100': file === `${path}/new` })
   return (
-    <Link to={`${path}/new`} className={linkStyle}>
+    <Link to={path ? `${path}/new` : 'new'} className={linkStyle}>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-slate-400">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
