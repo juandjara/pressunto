@@ -1,8 +1,9 @@
-import { buttonCN } from "@/lib/styles"
+import { borderColor, buttonCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { BookOpenIcon, CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, EyeSlashIcon, FolderIcon } from "@heroicons/react/20/solid"
 import { NavLink } from "@remix-run/react"
 import { useRef } from "react"
+import { HeaderTitle } from "./Header"
 
 const baseLinkCN = [
   'flex items-center gap-3 rounded-md py-1 px-2',
@@ -26,53 +27,70 @@ export default function ProjectSidebar() {
   const summaryRef = useRef<HTMLElement>(null)
 
   const nav = (
-    <>
-      <nav>
-        <NavLink to='' end className={linkCN}>
-          <FolderIcon className={iconCN.big} />
-          <span className="text-lg">Collections</span>
-        </NavLink>
-        <ul className="block ml-0.5 my-2 space-y-2 h-full">
-          {collections.map((c) => (
-            <li key={c.route}>
-              <NavLink to={c.id} className={linkCN}>
-                <DocumentDuplicateIcon className={iconCN.small} />
-                <span className="ml-1">{c.name}</span>
-              </NavLink>
-            </li>
-          ))}
-        </ul>
+    <nav>
+      <ul className="space-y-2">
+        <li className="md:hidden flex items-center mx-1 py-3 border-b border-t dark:border-slate-500 border-slate-300">
+          <HeaderTitle />
+        </li>
+        <li>
+          <NavLink to='' end className={linkCN}>
+            <FolderIcon className={iconCN.big} />
+            <span className="text-lg">Collections</span>
+          </NavLink>
+        </li>
+        {collections.map((c) => (
+          <li key={c.route}>
+            <NavLink to={c.id} className={linkCN}>
+              <DocumentDuplicateIcon className={iconCN.small} />
+              <span className="ml-1">{c.name}</span>
+            </NavLink>
+          </li>
+        ))}
+        <li className="py-3"></li>
+        <li>
+          <NavLink to='source' className={linkCN}>
+            <CodeBracketIcon className={iconCN.big} />
+            <span className="text-lg">Source code</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to='settings' className={linkCN}>
+            <Cog6ToothIcon className={iconCN.big} />
+            <span className="text-lg">Settings</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to='/doc' className={linkCN}>
+            <BookOpenIcon className={iconCN.big} />
+            <span className="text-lg">Documentation</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to='/privacy' className={linkCN}>
+            <EyeSlashIcon className={iconCN.big} />
+            <span className="text-lg">Privacy</span>
+          </NavLink>
+        </li>
+      </ul>
       </nav>
-      <nav className="space-y-2 mt-12">
-        <NavLink to='source' className={linkCN}>
-          <CodeBracketIcon className={iconCN.big} />
-          <span className="text-lg">Source code</span>
-        </NavLink>
-        <NavLink to='settings' className={linkCN}>
-          <Cog6ToothIcon className={iconCN.big} />
-          <span className="text-lg">Settings</span>
-        </NavLink>
-        <NavLink to='/privacy' className={linkCN}>
-          <EyeSlashIcon className={iconCN.big} />
-          <span>Privacy</span>
-        </NavLink>
-        <NavLink to='/doc' className={linkCN}>
-          <BookOpenIcon className={iconCN.big} />
-          <span>Documentation</span>
-        </NavLink>
-      </nav>
-    </>
   )
 
   return (
-    <aside className="md:max-w-xs w-full flex-shrink-0 px-2 py-2 md:py-4 border-r border-slate-200 dark:border-gray-600">
-      <details className="md:hidden">
-        <summary ref={summaryRef} className={`${buttonCN.normal} ${buttonCN.cancel}`}>MENU</summary>
-        <div onClick={() => summaryRef.current?.click()}>
-          {nav}
-        </div>
-      </details>
-      <div className="hidden md:block">{nav}</div>
-    </aside>
+    <>
+      <aside>
+        <details className="md:hidden dark:bg-slate-700 bg-slate-100 open:bottom-0 top-0 left-0 absolute z-30 rounded m-3 flex-shrink-0">
+          <summary ref={summaryRef} className={`${buttonCN.normal} ${buttonCN.cancel}`}>MENU</summary>
+          <div
+            style={{ width: 'calc(100vw - 24px)' }}
+            className="p-1"
+            onClick={() => summaryRef.current?.click()}>
+            {nav}
+          </div>
+        </details>
+      </aside>
+      <aside className="hidden md:block max-w-xs w-full flex-shrink-0 p-2 border-r border-slate-200 dark:border-gray-600">
+        {nav}
+      </aside>
+    </>
   )
 }

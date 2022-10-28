@@ -7,29 +7,17 @@ import DarkModeToggler from "./DarkModeToggler"
 export const HEADER_HEIGHT = '65px'
 
 export default function Header({ user }: { user: User }) {
-  const matches = useMatches()
   const location = useLocation()
 
-  if (location.pathname === '/' || !user) {
+  if (location.pathname === '/') {
     return null
   }
 
-  const breadcrumbs = matches
-    .filter(m => m.handle?.breadcrumb)
-    .map((m, index) => (
-      <li key={index}>
-        {m.handle?.breadcrumb(m.data)}
-      </li>
-    ))
-
   return (
     <nav className="flex items-center p-3 border-b border-gray-200 dark:border-gray-600">
-      <Link to="/" className="ml-1 inline-block text-slate-500">
-        <h1 className="font-medium text-2xl font-serif">
-          🐷
-        </h1>
-      </Link>
-      <ul className="flex items-center justify-start ml-2 space-x-2">{breadcrumbs}</ul>
+      <div className="hidden md:flex items-end">
+        <HeaderTitle />
+      </div>
       <div className="flex-grow"></div>
       <DarkModeToggler />
       <UserMenu user={user} />
@@ -37,7 +25,29 @@ export default function Header({ user }: { user: User }) {
   )
 }
 
+export function HeaderTitle() {
+  const matches = useMatches()
+  const breadcrumbMatch = matches.find(m => m.handle?.breadcrumb)
+
+  return (
+    <>
+      <Link to="/" className="ml-1 inline-block text-slate-500">
+        <h1 className="font-medium text-2xl font-serif">
+          🐷
+        </h1>
+      </Link>
+      {breadcrumbMatch ? (
+        <div className="ml-3">{breadcrumbMatch.handle?.breadcrumb(breadcrumbMatch.data)}</div>
+      ) : null}
+    </>
+  )
+}
+
 function UserMenu({ user }: { user: User }) {
+  if (!user) {
+    return null
+  }
+
   return (
     <div className="z-20 relative flex-shrink-0 h-10">
       <Menu>
