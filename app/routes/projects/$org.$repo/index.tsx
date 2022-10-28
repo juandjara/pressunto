@@ -3,7 +3,7 @@ import useProjectConfig from "@/lib/useProjectConfig"
 import { Cog6ToothIcon } from "@heroicons/react/20/solid"
 import { Link } from "@remix-run/react"
 
-const listCN = 'flex items-center pl-4 p-1 rounded-md text-lg bg-slate-100 dark:bg-slate-700'
+const listCN = 'group flex items-center pl-4 p-1 rounded-md text-lg bg-slate-100 dark:bg-slate-700'
 
 export default function Collections() {
   const { collections } = useProjectConfig()
@@ -28,7 +28,7 @@ export default function Collections() {
         {collections.map((c) => (
           <li key={c.id} className={listCN}>
             <Link to={c.id} className="flex-grow">{c.name}</Link>
-            <Link to={`settings/collections/${c.id}`}>
+            <Link to={`settings/collections/${c.id}`} className='opacity-0 group-hover:opacity-100 transition-opacity'>
               <button title="Edit collection" className="ml-2 p-2 rounded-lg dark:hover:bg-slate-500 hover:bg-slate-200">
                 <Cog6ToothIcon className="w-6 h-6" />
               </button>
