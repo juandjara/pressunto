@@ -78,11 +78,11 @@ export default function ProjectSidebar() {
   return (
     <>
       <aside>
-        <details className="md:hidden dark:bg-slate-700 bg-slate-100 open:bottom-0 top-0 left-0 absolute z-30 rounded m-3 flex-shrink-0">
-          <summary ref={summaryRef} className={`${buttonCN.normal} ${buttonCN.cancel}`}>MENU</summary>
+        <details className="md:hidden dark:bg-slate-800 bg-white p-3 open:bottom-0 top-0 left-0 absolute z-30 rounded flex-shrink-0">
+          <summary ref={summaryRef} className={`dark:bg-slate-700 bg-slate-100 ${buttonCN.normal}`}>MENU</summary>
           <div
             style={{ width: 'calc(100vw - 24px)' }}
-            className="p-1"
+            className="mt-2"
             onClick={() => summaryRef.current?.click()}>
             {nav}
           </div>
