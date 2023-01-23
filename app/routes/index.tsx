@@ -25,7 +25,7 @@ export default function Index() {
         <em>Press</em>unto
       </h1>
       <p className="text-lg my-6 text-center">
-        Pressunto is a content editor for GitHub that <strong>does not get in your way</strong> designed for managing <strong>markdown</strong> files in static websites. 
+        Pressunto is a content editor for GitHub that <strong>does not get in your way</strong>, designed for managing <strong>markdown</strong> files in static websites. 
         <br /><br />
         It aims to be the <strong>simplest</strong> editing experience you could hope for, preserving the original structure of your content, so you can <strong>own your data</strong>.
       </p>
@@ -35,10 +35,9 @@ export default function Index() {
         </p>
         <LoginButton />
         <p className="text-sm my-6">
-          By clicking login you allow this website to store a <strong>login cookie</strong> in your browser. Your login data will be used only to read the user name and profile picture, which organizations the user belongs to and to read and write code from the repositories (public or private). No other information will be accesed, such as issues, PRs, discussions, actions or other keys and settings.
-          For more information on how data is accesed, you can check the{' '}
-          <a className="underline" href="https://github.com/juandjara/pressunto/blob/master/app/lib/github.ts">public source code</a>{' '}
-          or read <a className="underline" href='/privacy'>the privacy page</a>
+          By loging in you allow this website to store a <strong>login cookie</strong> in your browser.
+          For more information on how data is accesed, you can read the <a className="underline" href='/privacy'>privacy page</a>{' '}
+          or check the{' '}<a className="underline" href="https://github.com/juandjara/pressunto/blob/master/app/lib/github.ts">public source code</a>{' '}
         </p>
       </div>
       <footer className="-mx-2 mt-6 flex items-center gap-2 text-sm">
