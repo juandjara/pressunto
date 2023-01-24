@@ -4,11 +4,11 @@ import { cursorLineDown, insertBlankLine } from "@codemirror/commands"
 import { syntaxTree } from "@codemirror/language"
 import type { EditorState, Extension, Range} from "@codemirror/state"
 import { RangeSet, StateField } from "@codemirror/state"
-import { DecorationSet, MatchDecorator, ViewPlugin, ViewUpdate} from "@codemirror/view"
+import type { DecorationSet} from "@codemirror/view"
 import { EditorView, WidgetType } from "@codemirror/view"
 import { Decoration } from "@codemirror/view"
 
-const IMAGE_REGEX = /!\[(?<title>.*)\]\((?<url>.*)\)/
+const MD_IMAGE_REGEX = /!\[(?<title>.*)\]\((?<url>.*)\)/
 
 class ImageFormatWidget extends WidgetType {
   readonly url: string
@@ -44,7 +44,7 @@ function getDecorations(state: EditorState, mode: 'widget' | 'ranges' = 'widget'
     enter: ({ type, from, to }) => {
       if (type.name === "Image") {
         const token = state.doc.sliceString(from, to)
-        const result = IMAGE_REGEX.exec(token)
+        const result = MD_IMAGE_REGEX.exec(token)
         const title = result?.groups?.title as string
         const url = result?.groups?.url as string
         if (url?.startsWith('data:')) {

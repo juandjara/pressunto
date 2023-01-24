@@ -1,4 +1,4 @@
-import { borderColor, buttonCN, iconCN } from "@/lib/styles"
+import { buttonCN, iconCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { BookOpenIcon, CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, EyeSlashIcon, FolderIcon } from "@heroicons/react/20/solid"
 import { NavLink } from "@remix-run/react"

@@ -145,5 +145,5 @@ export default function useCodeMirror(
     }
   }, [ref, textarea])
 
-  return [ref, view, flags] as [typeof ref, typeof view, typeof flags]
+  return [ref, view, flags] as const
 }
