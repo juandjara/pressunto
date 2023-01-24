@@ -71,10 +71,11 @@ export default function FrontmatterEditor() {
             <div className="flex-grow"></div>
             <button
               type='button'
+              title="delete field"
               onClick={() => removeField(entry.field)}
               className={`flex items-center gap-1 ${buttonCN.small}`}>
               <XMarkIcon className="w-5 h-5" />
-              <span>delete field</span>
+              <span className="sr-only">delete field</span>
             </button>
           </div>
           <input
