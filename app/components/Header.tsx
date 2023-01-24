@@ -67,15 +67,18 @@ function UserMenu({ user }: { user: User }) {
             <Transition
               show={open}
               enter="transition transform duration-100 ease-out"
-              enterFrom="scale-x-50 opacity-0"
-              enterTo="scale-x-100 opacity-100"
+              enterFrom="scale-y-50 opacity-0"
+              enterTo="scale-y-100 opacity-100"
               leave="transition transform duration-100 ease-out"
-              leaveFrom="scale-x-100 opacity-100"
-              leaveTo="scale-x-50 opacity-0">
+              leaveFrom="scale-y-100 opacity-100"
+              leaveTo="scale-y-50 opacity-0">
               <Menu.Items
                 static
-                className="absolute mr-3 mb-2 bottom-full right-full ring-1 ring-black ring-opacity-5">
-                <div className="rounded-md shadow-md bg-white">
+                className="absolute top-full right-0 ring-1 ring-black ring-opacity-5">
+                <div className="rounded-lg shadow-md bg-white p-1">
+                  <Menu.Item>
+                    <button className={`w-full text-right ${buttonCN.normal} ${buttonCN.cancel}`}>Projects</button>
+                  </Menu.Item>
                   <LogoutButton />
                 </div>
               </Menu.Items>
@@ -84,6 +87,19 @@ function UserMenu({ user }: { user: User }) {
         )}
       </Menu>
     </div>
+  )
+}
+
+function LogoutButton() {
+  const fetcher = useFetcher()
+  const busy = fetcher.state === 'submitting'
+
+  return (
+    <fetcher.Form action="/oauth/logout" method="post">
+      <button disabled={busy} className={`w-full text-right ${buttonCN.normal} ${buttonCN.cancel}`}>
+        {busy ? 'Logging out...' : 'Log out'}
+      </button> 
+    </fetcher.Form>
   )
 }
 
@@ -100,20 +116,6 @@ export function LoginButton() {
       <button disabled={busy} className={`flex-shrink-0 ${buttonCN.normal} ${buttonCN.slate}`}>
         {busy ? 'Logging in...' : 'Log in'}
       </button>
-    </fetcher.Form>
-  )
-}
-
-export function LogoutButton({ variant = 'secondary' }: { variant?: 'primary' | 'secondary' }) {
-  const fetcher = useFetcher()
-  const busy = fetcher.state === 'submitting'
-  const color = variant === 'secondary' ? 'text-slate-600 hover:bg-slate-100' : 'text-white bg-slate-900'
-
-  return (
-    <fetcher.Form action="/oauth/logout" method="post">
-      <button disabled={busy} className={`disabled:opacity-50 whitespace-nowrap rounded-lg px-4 py-2 ${color}`}>
-        {busy ? 'Logging out...' : 'Log out'}
-      </button> 
     </fetcher.Form>
   )
 }
