@@ -84,22 +84,19 @@ export default function NewProject() {
 
   return (
     <div className="px-3 py-8 max-w-screen-md">
-      <header className="mb-4">
-        <h2 className="font-medium text-4xl mb-2">New project</h2>
+      <header className="mb-8">
+        <h2 className="font-medium text-4xl mb-3">New project</h2>
         <p>This will create a <InlineCode>pressunto.config.json</InlineCode> in the root of your repository</p>
       </header>
       <Form replace method="post">
-        <fieldset disabled={busy} className="space-y-6">
+        <fieldset disabled={busy} className="space-y-8">
           <div>
             <label className={labelCN} htmlFor="title">Title</label>
             <input required name='title' type='text' className={inputCN} />
           </div>
           <div>
             <div className="flex items-end justify-between">
-              <label htmlFor="repo">
-                <p className={labelCN}>GitHub repo</p>
-                <p className="text-sm mb-1">This search field will only list the repositories where you can push code </p>
-              </label>
+              <label className={labelCN} htmlFor="repo">GitHub repo</label>
               {errors?.repo ? (
                 <p className="text-sm mb-1 text-red-600 dark:text-red-400">{errors.repo}</p>
               ) : null}
@@ -123,6 +120,12 @@ export default function NewProject() {
                   defaultValue={defaultRepo}
                 />
               </div>
+            </div>
+            <div className="mt-2 flex items-end justify-between">
+              <p className="text-sm mb-1">This search field will only list the repositories where you can push code </p>
+              {errors?.repo ? (
+                <p className="text-sm mb-1 text-red-600 dark:text-red-400">{errors.repo}</p>
+              ) : null}
             </div>
           </div>
           <div>
