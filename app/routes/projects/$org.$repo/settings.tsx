@@ -2,9 +2,9 @@ import { getFileContent, saveFile } from "@/lib/github"
 import metaTitle from "@/lib/metaTitle"
 import { CONFIG_FILE_NAME, deleteProject, updateProject } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
-import { buttonCN, checkboxCN, inputCN, labelCN } from "@/lib/styles"
+import { buttonCN, checkboxCN, iconCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
-import { PlusIcon } from "@heroicons/react/20/solid"
+import { DocumentDuplicateIcon, ListBulletIcon, PlusIcon } from "@heroicons/react/20/solid"
 import type { ActionFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { Form, Link, Outlet, useTransition } from "@remix-run/react"
@@ -71,8 +71,8 @@ export const meta = {
 
 const groupCN = 'py-2'
 const listCN = [
-  'flex items-center pl-4 p-2 rounded-md text-lg',
-  'bg-slate-100 dark:bg-slate-700'
+  'flex items-center gap-2 p-2 rounded-md text-lg',
+  'hover:bg-slate-100 dark:hover:bg-slate-700'
 ].join(' ')
 
 export default function ProjectSettings() {
@@ -88,38 +88,37 @@ export default function ProjectSettings() {
         </p>
       </div>
       <div>
-        <header className="flex items-end justify-between mb-1">
-          <div>
-            <h3 className="font-medium text-2xl mb-2">Collections</h3>
-            <details>
-              <summary className="text-slate-700 dark:text-slate-300 mb-2">What is this?</summary>
-              <p>
-                Collections map to folders in your repository.
-                <br />
-                Every collection you define will be showed in the left sidebar.
-                <br />
-                Every collection you define will list the markdown files of that folder as posts, but not the ones in subfolders.
-              </p>
-            </details>
-          </div>
+        <header className="flex items-end justify-between mb-2">
+          <h3 className="font-medium text-2xl">Collections</h3>
           <Link to='collections/new'>
             <button
               type="button"
               title="Create new collection"
               aria-label="Create new collection"
-              className="flex items-center gap-2 ml-2 pl-3 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-100/25">
+              className="flex items-center gap-2 ml-2 pl-3 p-2 rounded-md bg-slate-100 dark:bg-slate-100/25 hover:bg-slate-200 dark:hover:bg-slate-200/25">
               <span>New</span>
               <PlusIcon className="w-6 h-6" />
             </button>
           </Link>
         </header>
+        <details>
+          <summary className="text-slate-700 dark:text-slate-300 mb-2">What is this?</summary>
+          <p className="bg-slate-100 dark:bg-slate-100/25 mb-2 px-3 py-2 rounded-md">
+            Collections map to folders in your repository.
+            <br />
+            Every collection you define will be showed in the left sidebar.
+            <br />
+            Every collection you define will list the markdown files of that folder as posts, but not the ones in subfolders.
+          </p>
+        </details>
         <div className={groupCN}>
           {config.collections.length === 0 && (
             <p>You don't have any saved collection.</p>
           )}
-          <ul className="space-y-4">
+          <ul className="space-y-1">
             {config.collections.map((c) => (
               <li key={c.id} className={listCN}>
+                <DocumentDuplicateIcon className={iconCN.small} />
                 <Link to={`collections/${c.id}`} className="flex-grow">{c.name}</Link>
               </li>
             ))}
@@ -127,36 +126,35 @@ export default function ProjectSettings() {
         </div>
       </div>
       <div>
-        <header className="flex items-end justify-between gap-3 mb-1">
-          <div>
-            <h3 className="font-medium text-2xl mb-2">Templates</h3>
-            <details>
-              <summary className="text-slate-700 dark:text-slate-300 mb-2">What is this?</summary>
-              <p>
-                Templates are a predefined set of fields you can add to any content collection.
-                <br />
-                Adding a template to a collection will add all the fields that are not already present there to every post of the collection
-              </p>
-            </details>
-          </div>
+        <header className="flex items-end justify-between gap-3 mb-2">
+          <h3 className="font-medium text-2xl">Templates</h3>
           <Link to='templates/new'>
             <button
               type="button"
               title="Create new template"
               aria-label="Create new template"
-              className="flex items-center gap-2 ml-2 pl-3 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-100/25">
+              className="flex items-center gap-2 ml-2 pl-3 p-2 rounded-md bg-slate-100 dark:bg-slate-100/25 hover:bg-slate-200 dark:hover:bg-slate-200/25">
               <span>New</span>
               <PlusIcon className="w-6 h-6" />
             </button>
           </Link>
         </header>
+        <details>
+          <summary className="text-slate-700 dark:text-slate-300 mb-2">What is this?</summary>
+          <p className="bg-slate-100 dark:bg-slate-100/25 mb-2 px-3 py-2 rounded-md">
+            Templates are a predefined set of fields you can add to any content collection.
+            <br />
+            Adding a template to a collection will add all the fields that are not already present there to every post of the collection
+          </p>
+        </details>
         <div className={groupCN}>
           {config.templates.length === 0 && (
             <p>You don't have any saved template.</p>
           )}
-          <ul className="space-y-4">
+          <ul className="space-y-1">
             {config.templates.map((t) => (
               <li key={t.id} className={listCN}>
+                <ListBulletIcon className={iconCN.small} />
                 <Link to={`templates/${t.id}`} className="flex-grow">{t.name}</Link>
               </li>
             ))}
@@ -176,7 +174,7 @@ function EditProject() {
 
   return (
     <Form method='post' replace className="space-y-4">
-      <h3 className="font-medium text-xl mb-1">Project</h3>
+      <h3 className="font-medium text-2xl mb-2">Project</h3>
       <div>
         <label className={labelCN}>Title</label>
         <input required type="text" name="title" defaultValue={project.title} className={inputCN} />
@@ -210,7 +208,7 @@ function DangerZone() {
 
   return (
     <div className="pt-4">
-      <h3 className="font-medium text-xl mb-1">Danger zone</h3>
+      <h3 className="font-medium text-2xl mb-2">Danger zone</h3>
       <Form method="post" className="mt-4">
         <input type='hidden' name='branch' value={project.branch || 'master'} />
         <label className="mb-4 flex items-center dark:text-slate-300 text-slate-600">

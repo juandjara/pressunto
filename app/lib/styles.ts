@@ -62,3 +62,9 @@ export const buttonCN = {
 }
 
 export const borderColor = 'border-gray-200 dark:border-gray-600'
+
+const iconColor = 'text-slate-500 dark:text-slate-300'
+export const iconCN = {
+  big: `w-6 h-6 ${iconColor}`,
+  small: `w-5 h-5 ${iconColor}`,
+}

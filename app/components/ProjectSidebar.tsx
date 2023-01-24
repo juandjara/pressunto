@@ -1,4 +1,4 @@
-import { borderColor, buttonCN } from "@/lib/styles"
+import { borderColor, buttonCN, iconCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { BookOpenIcon, CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, EyeSlashIcon, FolderIcon } from "@heroicons/react/20/solid"
 import { NavLink } from "@remix-run/react"
@@ -16,12 +16,6 @@ const linkCN = ({ isActive }: { isActive: boolean }) => [
   baseLinkCN
 ].join(' ')
 
-const iconColor = 'text-slate-500 dark:text-slate-300'
-const iconCN = {
-  big: `w-6 h-6 ${iconColor}`,
-  small: `w-5 h-5 ${iconColor}`,
-}
-
 export default function ProjectSidebar() {
   const { collections } = useProjectConfig()
   const summaryRef = useRef<HTMLElement>(null)
@@ -29,7 +23,7 @@ export default function ProjectSidebar() {
   const nav = (
     <nav>
       <ul className="space-y-2">
-        <li className="md:hidden flex items-center mx-1 py-3 border-b border-t dark:border-slate-500 border-slate-300">
+        <li hidden className="md:hidden flex items-center mx-1 py-3 border-b border-t dark:border-slate-500 border-slate-300">
           <HeaderTitle />
         </li>
         <li>
@@ -88,7 +82,7 @@ export default function ProjectSidebar() {
           </div>
         </details>
       </aside>
-      <aside className="hidden md:block max-w-xs w-full flex-shrink-0 p-2 border-r border-slate-200 dark:border-gray-600">
+      <aside className="hidden md:block max-w-xs w-full flex-shrink-0 p-3 border-r border-slate-200 dark:border-gray-600">
         {nav}
       </aside>
     </>

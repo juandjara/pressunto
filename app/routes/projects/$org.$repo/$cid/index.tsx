@@ -11,8 +11,9 @@ import { Form, Link, useLoaderData, useTransition } from "@remix-run/react"
 import { useState } from "react"
 import { useProject } from "@/lib/useProjectConfig"
 import { ArrowsUpDownIcon, Bars2Icon, PlusIcon } from "@heroicons/react/20/solid"
-import { buttonCN } from "@/lib/styles"
+import { buttonCN, iconCN } from "@/lib/styles"
 import SortableItem from "@/components/SortableItem"
+import { DocumentIcon } from "@heroicons/react/24/outline"
 
 type LoaderData = {
   files: CollectionFile[]
@@ -54,7 +55,7 @@ export const action: ActionFunction = async ({ request }) => {
   return json({ commit })
 }
 
-const listCN = 'flex-grow block px-4 py-2 rounded-md text-lg bg-slate-100 dark:bg-slate-700'
+const listCN = 'flex-grow block p-2 rounded-md text-lg hover:bg-slate-100 dark:hover:bg-slate-700'
 
 type CollectionDisplay = 'links' | 'reorder'
 
@@ -100,7 +101,7 @@ function CollectionLinks({ onToggleMode }: DisplayModeProps) {
           <ArrowsUpDownIcon className="w-6 h-6" />
         </button>
       </header>
-      <ul className="space-y-4">
+      <ul className="space-y-1">
         {fileList.map((f) => (
           <li key={f.id}>
             <CollectionListItem file={f} clickable />
@@ -120,7 +121,7 @@ function CollectionReorder({ onToggleMode }: DisplayModeProps) {
 
   return (
     <Form replace method="post" className="p-4" onSubmit={() => onToggleMode('links')}>
-      <header className="flex items-center mt-4 mb-8">
+      <header className="flex items-center my-4">
         <h2 className="font-medium text-4xl truncate">
           {collection.name} <small className="text-base opacity-75">reorder</small>
         </h2>
@@ -175,7 +176,7 @@ function SortableList({ files, setFiles }: SortableListProps) {
 
 
   return (
-    <ul className="space-y-4">
+    <ul className="space-y-1">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -205,7 +206,10 @@ function CollectionListItem({ file, clickable = false }: { file: CollectionFile;
   if (clickable) {
     return (
       <Link to={file.name} className={listCN}>
-        {file.title}
+        <p className="flex items-center gap-3">
+          <DocumentIcon className={iconCN.small} />
+          <span>{file.title}</span>
+        </p>
       </Link>
     )
   }

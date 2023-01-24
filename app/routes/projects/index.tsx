@@ -39,9 +39,8 @@ export default function ProjectsList() {
           <li key={p.repo} className={listCN}>
             <Link className="block text-xl pb-1" to={p.repo}>{p.title}</Link>
             <p className="">
-              <span className="">{p.repo.split('/')[0]}</span>
-              {' / '}
-              <span className="dark:text-slate-300 text-slate-500">{p.repo.split('/')[1]}</span>
+              <span className="dark:text-slate-300 text-slate-500">{p.repo.split('/')[0]} / </span>
+              <span>{p.repo.split('/')[1]}</span>
             </p>
           </li>
         ))}
