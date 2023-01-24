@@ -42,15 +42,15 @@ export default function ProjectSidebar() {
         ))}
         <li className="py-3"></li>
         <li>
-          <NavLink to='source' className={linkCN}>
-            <CodeBracketIcon className={iconCN.big} />
-            <span className="text-lg">Source code</span>
-          </NavLink>
-        </li>
-        <li>
           <NavLink to='settings' className={linkCN}>
             <Cog6ToothIcon className={iconCN.big} />
             <span className="text-lg">Settings</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to='source' className={linkCN}>
+            <CodeBracketIcon className={iconCN.big} />
+            <span className="text-lg">Source code</span>
           </NavLink>
         </li>
         <li>

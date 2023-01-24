@@ -95,7 +95,7 @@ export default function ProjectSettings() {
               type="button"
               title="Create new collection"
               aria-label="Create new collection"
-              className="flex items-center gap-2 ml-2 pl-3 p-2 rounded-md bg-slate-100 dark:bg-slate-100/25 hover:bg-slate-200 dark:hover:bg-slate-200/25">
+              className={`${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconRight}`}>
               <span>New</span>
               <PlusIcon className="w-6 h-6" />
             </button>
@@ -133,7 +133,7 @@ export default function ProjectSettings() {
               type="button"
               title="Create new template"
               aria-label="Create new template"
-              className="flex items-center gap-2 ml-2 pl-3 p-2 rounded-md bg-slate-100 dark:bg-slate-100/25 hover:bg-slate-200 dark:hover:bg-slate-200/25">
+              className={`${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconRight}`}>
               <span>New</span>
               <PlusIcon className="w-6 h-6" />
             </button>

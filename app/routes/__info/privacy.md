@@ -9,8 +9,7 @@ This page describes what data is read and saved in the application, how is it us
 
 ### Login data
 
-Your login data will be used only to read the user name and profile picture for your user, which organizations the user belongs to and the code of the repositories that you link to projects in this app. No other information will be accesed, such as issues, PRs, discussions, actions or other keys and settings. These login credentials will also be used to write updates to your content when using the editing interface.
-For more specific information on how data from GitHub is accesed, you can check the [public source code](https://github.com/juandjara/pressunto/blob/master/app/lib/github.ts).
+Your login data will be used only to read the user name and profile picture for your user, which organizations the user belongs to and the code of the repositories that you link to projects in this app. These login credentials will also be used to publish updates to your content. No other information will be accesed, such as issues, PRs, discussions, actions or other keys and settings. For more specific information on how data from GitHub is accesed, you can check the [public source code](https://github.com/juandjara/pressunto/blob/master/app/lib/github.ts).
 
 
 ### Cookie data

@@ -73,7 +73,7 @@ export default function FrontmatterEditor() {
               type='button'
               title="delete field"
               onClick={() => removeField(entry.field)}
-              className={`flex items-center gap-1 ${buttonCN.small}`}>
+              className={`p-1 rounded-md ${buttonCN.cancel}`}>
               <XMarkIcon className="w-5 h-5" />
               <span className="sr-only">delete field</span>
             </button>
