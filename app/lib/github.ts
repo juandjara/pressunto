@@ -86,15 +86,6 @@ export async function getOrgs(token: string) {
   return data.map((o: any) => o.login) as string[]
 }
 
-type searchRepoParams = {
-  user?: string
-  org?: string
-  query?: string
-  includeForks?: boolean
-  page?: number
-  rpp?: number
-}
-
 export type RepoItem = {
   name: string
   full_name: string
@@ -106,7 +97,7 @@ export type RepoItem = {
   private: boolean
 }
 
-export type RepoData = {
+export type RepoSearchResults = {
   page_data: {
     next?: number
     prev?: number
@@ -115,6 +106,15 @@ export type RepoData = {
   }
   total_count: number
   items: RepoItem[]
+}
+
+type searchRepoParams = {
+  user?: string
+  org?: string
+  query?: string
+  includeForks?: boolean
+  page?: number
+  rpp?: number
 }
 
 export async function searchRepos(token: string, {
@@ -167,7 +167,7 @@ export async function searchRepos(token: string, {
     },
     total_count: data.total_count,
     items: data.items
-  } as RepoData
+  } as RepoSearchResults
 }
 
 export async function getRepoDetails(token: string, repo: string) {
@@ -292,8 +292,7 @@ function b64DecodeUnicode(str: string) {
 
 function b64EncodeUnicode(str: string) {
   // first we use encodeURIComponent to get percent-encoded UTF-8,
-  // then we convert the percent encodings into raw bytes which
-  // can be fed into btoa.
+  // then we convert the percent encodings into raw bytes which can be fed into btoa.
   return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
       function toSolidBytes(match, p1) {
           return String.fromCharCode(Number('0x' + p1))
