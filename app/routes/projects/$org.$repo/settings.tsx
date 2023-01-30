@@ -1,6 +1,6 @@
-import { getFileContent, saveFile } from "@/lib/github"
 import metaTitle from "@/lib/metaTitle"
-import { CONFIG_FILE_NAME, deleteProject, updateProject } from "@/lib/projects.server"
+import type { Project} from "@/lib/projects.server"
+import { deleteConfigFile, deleteProject, updateProject } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { buttonCN, checkboxCN, iconCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
@@ -16,42 +16,21 @@ export const action: ActionFunction = async ({ request, params }) => {
   const op = formData.get('operation')
   const delete_config_file = formData.get('delete_config_file') === 'on'
   const branch = formData.get('branch') as string
+  const title = formData.get('title') as string
   const isDelete = op === 'delete'
+  const project = { user: user.name, repo, branch, title } as Project
 
   let flashMessage = ''
 
   if (op === 'update') {
-    const title = formData.get('title') as string
-    await updateProject(user.name, {
-      repo,
-      branch,
-      title
-    })
-
+    await updateProject(project)
     flashMessage = 'Project updated successfully'
   }
 
   if (op === 'delete') {
-    await deleteProject(user.name, repo)
+    await deleteProject(project)
     if (delete_config_file) {
-      const file = await getFileContent(token, {
-        repo,
-        file: CONFIG_FILE_NAME,
-        branch
-      })
-  
-      if (file) {
-        await saveFile(token, {
-          repo,
-          branch,
-          message: '[skip ci] Delete config file for Pressunto',
-          method: 'DELETE',
-          sha: file?.sha,
-          path: CONFIG_FILE_NAME,
-          name: '',
-          content: file.content
-        })
-      }
+      await deleteConfigFile(token, project)
     }
 
     flashMessage = 'Project deleted successfully'

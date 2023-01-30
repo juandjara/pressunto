@@ -7,6 +7,8 @@ import matter from 'front-matter'
 const db = Redis.fromEnv()
 
 export type Project = {
+  id: number
+  user: string
   title: string
   repo: string
   branch: string
@@ -37,35 +39,40 @@ export type ProjectConfig = {
   templates: ProjectTemplates[]
 }
 
+const NEXT_PROJECT_KEY = 'next_project_id'
+
 export async function getUserProjects(user: string) {
-  const keys = await db.smembers(`user:${user}:projects`)
-  if (keys.length === 0) {
+  const ids = await db.smembers(`projects:${user}`)
+  if (ids.length === 0) {
     return []
   }
 
-  const projects = await db.mget(...keys.map(k => `project:${user}:${k}`)) as Project[]
+  const projects = await db.mget(...ids.map(id => `project:${id}`)) as Project[]
   return projects.sort((a, b) => a.title.localeCompare(b.title))
 }
 
-export async function getProject(user: string, repo: string) {
-  return await db.get(`project:${user}:${repo}`) as Project
+export async function getProject(id: number) {
+  return await db.get(`project:${id}`) as Project
 }
 
-export async function saveProject(user: string, project: Project) {
-  return Promise.all([
-    db.sadd(`user:${user}:projects`, project.repo),
-    db.set(`project:${user}:${project.repo}`, project)
+export async function createProject(project: Omit<Project, 'id'>) {
+  const id = await db.incr(NEXT_PROJECT_KEY)
+  await Promise.all([
+    db.sadd(`projects:${project.user}`, id),
+    db.set(`project:${id}`, project)
   ])
+
+  return id
 }
 
-export async function updateProject(user: string, project: Project) {
-  return db.set(`project:${user}:${project.repo}`, project)
+export async function updateProject(project: Project) {
+  return db.set(`project:${project.id}`, project)
 }
 
-export async function deleteProject(user: string, repo: string) {
+export async function deleteProject(project: Project) {
   return Promise.all([
-    db.srem(`user:${user}:projects`, repo),
-    db.del(`project:${user}:${repo}`)
+    db.srem(`projects:${project.user}`, project.id),
+    db.del(`project:${project.id}`)
   ])
 }
 
@@ -76,8 +83,8 @@ export const CONFIG_FILE_TEMPLATE = `{
 }
 `
 
-export async function createConfigFile(token: string, project: Project) {
-  const repoTree = await getRepoFiles(token, project.repo)
+export async function createConfigFile(token: string, repo: string, branch: string) {
+  const repoTree = await getRepoFiles(token, repo)
   const configFile = repoTree.find((f) => f.path === CONFIG_FILE_NAME)
   if (configFile) {
     return
@@ -85,8 +92,8 @@ export async function createConfigFile(token: string, project: Project) {
 
   await saveFile(token, {
     method: 'PUT',
-    repo: project.repo,
-    branch: project.branch || 'master',
+    repo,
+    branch: branch || 'master',
     name: CONFIG_FILE_NAME,
     content: CONFIG_FILE_TEMPLATE,
     message: '[skip ci] Create config file for Pressunto',
@@ -110,6 +117,27 @@ export async function updateConfigFile(token: string, project: Project, config: 
     message: '[skip ci] Update config file for Pressunto',
     path: '',
   })
+}
+
+export async function deleteConfigFile(token: string, { repo, branch }: Project) {
+  const file = await getFileContent(token, {
+    repo,
+    file: CONFIG_FILE_NAME,
+    branch
+  })
+
+  if (file) {
+    await saveFile(token, {
+      repo,
+      branch,
+      message: '[skip ci] Delete config file for Pressunto',
+      method: 'DELETE',
+      sha: file?.sha,
+      path: CONFIG_FILE_NAME,
+      name: '',
+      content: file.content
+    })
+  }
 }
 
 export async function getProjectConfig(token: string, project: Project) {

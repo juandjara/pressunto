@@ -8,7 +8,7 @@ import debounce from 'debounce'
 import type { ActionFunction, LoaderArgs} from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { requireUserSession } from "@/lib/session.server"
-import { createConfigFile, saveProject } from "@/lib/projects.server"
+import { createConfigFile, createProject } from "@/lib/projects.server"
 import InlineCode from "@/components/InlineCode"
 import metaTitle from "@/lib/metaTitle"
 
@@ -31,10 +31,9 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ errors: { repo: 'This field is required' } })
   }
 
-  const project = { title, repo, branch }
   await Promise.all([
-    saveProject(user.name, project),
-    createConfigFile(token, project)
+    createProject({ user: user.name, title, repo, branch }),
+    createConfigFile(token, repo, branch)
   ])
 
   return redirect(`/projects/${repo}`)
