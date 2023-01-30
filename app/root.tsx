@@ -52,9 +52,11 @@ export const meta: MetaFunction = () => ({
 })
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const { user } = await getSessionData(request)
-  const theme = await getTheme(request)
-  const { newCookie, flashMessage } = await getFlashMessage(request)
+  const [{ user }, theme, { newCookie, flashMessage }] = await Promise.all([
+    getSessionData(request),
+    getTheme(request),
+    getFlashMessage(request)
+  ])
 
   return json({ user, theme, flashMessage }, {
     headers: {
