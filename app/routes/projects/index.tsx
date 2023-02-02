@@ -41,7 +41,7 @@ export default function ProjectsList() {
             <Link className="text-xl pb-1 flex items-center gap-3" to={`/p/${p.id}`}>
               <CodeBracketSquareIcon className="w-7 h-7 text-slate-400" />
               <div>
-                <p>{p.title}</p>
+                <p>{p.title === p.repo.split('/')[1] ? '' : p.title}</p>
                 <p>
                   <span className="dark:text-slate-300 text-slate-500">{p.repo.split('/')[0]}</span>
                   <span> / </span>
