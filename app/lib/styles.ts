@@ -45,6 +45,7 @@ const buttonCommon = [
   'rounded-md',
   'font-medium',
   'disabled:opacity-50',
+  'disabled:pointer-events-none'
 ].join(' ')
 
 export const buttonCN = {

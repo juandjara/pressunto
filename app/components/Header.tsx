@@ -49,8 +49,8 @@ function UserMenu({ user }: { user: User }) {
   }
 
   return (
-    <div className="z-20 relative flex-shrink-0 h-10">
-      <Menu>
+    <div>
+      <Menu as="div" className="z-20 relative flex-shrink-0 h-10">
         {({ open }) => (
           <>
             <Menu.Button title="Open user menu">
@@ -74,10 +74,10 @@ function UserMenu({ user }: { user: User }) {
               leaveTo="scale-y-50 opacity-0">
               <Menu.Items
                 static
-                className="absolute top-full right-0 ring-1 ring-black ring-opacity-5">
-                <div className="rounded-lg shadow-md bg-white p-1">
+                className="rounded-lg bg-black w-28 absolute top-full right-0 ring-1 ring-black ring-opacity-5">
+                <div className="rounded-lg shadow-md bg-white dark:bg-white/30 p-1">
                   <Menu.Item>
-                    <button className={`w-full text-right ${buttonCN.normal} ${buttonCN.cancel}`}>Projects</button>
+                    <button className={`w-full ${buttonCN.normal} ${buttonCN.cancel}`}>Projects</button>
                   </Menu.Item>
                   <LogoutButton />
                 </div>
@@ -96,7 +96,7 @@ function LogoutButton() {
 
   return (
     <fetcher.Form action="/oauth/logout" method="post">
-      <button disabled={busy} className={`w-full text-right ${buttonCN.normal} ${buttonCN.cancel}`}>
+      <button disabled={busy} className={`w-full ${buttonCN.normal} ${buttonCN.cancel}`}>
         {busy ? 'Logging out...' : 'Log out'}
       </button> 
     </fetcher.Form>

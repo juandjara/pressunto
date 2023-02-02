@@ -21,10 +21,9 @@ type LoaderData = {
 }
 
 export const loader: LoaderFunction = async ({ params, request }) => {
-  const { token, user } = await requireUserSession(request)
+  const { token } = await requireUserSession(request)
   const collectionId = params.cid
-  const repo = `${params.org}/${params.repo}`
-  const project = await getProject(user.name, repo)
+  const project = await getProject(Number(params.project))
   const config = await getProjectConfig(token, project)
   const collection = config.collections.find((c) => c.id === collectionId)
 

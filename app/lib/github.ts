@@ -144,7 +144,7 @@ export async function searchRepos(token: string, {
   const { data, headers } = await callGithubAPI(token, fullUrl)
 
   data.items = data.items
-    .filter((r: any) => r.permissions.push) // keep only permissions you have write access to
+    .filter((r: any) => r.permissions.push) // keep only repos you have write access to
     .map((r: any) => ({ // keep only relevant data
       name: r.name,
       full_name: r.full_name,
@@ -366,6 +366,11 @@ export async function createTree(token: string, repo: string, tree: TreeCreatePa
 export async function getBranch(token: string, repo: string, branch: string) {
   const { data } = await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch || 'master'}`)
   return data
+}
+
+export async function getBranches(token: string, repo: string) {
+  const { data } = await callGithubAPI(token, `/repos/${repo}/branches`)
+  return data as any[]
 }
 
 type PushFilesPayload = {

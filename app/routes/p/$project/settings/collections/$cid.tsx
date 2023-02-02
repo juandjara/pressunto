@@ -1,9 +1,9 @@
-import type { ComboBoxProps } from "@/components/ComboBox"
-import ComboBox from "@/components/ComboBox"
+import { ComboBoxLocal } from "@/components/ComboBoxLocal"
 import Modal from "@/components/Modal"
 import type { TreeItem } from "@/lib/github"
 import { getRepoFiles } from "@/lib/github"
 import type { Project, ProjectConfig, ProjectTemplates} from "@/lib/projects.server"
+import { getProject} from "@/lib/projects.server"
 import { updateConfigFile } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import slugify from "@/lib/slugify"
@@ -13,7 +13,6 @@ import type { ActionFunction, LoaderFunction} from "@remix-run/node"
 import { json} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { Form, useLoaderData, useNavigate, useParams, useTransition } from "@remix-run/react"
-import { useMemo, useState } from "react"
 
 export const action: ActionFunction = async ({ request, params }) => {
   const { token } = await requireUserSession(request)
@@ -61,7 +60,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   await updateConfigFile(token, project, config)
 
-  return redirect(`/projects/${params.org}/${params.repo}/settings`, {
+  return redirect(`/p/${project.id}/settings`, {
     headers: new Headers({
       'cache-control': 'no-cache',
       'Set-Cookie': await setFlashMessage(request, 'Project settings updated')
@@ -71,34 +70,9 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   const { token } = await requireUserSession(request)
-  const repo = `${params.org}/${params.repo}`
-  const tree = await getRepoFiles(token, repo)
+  const project = await getProject(Number(params.project))
+  const tree = await getRepoFiles(token, project.repo, project.branch)
   return json({ tree: tree.filter((t) => t.type === 'tree') })
-}
-
-type LocalComboBoxProps<T> = Pick<
-  ComboBoxProps<T>,
-  'options' | 'labelKey' | 'valueKey' | 'name' | 'defaultValue'
->
-
-function LocalComboBox<T>(props: LocalComboBoxProps<T>) {
-  const [query, setQuery] = useState('')
-  const filteredOptions = useMemo(() => {
-    return (props.options as T[]).filter(t => (
-      query ? (t[props.labelKey] as string || '').includes(query.trim().toLowerCase()) : true
-    ))
-  }, [query, props.options, props.labelKey])
-
-  return (
-    <ComboBox<T>
-      name={props.name}
-      options={filteredOptions}
-      labelKey={props.labelKey}
-      valueKey={props.valueKey}
-      defaultValue={props.defaultValue}
-      onSearch={setQuery}
-    />
-  )
 }
 
 export default function EditCollection() {
@@ -141,7 +115,7 @@ export default function EditCollection() {
           </div>
           <div>
             <label htmlFor="route" className={labelCN}>Folder</label>
-            <LocalComboBox<TreeItem>
+            <ComboBoxLocal<TreeItem>
               name='route'
               options={tree}
               labelKey='path'
@@ -151,7 +125,7 @@ export default function EditCollection() {
           </div>
           <div>
             <label htmlFor="template" className={labelCN}>Template</label>
-            <LocalComboBox<ProjectTemplates>
+            <ComboBoxLocal<ProjectTemplates>
               name='template'
               options={templateOptions}
               labelKey='name'

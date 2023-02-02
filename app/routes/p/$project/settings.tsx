@@ -1,5 +1,5 @@
 import metaTitle from "@/lib/metaTitle"
-import type { Project} from "@/lib/projects.server"
+import { getProject } from "@/lib/projects.server"
 import { deleteConfigFile, deleteProject, updateProject } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { buttonCN, checkboxCN, iconCN, inputCN, labelCN } from "@/lib/styles"
@@ -10,20 +10,23 @@ import { redirect } from "@remix-run/node"
 import { Form, Link, Outlet, useTransition } from "@remix-run/react"
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const { token, user } = await requireUserSession(request)
-  const repo = `${params.org}/${params.repo}`
+  const { token } = await requireUserSession(request)
+  const project = await getProject(Number(params.project))
   const formData = await request.formData()
-  const op = formData.get('operation')
   const delete_config_file = formData.get('delete_config_file') === 'on'
+  const op = formData.get('operation')
+  const isDelete = op === 'delete'
   const branch = formData.get('branch') as string
   const title = formData.get('title') as string
-  const isDelete = op === 'delete'
-  const project = { user: user.name, repo, branch, title } as Project
 
   let flashMessage = ''
 
   if (op === 'update') {
-    await updateProject(project)
+    await updateProject({
+      ...project,
+      branch,
+      title
+    })
     flashMessage = 'Project updated successfully'
   }
 
@@ -41,7 +44,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     'Set-Cookie': await setFlashMessage(request, flashMessage)
   })
 
-  return redirect(isDelete ? '/' : `/projects/${repo}/settings`, { headers })
+  return redirect(isDelete ? '/' : `/p/${project.id}/settings`, { headers })
 }
 
 export const meta = {

@@ -31,12 +31,13 @@ export default function ComboBox<T>({
   loading,
   options,
   onSearch,
+  onSelect,
   labelKey,
   valueKey,
   defaultValue
 }: ComboBoxProps<T>) {
   return (
-    <Combobox name={name} defaultValue={defaultValue}>
+    <Combobox name={name} defaultValue={defaultValue} onChange={onSelect as any}>
       <div className="relative">
         <div className={`${inputCN} ${focusWithinCN}`}>
           <Combobox.Input

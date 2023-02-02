@@ -53,7 +53,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   await updateConfigFile(token, project, config)
 
-  return redirect(`/projects/${params.org}/${params.repo}/settings`, {
+  return redirect(`/p/${project.id}/settings`, {
     headers: new Headers({
       'cache-control': 'no-cache',
       'Set-Cookie': await setFlashMessage(request, 'Project settings updated')

@@ -12,10 +12,9 @@ type LoaderData = {
 }
 
 export const loader: LoaderFunction = async ({ params, request }) => {
-  const { token, user } = await requireUserSession(request)
-  const repo = `${params.org}/${params.repo}`
-  const project = await getProject(user.name, repo)
-  const tree = await getRepoFiles(token, repo, project.branch || 'master')
+  const { token } = await requireUserSession(request)
+  const project = await getProject(Number(params.project))
+  const tree = await getRepoFiles(token, project.repo, project.branch)
 
   return json<LoaderData>({ tree })
 }

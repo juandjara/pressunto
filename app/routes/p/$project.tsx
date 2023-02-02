@@ -15,10 +15,8 @@ type LoaderData = {
 }
 
 export const loader: LoaderFunction = async ({ params, request }) => {
-  const repo = `${params.org}/${params.repo}`
-  const { user, token } = await requireUserSession(request)
-
-  const project = await getProject(user.name, repo)
+  const { token } = await requireUserSession(request)
+  const project = await getProject(Number(params.project))
   const config = await getProjectConfig(token, project)
 
   return json<LoaderData>({ project, config }, {

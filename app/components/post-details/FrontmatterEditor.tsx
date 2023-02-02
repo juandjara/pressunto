@@ -14,7 +14,7 @@ type LoaderData = {
   }
 }
 
-export default function FrontmatterEditor() {
+export default function FrontmatterEditor({ onDraft }: { onDraft: () => void }) {
   const { cid } = useParams()
   const { config, file } = useLoaderData<LoaderData>()
   const collection = config.collections.find((c) => c.id === cid)
@@ -47,6 +47,7 @@ export default function FrontmatterEditor() {
 
   function removeField(key: string) {
     setAttrs(a => a.filter(f => f.field !== key))
+    onDraft()
   }
 
   function addField() {
@@ -59,11 +60,20 @@ export default function FrontmatterEditor() {
         default: '',
         value: '',
       }))
+      onDraft()
     }
   }
 
   return (
-    <fieldset className="space-y-6 mb-10 mt-5 flex-grow flex-shrink-0">
+    <fieldset
+      className="space-y-6 mb-10 mt-5 flex-grow flex-shrink-0"
+      onBlur={(ev: React.FocusEvent<HTMLElement>) => {
+        const isInput = ev.target.tagName.toLowerCase() === 'input'
+        if (isInput) {
+          onDraft()
+        }
+      }}
+    >
       {attrs.map((entry) => (
         <div key={entry.field}>
           <div className={`${labelCN} ${entry.hidden ? 'hidden' : 'flex'} items-center`}>

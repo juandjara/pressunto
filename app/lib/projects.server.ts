@@ -59,7 +59,7 @@ export async function createProject(project: Omit<Project, 'id'>) {
   const id = await db.incr(NEXT_PROJECT_KEY)
   await Promise.all([
     db.sadd(`projects:${project.user}`, id),
-    db.set(`project:${id}`, project)
+    db.set(`project:${id}`, { ...project, id })
   ])
 
   return id

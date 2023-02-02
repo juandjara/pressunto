@@ -4,6 +4,7 @@ import type { ParsedFile } from '@/lib/github'
 import FileLabel from './FileLabel'
 import { Form, Link, useLoaderData, useParams, useTransition } from '@remix-run/react'
 import { buttonCN } from '@/lib/styles'
+import { useProject } from '@/lib/useProjectConfig'
 
 type LoaderData = {
   branch: string
@@ -77,7 +78,8 @@ function FileContents({ file }: { file?: ParsedFile }) {
 }
 
 export default function FileDetails() {
-  const { branch, file, permissions } = useLoaderData<LoaderData>()
+  const project = useProject()
+  const { file, permissions } = useLoaderData<LoaderData>()
   const path = useParams()['*']
   const transition = useTransition()
   const busy = transition.state === 'submitting'
@@ -129,7 +131,8 @@ export default function FileDetails() {
             Delete
           </button>
           <input type="hidden" name="sha" value={file?.sha} />
-          <input type="hidden" name="branch" value={branch} />
+          <input type="hidden" name="repo" value={project.repo} />
+          <input type="hidden" name="branch" value={project.branch} />
         </div>
       ) : (
         <div className="text-right text-red-800 rounded-xl p-3">

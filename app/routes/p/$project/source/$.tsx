@@ -9,25 +9,23 @@ import { json } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
 
 export async function loader({ request, params }: LoaderArgs) {
-  const { token, user } = await requireUserSession(request)
+  const { token } = await requireUserSession(request)
   const file = params['*'] || ''
   const isNew = getBasename(file) === 'new'
-  const repo = `${params.org}/${params.repo}`
-  const project = await getProject(user.name, repo)
+  const project = await getProject(Number(params.project))
 
-  const branch = project.branch || 'master'
   const [details, content] = await Promise.all([
-    getRepoDetails(token, repo),
+    getRepoDetails(token, project.repo),
     isNew
       ? Promise.resolve(null)
       : getFileContent(token, {
-          repo,
           file,
+          repo: project.repo,
           branch: project.branch,
         })
   ])
 
-  return json({ branch, file: content, permissions: details.permissions })
+  return json({ file: content, permissions: details.permissions })
 }
 
 export async function action({ request, params }: ActionArgs) {
@@ -37,9 +35,9 @@ export async function action({ request, params }: ActionArgs) {
   const name = formData.get('filename') as string
   const body = formData.get('markdown') as string
   const path = formData.get('path') as string
+  const repo = formData.get('repo') as string
   const branch = formData.get('branch') as string
   const sha = formData.get('sha') as string | undefined
-  const repo = `${params.org}/${params.repo}`
 
   if (!name) {
     throw new Response(`"filename" param is required in form data`, { status: 400, statusText: 'Bad Request' })
@@ -66,7 +64,7 @@ export async function action({ request, params }: ActionArgs) {
   })
 
   const returnPath = isDelete ? '' : path + name
-  const redirectPath = `/projects/${repo}/source/${returnPath}`
+  const redirectPath = `/p/${params.project}/source/${returnPath}`
 
   const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
 
