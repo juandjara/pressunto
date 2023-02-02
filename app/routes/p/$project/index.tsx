@@ -1,6 +1,6 @@
 import { buttonCN, iconCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
-import { Cog6ToothIcon, DocumentDuplicateIcon } from "@heroicons/react/20/solid"
+import { FolderIcon, Cog6ToothIcon, DocumentDuplicateIcon } from "@heroicons/react/20/solid"
 import { Link } from "@remix-run/react"
 
 const listCN = 'group flex items-center gap-2 pl-2 p-1 rounded-md text-lg hover:bg-slate-100 dark:hover:bg-slate-700'
@@ -10,7 +10,10 @@ export default function Collections() {
 
   return (
     <div className="p-4">
-      <h2 className="font-medium text-4xl my-4">Collections</h2>
+      <h2 className="font-medium text-4xl my-4 flex items-center gap-2">
+        <FolderIcon className={iconCN.big} />
+        <p>Collections</p>
+      </h2>
       {collections.length === 0 && (
         <>        
           <p className="dark:text-stone-200">

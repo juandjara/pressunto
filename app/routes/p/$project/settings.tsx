@@ -4,7 +4,7 @@ import { deleteConfigFile, deleteProject, updateProject } from "@/lib/projects.s
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { buttonCN, checkboxCN, iconCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
-import { DocumentDuplicateIcon, ListBulletIcon, PlusIcon } from "@heroicons/react/20/solid"
+import { Cog6ToothIcon, DocumentDuplicateIcon, ListBulletIcon, PlusIcon } from "@heroicons/react/20/solid"
 import type { ActionFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { Form, Link, Outlet, useTransition } from "@remix-run/react"
@@ -63,13 +63,16 @@ export default function ProjectSettings() {
   return (
     <div className="p-4 space-y-8">
       <Outlet />
-      <div>
-        <h2 className="font-medium text-4xl my-4">Settings</h2>
+      <header>
+        <h2 className="font-medium text-4xl my-4 flex items-center gap-2">
+          <Cog6ToothIcon className={iconCN.big} />
+          <p>Settings</p>
+        </h2>
         <p className="max-w-prose font-medium">
           Here you can edit the configuration for your project, how content is organized and what defaults field are added to every content collection 
         </p>
-      </div>
-      <div>
+      </header>
+      <section>
         <header className="flex items-end justify-between mb-2">
           <h3 className="font-medium text-2xl">Collections</h3>
           <Link to='collections/new'>
@@ -106,8 +109,8 @@ export default function ProjectSettings() {
             ))}
           </ul>
         </div>
-      </div>
-      <div>
+      </section>
+      <section>
         <header className="flex items-end justify-between gap-3 mb-2">
           <h3 className="font-medium text-2xl">Templates</h3>
           <Link to='templates/new'>
@@ -142,7 +145,7 @@ export default function ProjectSettings() {
             ))}
           </ul>
         </div>
-      </div>
+      </section>
       <EditProject />
       <DangerZone />
     </div>

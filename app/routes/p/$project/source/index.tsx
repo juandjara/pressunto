@@ -3,6 +3,8 @@ import type { TreeItem } from "@/lib/github"
 import { getRepoFiles } from "@/lib/github"
 import { getProject } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
+import { iconCN } from "@/lib/styles"
+import { CodeBracketIcon } from "@heroicons/react/20/solid"
 import type { LoaderFunction } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
@@ -23,7 +25,10 @@ export default function ProjectSource() {
   const { tree } = useLoaderData<LoaderData>()
   return (
     <div className="p-4">
-      <h2 className="font-medium text-4xl my-4">Source Code</h2>
+      <h2 className="font-medium text-4xl my-4 flex items-center gap-2">
+        <CodeBracketIcon className={iconCN.big} />
+        <p>Source Code</p>
+      </h2>
       <p className="text-lg">
         Here you can browse and edit all the code for this project, using a basic editor not focused on Markdown content
       </p>
