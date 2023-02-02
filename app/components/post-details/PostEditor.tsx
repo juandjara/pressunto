@@ -1,7 +1,7 @@
 import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
 import { borderColor } from "@/lib/styles"
 import { Tab } from "@headlessui/react"
-import { Link, useLoaderData } from "@remix-run/react"
+import { useLoaderData } from "@remix-run/react"
 import { useEffect, useState } from "react"
 import MarkdownEditor from "./markdown-editor/MarkdownEditor"
 import MarkdownPreview from "./markdown-editor/MarkdownPreview"
