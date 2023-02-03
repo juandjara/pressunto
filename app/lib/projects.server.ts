@@ -35,6 +35,7 @@ export type FieldConfig = {
 }
 
 export type ProjectConfig = {
+  mediaFolder?: string
   collections: ProjectCollection[]
   templates: ProjectTemplates[]
 }

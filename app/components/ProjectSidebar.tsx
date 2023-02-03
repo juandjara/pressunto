@@ -4,6 +4,7 @@ import { BookOpenIcon, CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, Ey
 import { NavLink } from "@remix-run/react"
 import { useRef } from "react"
 import { HeaderTitle } from "./Header"
+import { PhotoIcon } from "@heroicons/react/20/solid"
 
 const baseLinkCN = [
   'flex items-center gap-3 rounded-md py-1 px-2',
@@ -42,9 +43,15 @@ export default function ProjectSidebar() {
         ))}
         <li className="py-3"></li>
         <li>
+          <NavLink to='media' className={linkCN}>
+            <PhotoIcon className={iconCN.big} />
+            <span className="text-lg">Media</span>
+          </NavLink>
+        </li>
+        <li>
           <NavLink to='source' className={linkCN}>
             <CodeBracketIcon className={iconCN.big} />
-            <span className="text-lg">Source code</span>
+            <span className="text-lg">Source</span>
           </NavLink>
         </li>
         <li>

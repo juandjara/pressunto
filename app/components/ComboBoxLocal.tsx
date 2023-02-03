@@ -4,7 +4,7 @@ import ComboBox from "./ComboBox"
 
 type LocalComboBoxProps<T> = Pick<
   ComboBoxProps<T>,
-  'options' | 'labelKey' | 'valueKey' | 'name' | 'defaultValue'
+  'options' | 'labelKey' | 'valueKey' | 'name' | 'defaultValue' | 'onSelect'
 >
 
 export function ComboBoxLocal<T>(props: LocalComboBoxProps<T>) {
@@ -17,11 +17,9 @@ export function ComboBoxLocal<T>(props: LocalComboBoxProps<T>) {
 
   return (
     <ComboBox<T>
+      {...props}
       name={props.name}
       options={filteredOptions}
-      labelKey={props.labelKey}
-      valueKey={props.valueKey}
-      defaultValue={props.defaultValue}
       onSearch={setQuery}
     />
   )
