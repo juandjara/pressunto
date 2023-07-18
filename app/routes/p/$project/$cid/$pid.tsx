@@ -15,7 +15,7 @@ import FrontmatterEditor from "@/components/post-details/FrontmatterEditor"
 import PostEditor from "@/components/post-details/PostEditor"
 import metaTitle from "@/lib/metaTitle"
 import { EllipsisVerticalIcon } from "@heroicons/react/24/solid"
-import { ArrowUpTrayIcon } from "@heroicons/react/24/outline"
+import { ArrowUpTrayIcon, DocumentIcon } from "@heroicons/react/24/outline"
 import { useState } from "react"
 import { Menu, Transition } from "@headlessui/react"
 
@@ -147,8 +147,9 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
   }
 
   return (
-    <div className="mb-2 flex items-center gap-2">
-      <input type="text" placeholder="file name" className={inputCN} name="name" defaultValue={file.name} />
+    <div className="mb-2 flex items-center gap-2 relative">
+      <DocumentIcon className="w-5 h-5 absolute top-3 left-2" />
+      <input type="text" placeholder="file name" className={`pl-9 ${inputCN}`} name="name" defaultValue={file.name} />
       <button
         type='submit'
         name='_op'
