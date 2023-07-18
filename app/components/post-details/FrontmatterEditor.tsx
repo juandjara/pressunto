@@ -65,45 +65,47 @@ export default function FrontmatterEditor({ onDraft }: { onDraft: () => void }) 
   }
 
   return (
-    <fieldset
-      className="space-y-6 mb-10 mt-5 flex-grow flex-shrink-0"
-      onBlur={(ev: React.FocusEvent<HTMLElement>) => {
-        const isInput = ev.target.tagName.toLowerCase() === 'input'
-        if (isInput) {
-          onDraft()
-        }
-      }}
-    >
-      {attrs.map((entry) => (
-        <div key={entry.field}>
-          <div className={`${labelCN} ${entry.hidden ? 'hidden' : 'flex'} items-center`}>
-            <label htmlFor={`meta__${entry.field}`} className="capitalize">{entry.name || entry.field}</label>
-            <div className="flex-grow"></div>
-            <button
-              type='button'
-              title="delete field"
-              onClick={() => removeField(entry.field)}
-              className={`p-1 rounded-md ${buttonCN.cancel}`}>
-              <XMarkIcon className="w-5 h-5" />
-              <span className="sr-only">delete field</span>
-            </button>
-          </div>
-          <input
-            type={entry.hidden ? 'hidden' : 'text'}
-            name={`meta__${entry.field}`}
-            defaultValue={entry.value || entry.default || ''}
-            className={inputCN}
-          />
-        </div>
-      ))}
+    <div className="flex-grow flex-shrink-0">
       <button
         type="button"
         onClick={addField}
-        className={`${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconLeft} pr-3 mt-7`}>
+        className={`${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconLeft} pr-3 mt-1`}>
         <PlusIcon className="w-5 h-5" />
         <span>Add field</span>
       </button>
       <input type='hidden' name='meta_fields' value={attrs.map(f => f.field).join(',')} />
-    </fieldset>
+      <fieldset
+        className="space-y-6 mb-10 mt-5"
+        onBlur={(ev: React.FocusEvent<HTMLElement>) => {
+          const isInput = ev.target.tagName.toLowerCase() === 'input'
+          if (isInput) {
+            onDraft()
+          }
+        }}
+      >
+        {attrs.map((entry) => (
+          <div key={entry.field}>
+            <div className={`${labelCN} ${entry.hidden ? 'hidden' : 'flex'} items-center`}>
+              <label htmlFor={`meta__${entry.field}`} className="capitalize">{entry.name || entry.field}</label>
+              <div className="flex-grow"></div>
+              <button
+                type='button'
+                title="delete field"
+                onClick={() => removeField(entry.field)}
+                className={`p-1 rounded-md ${buttonCN.cancel}`}>
+                <XMarkIcon className="w-5 h-5" />
+                <span className="sr-only">delete field</span>
+              </button>
+            </div>
+            <input
+              type={entry.hidden ? 'hidden' : 'text'}
+              name={`meta__${entry.field}`}
+              defaultValue={entry.value || entry.default || ''}
+              className={inputCN}
+            />
+          </div>
+        ))}
+      </fieldset>
+    </div>
   )
 }

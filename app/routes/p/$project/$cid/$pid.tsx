@@ -182,20 +182,20 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
               leaveTo="scale-y-50 opacity-0">
               <Menu.Items
                 static
-                className="mt-2 rounded-lg w-64 bg-black absolute top-full right-0 ring-1 ring-black ring-opacity-5">
-                <div className="rounded-lg space-y-2 p-2 shadow-md bg-white dark:bg-white/30">
+                className="mt-2 w-60 shadow-lg absolute top-full right-0 ring-1 ring-black ring-opacity-5">
+                <div className="rounded-md text-left py-2 bg-white dark:bg-white/30">
                   <Menu.Item
                     as="button"
                     type="button"
                     onClick={() => window.location.reload()}
-                    className={`w-full text-right ${buttonCN.normal} ${buttonCN.cancel}`}
+                    className={`w-full text-left rounded-none ${buttonCN.normal} ${buttonCN.cancel}`}
                   >
                     Discard unsaved changes
                   </Menu.Item>
                   <Menu.Item
                     as="button"
                     type="button"
-                    className={`w-full text-right ${buttonCN.normal} ${buttonCN.cancel}`}
+                    className={`w-full text-left rounded-none ${buttonCN.normal} ${buttonCN.cancel}`}
                   >
                     Move to another collection
                   </Menu.Item>
@@ -206,7 +206,7 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
                     value='delete'
                     disabled={busy}
                     onClick={handleDelete}
-                    className={`w-full text-right ${buttonCN.normal} ${buttonCN.cancel}`}
+                    className={`w-full text-left rounded-none ${buttonCN.normal} ${buttonCN.cancel}`}
                   >
                     <p className="dark:text-red-400 text-red-900">Delete file</p>
                   </Menu.Item>
