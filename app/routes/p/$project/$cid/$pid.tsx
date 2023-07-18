@@ -7,7 +7,7 @@ import { buttonCN, inputCN } from "@/lib/styles"
 import type { ActionArgs, LoaderFunction, MetaFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { json } from "@remix-run/node"
-import { Form, useLoaderData, useNavigate, useTransition } from "@remix-run/react"
+import { Form, useLoaderData, useNavigate, useParams, useTransition } from "@remix-run/react"
 import { useProject } from "@/lib/useProjectConfig"
 import { getBasename } from "@/lib/pathUtils"
 import slugify from "@/lib/slugify"
@@ -139,6 +139,8 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
   const transition = useTransition()
   const busy = transition.state === 'submitting'
   const navigate = useNavigate()
+  const { project, cid } = useParams()
+  const backLink = `/p/${project}/${cid}`
 
   function handleDelete(ev: React.MouseEvent) {
     const isDelete = (ev.target as HTMLButtonElement).value === 'delete'
@@ -150,7 +152,7 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
   return (
     <div className="mb-2 flex items-center gap-2">
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate(backLink)}
         title="Back"
         aria-label="Back"
         type="button"
