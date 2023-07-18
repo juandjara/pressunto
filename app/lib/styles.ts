@@ -57,6 +57,7 @@ export const buttonCN = {
     'text-slate-100 bg-slate-600 hover:bg-slate-900',
     'dark:text-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200'
   ].join(' '),
+  icon: 'pr-2 pl-2',
   iconLeft: 'flex items-center gap-2 pl-2',
   iconRight: 'flex items-center gap-2',
   cancel: 'hover:bg-slate-100 dark:hover:bg-slate-100/25',

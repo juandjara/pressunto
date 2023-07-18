@@ -7,7 +7,7 @@ import { buttonCN, inputCN } from "@/lib/styles"
 import type { ActionArgs, LoaderFunction, MetaFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { json } from "@remix-run/node"
-import { Form, useLoaderData, useTransition } from "@remix-run/react"
+import { Form, useLoaderData, useNavigate, useTransition } from "@remix-run/react"
 import { useProject } from "@/lib/useProjectConfig"
 import { getBasename } from "@/lib/pathUtils"
 import slugify from "@/lib/slugify"
@@ -15,7 +15,7 @@ import FrontmatterEditor from "@/components/post-details/FrontmatterEditor"
 import PostEditor from "@/components/post-details/PostEditor"
 import metaTitle from "@/lib/metaTitle"
 import { EllipsisVerticalIcon } from "@heroicons/react/24/solid"
-import { ArrowUpTrayIcon, DocumentIcon } from "@heroicons/react/24/outline"
+import { ArrowLeftIcon, ArrowUpTrayIcon, ArrowUturnLeftIcon, DocumentIcon, FolderOpenIcon, TrashIcon } from "@heroicons/react/24/outline"
 import { useState } from "react"
 import { Menu, Transition } from "@headlessui/react"
 
@@ -138,6 +138,7 @@ export async function action({ request, params }: ActionArgs) {
 function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: boolean }) {
   const transition = useTransition()
   const busy = transition.state === 'submitting'
+  const navigate = useNavigate()
 
   function handleDelete(ev: React.MouseEvent) {
     const isDelete = (ev.target as HTMLButtonElement).value === 'delete'
@@ -147,21 +148,31 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
   }
 
   return (
-    <div className="mb-2 flex items-center gap-2 relative">
-      <DocumentIcon className="w-5 h-5 absolute top-3 left-2" />
-      <input type="text" placeholder="file name" className={`pl-9 ${inputCN}`} name="name" defaultValue={file.name} />
+    <div className="mb-2 flex items-center gap-2">
+      <button
+        onClick={() => navigate(-1)}
+        title="Back"
+        aria-label="Back"
+        type="button"
+        className={`${buttonCN.normal} ${buttonCN.icon} ${buttonCN.cancel}`}>
+        <ArrowLeftIcon className='w-5 h-5' />
+      </button>
+      <div className="relative flex-grow">
+        <DocumentIcon className="w-5 h-5 absolute top-3 left-2" />
+        <input type="text" placeholder="file name" className={`pl-9 ${inputCN}`} name="name" defaultValue={file.name} />
+      </div>
       <button
         type='submit'
         name='_op'
         value='save'
-        disabled={busy || !isDraft}
+        disabled={!isDraft || busy}
         className={`disabled:opacity-75 ${buttonCN.normal} ${buttonCN.slate} ${buttonCN.iconLeft}`}
       >
         <ArrowUpTrayIcon className="w-6 h-6" />
-        <p>{busy ? 'Publishing...' : 'Publish'}</p>
+        <p className="hidden md:block">{busy ? 'Publishing...' : 'Publish'}</p>
       </button>
       <Menu as="div" className="z-20 relative">
-      {({ open }) => (
+        {({ open }) => (
           <>
             <Menu.Button
               as="button"
@@ -182,22 +193,24 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
               leaveTo="scale-y-50 opacity-0">
               <Menu.Items
                 static
-                className="mt-2 w-60 shadow-lg absolute top-full right-0 ring-1 ring-black ring-opacity-5">
+                className="mt-2 w-72 shadow-lg absolute top-full right-0 ring-1 ring-black ring-opacity-5">
                 <div className="rounded-md text-left py-2 bg-white dark:bg-white/30">
                   <Menu.Item
                     as="button"
                     type="button"
-                    onClick={() => window.location.reload()}
-                    className={`w-full text-left rounded-none ${buttonCN.normal} ${buttonCN.cancel}`}
+                    className={`w-full text-left rounded-none ${buttonCN.iconLeft} ${buttonCN.normal} ${buttonCN.cancel}`}
                   >
-                    Discard unsaved changes
+                    <FolderOpenIcon className="w-5 h-5" />
+                    <span>Move to another collection</span>
                   </Menu.Item>
                   <Menu.Item
                     as="button"
                     type="button"
-                    className={`w-full text-left rounded-none ${buttonCN.normal} ${buttonCN.cancel}`}
+                    onClick={() => window.location.reload()}
+                    className={`w-full text-left rounded-none ${buttonCN.iconLeft} ${buttonCN.normal} ${buttonCN.cancel}`}
                   >
-                    Move to another collection
+                    <ArrowUturnLeftIcon className="w-5 h-5" />
+                    <span>Discard unsaved changes</span>
                   </Menu.Item>
                   <Menu.Item
                     as="button"
@@ -206,9 +219,10 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
                     value='delete'
                     disabled={busy}
                     onClick={handleDelete}
-                    className={`w-full text-left rounded-none ${buttonCN.normal} ${buttonCN.cancel}`}
+                    className={`dark:text-red-400 text-red-900 w-full text-left rounded-none ${buttonCN.iconLeft} ${buttonCN.normal} ${buttonCN.cancel}`}
                   >
-                    <p className="dark:text-red-400 text-red-900">Delete file</p>
+                    <TrashIcon className="w-5 h-5" />
+                    <p>Delete file</p>
                   </Menu.Item>
                 </div>
               </Menu.Items>
@@ -239,11 +253,13 @@ export default function PostDetails() {
 
   return (
     <Form method='post' className="py-4 px-2 md:px-4 mb-8">
-      <PostDetailsHeader file={file} isDraft={isDraft || false} />
-      <p className="mb-6 ml-1 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-300">
-        <span className={`${isDraft ? 'bg-yellow-600' : 'bg-green-600'} w-2 h-2 mt-1 rounded inline-block`}></span>
-        <span>{isDraft ? 'Unsaved changes' : 'Published'}</span>
-      </p>
+      <header>
+        <PostDetailsHeader file={file} isDraft={isDraft} />
+        <p className="mb-6 ml-1 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-300">
+          <span className={`${isDraft ? 'bg-yellow-600' : 'bg-green-600'} w-2 h-2 mt-1 rounded inline-block`}></span>
+          <span>{isDraft ? 'Unsaved changes' : 'Published'}</span>
+        </p>
+      </header>
       <div className="lg:flex flex-wrap items-stretch gap-4 mb-4">
         <PostEditor onDraft={saveDraft} />
         <FrontmatterEditor onDraft={saveDraft} />
