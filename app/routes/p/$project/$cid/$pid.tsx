@@ -94,10 +94,11 @@ export async function action({ request, params }: ActionArgs) {
   const meta_fields = formData.get('meta_fields') as string
   const matter = meta_fields
     .split(',')
+    .filter(Boolean)
     .map(key => `${key}: ${formData.get(`meta__${key}`)}`)
     .join('\n')
 
-  const content = ['---', matter, '---', '', body].join('\n')
+  const content = matter ? ['---', matter, '---', '', body].join('\n') : body
 
   const isNew = !sha
 
