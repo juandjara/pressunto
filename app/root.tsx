@@ -82,12 +82,14 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="dark:text-slate-100 dark:bg-slate-800 text-slate-700">
+      <body className="dark:text-slate-100 dark:bg-slate-900 text-slate-700">
         <GlobalSpinner />
         <div className="lg:container mx-auto min-h-screen relative">
           <FlashMessage />
           <Header user={user} />
-          <Outlet />
+          <div className="bg-slate-50 dark:bg-slate-800 rounded-md">
+            <Outlet />
+          </div>
         </div>
         <ScrollRestoration />
         <Scripts />

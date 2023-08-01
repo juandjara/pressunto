@@ -4,7 +4,8 @@ import { Menu, Transition } from '@headlessui/react'
 import { buttonCN, inputCN } from "@/lib/styles"
 import DarkModeToggler from "./DarkModeToggler"
 
-export const HEADER_HEIGHT = '65px'
+const HEADER_INNER_HEIGHT = 64
+export const HEADER_HEIGHT = `${HEADER_INNER_HEIGHT + 10}px`
 
 export default function Header({ user }: { user: User }) {
   const location = useLocation()
@@ -14,7 +15,7 @@ export default function Header({ user }: { user: User }) {
   }
 
   return (
-    <nav className="flex items-center p-3 border-b border-gray-200 dark:border-gray-600">
+    <nav className="flex items-center p-3">
       <div className="hidden md:flex items-end">
         <HeaderTitle />
       </div>

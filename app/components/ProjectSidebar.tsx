@@ -1,4 +1,4 @@
-import { buttonCN, iconCN } from "@/lib/styles"
+import { iconCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { BookOpenIcon, CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, EyeSlashIcon, FolderIcon } from "@heroicons/react/20/solid"
 import { NavLink } from "@remix-run/react"
@@ -9,11 +9,11 @@ import { PhotoIcon } from "@heroicons/react/20/solid"
 const baseLinkCN = [
   'flex items-center gap-3 rounded-md py-1 px-2',
   'text-slate-500 dark:text-slate-200',
-  'hover:bg-slate-100 hover:dark:bg-slate-700'
+  'hover:bg-slate-200 hover:dark:bg-slate-600'
 ].join(' ')
 
 const linkCN = ({ isActive }: { isActive: boolean }) => [
-  isActive ? 'bg-slate-100 dark:bg-slate-700' : '',
+  isActive ? 'bg-slate-200 dark:bg-slate-600' : '',
   baseLinkCN
 ].join(' ')
 
@@ -24,7 +24,7 @@ export default function ProjectSidebar() {
   const nav = (
     <nav>
       <ul className="space-y-2">
-        <li hidden className="md:hidden flex items-center mx-1 py-3 border-b border-t dark:border-slate-500 border-slate-300">
+        <li hidden className="md:hidden flex items-center mx-1 py-3 border-t dark:border-slate-500 border-slate-300">
           <HeaderTitle />
         </li>
         <li>
@@ -73,14 +73,14 @@ export default function ProjectSidebar() {
           </NavLink>
         </li>
       </ul>
-      </nav>
+    </nav>
   )
 
   return (
     <>
       <aside>
-        <details className="md:hidden dark:bg-slate-800 bg-white p-3 open:bottom-0 top-0 left-0 absolute z-30 rounded flex-shrink-0">
-          <summary ref={summaryRef} className={`dark:bg-slate-700 bg-slate-100 ${buttonCN.normal}`}>MENU</summary>
+        <details className="md:hidden bg-slate-100 dark:bg-slate-700 p-3 open:bottom-0 top-0 left-0 absolute z-30 flex-shrink-0">
+          <summary ref={summaryRef} className="py-2 px-4">MENU</summary>
           <div
             style={{ width: 'calc(100vw - 24px)' }}
             className="mt-2"
@@ -89,7 +89,7 @@ export default function ProjectSidebar() {
           </div>
         </details>
       </aside>
-      <aside className="hidden md:block max-w-xs w-full flex-shrink-0 p-3 border-r border-slate-200 dark:border-gray-600">
+      <aside className="bg-slate-100 dark:bg-slate-700/50 rounded-l-md hidden md:block max-w-xs w-full flex-shrink-0 p-3">
         {nav}
       </aside>
     </>
