@@ -66,13 +66,16 @@ export default function FrontmatterEditor({ onDraft }: { onDraft: () => void }) 
 
   return (
     <div className="flex-grow flex-shrink-0">
-      <button
-        type="button"
-        onClick={addField}
-        className={`${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconLeft} pr-3 mt-1`}>
-        <PlusIcon className="w-5 h-5" />
-        <span>Add field</span>
-      </button>
+      <div className="flex items-center mt-2">
+        <p className="text-slate-600 dark:text-slate-200 text-sm font-semibold flex-grow">Fields</p>
+        <button
+          type="button"
+          onClick={addField}
+          className={`${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconLeft} pr-3`}>
+          <PlusIcon className="w-5 h-5" />
+          <span>Add field</span>
+        </button>
+      </div>
       <input type='hidden' name='meta_fields' value={attrs.map(f => f.field).join(',')} />
       <fieldset
         className="space-y-6 mb-10 mt-5"
