@@ -1,6 +1,5 @@
 import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
 import { borderColor, buttonCN } from "@/lib/styles"
-import { Tab } from "@headlessui/react"
 import { useLoaderData } from "@remix-run/react"
 import { useEffect, useState } from "react"
 import MarkdownEditor from "./markdown-editor/MarkdownEditor"
@@ -28,20 +27,6 @@ export default function PostEditor({ onDraft }: { onDraft: () => void }) {
       setTempContent(file.body || '')
     }
   }, [file])
-
-  const tabButtonCN = ({ selected }: { selected: boolean }) => {
-    const activeStyle = selected
-      ? 'text-slate-100 bg-slate-600 hover:bg-slate-700'
-      : 'hover:bg-slate-100 dark:hover:bg-slate-100/25'
-
-    return [
-      activeStyle,
-      'px-4 py-2 font-medium w-24',
-      'first:rounded-tl-md last:rounded-tr-md',
-      'boder-b-0 border-t first:border-l first:border-r last:border-r',
-      borderColor
-    ].join(' ')
-  }
 
   return (
     <div

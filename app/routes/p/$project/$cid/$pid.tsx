@@ -140,7 +140,7 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
   const transition = useTransition()
   const busy = transition.state === 'submitting'
   const navigate = useNavigate()
-  const { project, cid } = useParams()
+  const { project, cid, pid } = useParams()
   const backLink = `/p/${project}/${cid}`
 
   function handleDelete(ev: React.MouseEvent) {
@@ -201,6 +201,7 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
                   <Menu.Item
                     as="button"
                     type="button"
+                    disabled={busy || pid === 'new'}
                     className={`w-full text-left rounded-none ${buttonCN.iconLeft} ${buttonCN.normal} ${buttonCN.cancel}`}
                   >
                     <FolderOpenIcon className="w-5 h-5" />
@@ -209,6 +210,7 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
                   <Menu.Item
                     as="button"
                     type="button"
+                    disabled={busy}
                     onClick={() => window.location.reload()}
                     className={`w-full text-left rounded-none ${buttonCN.iconLeft} ${buttonCN.normal} ${buttonCN.cancel}`}
                   >
@@ -220,7 +222,7 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
                     type='submit'
                     name='_op'
                     value='delete'
-                    disabled={busy}
+                    disabled={busy || pid === 'new'}
                     onClick={handleDelete}
                     className={`dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-100/20 text-red-900 w-full text-left rounded-none ${buttonCN.iconLeft} ${buttonCN.normal}`}
                   >
@@ -258,7 +260,7 @@ export default function PostDetails() {
     <Form method='post' className="py-4 px-2 md:px-4 mb-8">
       <header>
         <PostDetailsHeader file={file} isDraft={isDraft} />
-        <p className="mb-6 ml-1 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-300">
+        <p className="mb-6 ml-1 flex items-center justify-end gap-2 text-sm text-slate-500 dark:text-slate-300">
           <span className={`${isDraft ? 'bg-yellow-600' : 'bg-green-600'} w-2 h-2 mt-1 rounded inline-block`}></span>
           <span>{isDraft ? 'Unsaved changes' : 'Published'}</span>
         </p>
