@@ -61,9 +61,10 @@ export const buttonCN = {
   ].join(' '),
   icon: 'pr-2 pl-2',
   iconLeft: 'flex items-center gap-2 pl-2',
+  iconLeftWide: 'flex items-center gap-3 pl-3',
   iconRight: 'flex items-center gap-2',
   cancel: 'hover:bg-slate-100 dark:hover:bg-slate-100/25',
-  delete: 'text-red-700 hover:bg-red-50'
+  delete: 'text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-400/20'
 }
 
 export const borderColor = 'border-gray-200 dark:border-gray-600'

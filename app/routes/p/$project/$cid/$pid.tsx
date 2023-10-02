@@ -3,7 +3,7 @@ import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
 import { processFileContent } from "@/lib/projects.server"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
-import { buttonCN, inputCN } from "@/lib/styles"
+import { buttonCN, iconCN, inputCN } from "@/lib/styles"
 import type { ActionArgs, LoaderFunction, MetaFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { json } from "@remix-run/node"
@@ -18,6 +18,7 @@ import { EllipsisVerticalIcon } from "@heroicons/react/24/solid"
 import { ArrowLeftIcon, ArrowUpTrayIcon, ArrowUturnLeftIcon, DocumentIcon, FolderOpenIcon, TrashIcon } from "@heroicons/react/24/outline"
 import { useState } from "react"
 import { Menu, Transition } from "@headlessui/react"
+import clsx from "clsx"
 
 type LoaderData = {
   file: CollectionFile,
@@ -161,7 +162,7 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
         <ArrowLeftIcon className='w-5 h-5' />
       </button>
       <div className="relative flex-grow">
-        <DocumentIcon className="w-5 h-5 absolute top-3 left-2" />
+        <DocumentIcon className={clsx(iconCN.small, 'absolute top-3 left-2')} />
         <input type="text" placeholder="file name" className={`pl-9 ${inputCN}`} name="name" defaultValue={file.name} />
       </div>
       <button
@@ -196,13 +197,13 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
               leaveTo="scale-y-50 opacity-0">
               <Menu.Items
                 static
-                className="mt-2 w-72 shadow-lg absolute top-full right-0 ring-1 ring-black ring-opacity-5">
-                <div className="rounded-md text-left py-2 bg-white dark:bg-white/20">
+                className="mt-2 w-72 rounded-md shadow-lg absolute top-full right-0 ring-1 ring-black ring-opacity-5">
+                <div className="rounded-md text-left py-2 bg-white dark:bg-slate-600">
                   <Menu.Item
                     as="button"
                     type="button"
                     disabled={busy || pid === 'new'}
-                    className={`w-full text-left rounded-none ${buttonCN.iconLeft} ${buttonCN.normal} ${buttonCN.cancel}`}
+                    className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
                   >
                     <FolderOpenIcon className="w-5 h-5" />
                     <span>Move to another collection</span>
@@ -212,7 +213,7 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
                     type="button"
                     disabled={!isDraft || busy}
                     onClick={() => window.location.reload()}
-                    className={`w-full text-left rounded-none ${buttonCN.iconLeft} ${buttonCN.normal} ${buttonCN.cancel}`}
+                    className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
                   >
                     <ArrowUturnLeftIcon className="w-5 h-5" />
                     <span>Discard unsaved changes</span>
@@ -224,7 +225,7 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
                     value='delete'
                     disabled={busy || pid === 'new'}
                     onClick={handleDelete}
-                    className={`dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-100/20 text-red-900 w-full text-left rounded-none ${buttonCN.iconLeft} ${buttonCN.normal}`}
+                    className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.delete, buttonCN.normal)}
                   >
                     <TrashIcon className="w-5 h-5" />
                     <p>Delete file</p>

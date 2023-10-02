@@ -13,6 +13,7 @@ import type { ActionFunction, LoaderFunction} from "@remix-run/node"
 import { json} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { Form, useLoaderData, useNavigate, useParams, useTransition } from "@remix-run/react"
+import clsx from "clsx"
 
 export const action: ActionFunction = async ({ request, params }) => {
   const { token } = await requireUserSession(request)
@@ -142,7 +143,7 @@ export default function EditCollection() {
             name="operation"
             value="update"
             disabled={busy}
-            className={`${buttonCN.slate} ${buttonCN.normal}`}>
+            className={clsx(buttonCN.slate, buttonCN.normal)}>
             {busy ? 'Saving...' : 'Save'}
           </button>
           <button
@@ -159,7 +160,7 @@ export default function EditCollection() {
               value="delete"
               disabled={busy}
               onClick={handleSubmit}
-              className={`${buttonCN.normal} text-red-700 hover:bg-red-50`}>
+              className={clsx(buttonCN.normal, buttonCN.delete)}>
               Delete
             </button>
           )}

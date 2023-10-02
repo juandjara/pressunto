@@ -51,11 +51,7 @@ export const meta = {
   title: metaTitle('Settings')
 }
 
-const groupCN = 'py-2'
-const listCN = [
-  'flex items-center gap-2 p-2 rounded-md text-lg',
-  'hover:bg-slate-100 dark:hover:bg-slate-700'
-].join(' ')
+const listCN = 'flex items-center gap-2 p-2 pr-1 rounded-md bg-slate-100 dark:bg-slate-700'
 
 export default function ProjectSettings() {
   const config = useProjectConfig()
@@ -68,13 +64,13 @@ export default function ProjectSettings() {
           Settings
         </h2>
         <p className="max-w-prose font-medium">
-          Here you can edit the configuration for your project, how content is organized and what defaults field are added to every content collection 
+          Here you can edit the configuration for your project, how content is organized and what defaults field are added to every collection 
         </p>
       </header>
-      <main className="space-y-8 mt-10">
+      <main className="space-y-8 mt-12">
         <section>
           <header className="flex items-end justify-between mb-2">
-            <h3 className="font-medium text-2xl">Collections</h3>
+            <h3 className="text-slate-500 dark:text-slate-300 font-medium text-2xl">Collections</h3>
             <Link to='collections/new'>
               <button
                 type="button"
@@ -87,24 +83,24 @@ export default function ProjectSettings() {
             </Link>
           </header>
           <details>
-            <summary className="text-slate-700 dark:text-slate-300 mb-2">What is this?</summary>
-            <p className="bg-slate-100 dark:bg-slate-100/25 mb-2 px-3 py-2 rounded-md">
-              Collections map to folders in your repository.
-              <br />
-              Every collection you define will be showed in the left sidebar.
-              <br />
-              Every collection you define will list the markdown files of that folder as posts, but not the ones in subfolders.
-            </p>
+            <summary className="text-slate-700 dark:text-slate-300 mb-2 cursor-pointer">What are collections?</summary>
+            <ul className="max-w-prose mb-2 list-disc ml-7">
+              <li>Collections define groups of posts in your project that can be used to organize your content.</li>
+              <li>They are defined by a <strong>name</strong>, a <strong>folder</strong> path in the repo and a <strong>template</strong>.</li>
+              <li>Every collection can have a list of default fields called a <strong>template</strong> that will be asigned to every new post.</li>
+              <li>Every collection will list the markdown files in the folder as posts, not including subfolders.</li>
+              <li>Posts for a collection can accessed in the upper area of the left sidebar.</li>
+            </ul>
           </details>
-          <div className={groupCN}>
+          <div className="pb-6 pt-1">
             {config.collections.length === 0 && (
               <p>You don't have any saved collection.</p>
             )}
-            <ul className="space-y-1">
+            <ul className="space-y-4 mt-2">
               {config.collections.map((c) => (
                 <li key={c.id} className={listCN}>
-                  <DocumentDuplicateIcon className={iconCN.small} />
-                  <Link to={`collections/${c.id}`} className="flex-grow">{c.name}</Link>
+                  <DocumentDuplicateIcon className={iconCN.big} />
+                  <Link to={`collections/${c.id}`} className="text-slate-600 dark:text-slate-200 text-xl flex-grow">{c.name}</Link>
                 </li>
               ))}
             </ul>
@@ -112,7 +108,7 @@ export default function ProjectSettings() {
         </section>
         <section>
           <header className="flex items-end justify-between gap-3 mb-2">
-            <h3 className="font-medium text-2xl">Templates</h3>
+            <h3 className="text-slate-500 dark:text-slate-300 font-medium text-2xl">Templates</h3>
             <Link to='templates/new'>
               <button
                 type="button"
@@ -125,22 +121,26 @@ export default function ProjectSettings() {
             </Link>
           </header>
           <details>
-            <summary className="text-slate-700 dark:text-slate-300 mb-2">What is this?</summary>
-            <p className="bg-slate-100 dark:bg-slate-100/25 mb-2 px-3 py-2 rounded-md">
-              Templates are a predefined set of fields you can add to any content collection.
-              <br />
-              Adding a template to a collection will add all the fields that are not already present there to every post of the collection
-            </p>
+            <summary className="text-slate-700 dark:text-slate-300 mb-2 cursor-pointer">What are templates?</summary>
+            <ul className="max-w-prose mb-2 list-disc ml-7">
+              <li>Templates are lists of default fields that are assigned to all posts of a collection.</li>
+              <li>They are defined by a <strong>name</strong> and a list of <strong>fields</strong>.</li>
+              <li>The <strong>label</strong> of the field is the label that will be displayed in the editor. If left blank, the key will be used instead.</li>
+              <li>The <strong>key</strong> of the field is the key used at the top of the markdown file to hold data for this field.</li>
+              <li>The <strong>default value</strong> of the field is the value that will be assigned to the field when a new post is created.</li>
+              <li>The <strong>hidden</strong> check can be used if you want to keep a field in your markdown files but don't want it to be shown in the editor.</li>
+              <li>Whenever a post that uses a template is saved, the fields in the template will be added to the top of the markdown file if they are not already present.</li>
+            </ul>
           </details>
-          <div className={groupCN}>
+          <div className="pb-6 pt-1">
             {config.templates.length === 0 && (
               <p>You don't have any saved template.</p>
             )}
-            <ul className="space-y-1">
+            <ul className="space-y-4 mt-2">
               {config.templates.map((t) => (
                 <li key={t.id} className={listCN}>
-                  <ListBulletIcon className={iconCN.small} />
-                  <Link to={`templates/${t.id}`} className="flex-grow">{t.name}</Link>
+                  <ListBulletIcon className={iconCN.big} />
+                  <Link to={`templates/${t.id}`} className="text-slate-600 dark:text-slate-200 text-xl flex-grow">{t.name}</Link>
                 </li>
               ))}
             </ul>
@@ -159,25 +159,27 @@ function EditProject() {
   const busy = transition.state === 'submitting'
 
   return (
-    <Form method='post' replace className="space-y-4">
-      <h3 className="font-medium text-2xl mb-2">Project</h3>
-      <div>
-        <label className={labelCN}>Title</label>
-        <input required type="text" name="title" defaultValue={project.title} className={inputCN} />
-      </div>
-      <div>
-        <label className={labelCN}>Branch</label>
-        <input type="text" name="branch" defaultValue={project.branch} placeholder="master" className={inputCN} />
-      </div>
-      <button
-        name="operation"
-        value="update"
-        type="submit"
-        disabled={busy}
-        className={`${buttonCN.normal} ${buttonCN.slate}`}>
-        {busy ? 'Saving...' : 'Save'}
-      </button>
-    </Form>
+    <section>
+      <h3 className="text-slate-500 dark:text-slate-300 font-medium text-2xl mb-4">Project</h3>
+      <Form method='post' replace className="space-y-6">
+        <div>
+          <label className={labelCN}>Title</label>
+          <input required type="text" name="title" defaultValue={project.title} className={inputCN} />
+        </div>
+        <div>
+          <label className={labelCN}>Branch</label>
+          <input type="text" name="branch" defaultValue={project.branch} placeholder="master" className={inputCN} />
+        </div>
+        <button
+          name="operation"
+          value="update"
+          type="submit"
+          disabled={busy}
+          className={`${buttonCN.normal} ${buttonCN.slate}`}>
+          {busy ? 'Saving...' : 'Save'}
+        </button>
+      </Form>
+    </section>
   )
 }
 
@@ -193,17 +195,19 @@ function DangerZone() {
   }
 
   return (
-    <div className="pt-4">
-      <h3 className="font-medium text-2xl mb-2">Danger zone</h3>
+    <section className="pt-6">
+      <h3 className="text-slate-500 dark:text-slate-300 font-medium text-2xl mb-2">Danger zone</h3>
       <Form method="post" className="mt-4">
         <input type='hidden' name='branch' value={project.branch || 'master'} />
-        <label className="mb-4 flex items-center dark:text-slate-300 text-slate-600">
+        <label className="mb-4 flex items-center dark:text-slate-300 text-slate-600 gap-2">
           <input
             name="delete_config_file"
             type="checkbox"
-            className={`mr-2 ${checkboxCN}`}
+            className={checkboxCN}
           />
-          Delete config file in repository
+          <span>Delete config file</span>
+          <code>pressunto.config.json</code>
+          <span>in repository</span>
         </label>
         <button
           name="operation"
@@ -215,6 +219,6 @@ function DangerZone() {
           Delete Project
         </button>
       </Form>
-    </div>
+    </section>
   )
 }

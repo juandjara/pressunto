@@ -12,6 +12,7 @@ import { ArrowsUpDownIcon, Bars2Icon, PencilIcon, PlusIcon, XMarkIcon } from "@h
 import type { ActionFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { Form, useNavigate, useParams, useSearchParams, useTransition } from "@remix-run/react"
+import clsx from "clsx"
 import { useState } from "react"
 import { createPortal } from "react-dom"
 
@@ -27,7 +28,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const field_keys = JSON.parse(formData.get('field_keys') as string) as string[]
   const fields = field_keys.map((f) => ({
-    field: f,
+    field: formData.get(`field__${f}__key`) as string,
     hidden: formData.get(`field__${f}__hidden`) === 'on',
     default: formData.get(`field__${f}__default`) as string,
     name: formData.get(`field__${f}__name`) as string
@@ -92,11 +93,11 @@ export default function EditTemplate() {
   }
 
   return (
-    <Modal open onClose={closeModal} title="New Template">
+    <Modal open onClose={closeModal} title={template ? 'Edit template' : 'New template'}>
       <Form replace method="post" className="relative">
         <input name="config" type="hidden" value={JSON.stringify(config)} />
         <input name="project" type="hidden" value={JSON.stringify(project)} />  
-        <input name='field_keys' type='hidden' value={JSON.stringify(fields.map((f) => f.field))} />
+        <input name="field_keys" type="hidden" value={JSON.stringify(fields.map((f) => f.field))} />
         <div className="mb-8">
           <label htmlFor="name" className={labelCN}>Name</label>
           <input required name="name" type="text" className={inputCN} defaultValue={template?.name} />
@@ -140,7 +141,7 @@ export default function EditTemplate() {
             name="operation"
             value="update"
             disabled={busy || fields.length === 0}
-            className={`${buttonCN.slate} ${buttonCN.normal}`}>
+            className={clsx(buttonCN.slate, buttonCN.normal)}>
             {busy ? 'Saving...' : 'Save'}
           </button>
           <button
@@ -157,7 +158,7 @@ export default function EditTemplate() {
               value="delete"
               disabled={busy}
               onClick={handleSubmit}
-              className={`${buttonCN.normal} text-red-700 hover:bg-red-50`}>
+              className={clsx(buttonCN.normal, buttonCN.delete)}>
               Delete
             </button>
           )}
@@ -250,7 +251,7 @@ function FieldEdit({ fields, setFields }: FieldListProps) {
 
   return (
     <div>
-      <ul className="space-y-2">
+      <ul className="space-y-3">
         {fields.map((f) => (
           <li key={f.field} className="p-2 bg-slate-200/50 dark:bg-slate-600 rounded-md">
             <details>
@@ -276,6 +277,16 @@ function FieldEdit({ fields, setFields }: FieldListProps) {
                   Hidden
                 </label>
                 <div>
+                  <label htmlFor={`field__${f.field}__key`} className={labelCN}>Key</label>
+                  <input
+                    type='text'
+                    className={inputCN}
+                    name={`field__${f.field}__key`}
+                    defaultValue={f.field}
+                    placeholder={f.field}
+                  />
+                </div>
+                <div>
                   <label htmlFor={`field__${f.field}__name`} className={labelCN}>Label</label>
                   <input
                     type='text'
@@ -286,7 +297,7 @@ function FieldEdit({ fields, setFields }: FieldListProps) {
                   />
                 </div>
                 <div>
-                  <label htmlFor={`field__${f.field}__default`} className={labelCN}>Default</label>
+                  <label htmlFor={`field__${f.field}__default`} className={labelCN}>Default value</label>
                   <input type='text' className={inputCN} name={`field__${f.field}__default`} defaultValue={f.default} />
                 </div>
               </div>
@@ -297,7 +308,7 @@ function FieldEdit({ fields, setFields }: FieldListProps) {
       <button
         type="button"
         onClick={addField}
-        className={`mt-2 pr-3 ${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconLeft}`}>
+        className={`mt-3 pr-3 ${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconLeft}`}>
         <PlusIcon className="w-5 h-5" />
         <span>Add field</span>
       </button>
