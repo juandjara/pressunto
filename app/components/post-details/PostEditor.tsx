@@ -47,6 +47,8 @@ export default function PostEditor({ onDraft }: { onDraft: () => void }) {
             <button
               type="button"
               onClick={() => setPreview(false)}
+              aria-label="Close preview"
+              title="Close preview"
               className={clsx(buttonCN.normal, buttonCN.cancel, buttonCN.icon)}
             >
               <CloseIcon className="w-6 h-6" />
