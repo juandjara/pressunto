@@ -1,7 +1,7 @@
 import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
 import { buttonCN, inputCN, labelCN } from "@/lib/styles"
 import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
-import { useLoaderData, useParams } from "@remix-run/react"
+import { Link, useLoaderData, useParams } from "@remix-run/react"
 import { useState } from "react"
 
 type LoaderData = {
@@ -15,10 +15,11 @@ type LoaderData = {
 }
 
 export default function FrontmatterEditor({ onDraft }: { onDraft: () => void }) {
-  const { cid } = useParams()
+  const { cid, project } = useParams()
   const { config, file } = useLoaderData<LoaderData>()
   const collection = config.collections.find((c) => c.id === cid)
   const template = collection && config.templates.find((t) => t.id === collection.template)
+  const backLink = `/p/${project}/${cid}/${file.name}`
 
   const [attrs, setAttrs] = useState(() => {
     const fields = template?.fields || []
@@ -76,6 +77,12 @@ export default function FrontmatterEditor({ onDraft }: { onDraft: () => void }) 
           <span>Add field</span>
         </button>
       </div>
+      {attrs.length === 0 && (
+        <p className="max-w-xs text-slate-500 dark:text-slate-300 text-sm font-medium mt-4">
+          No fields defined for this collection.
+          You can <Link className="underline" to={`/p/${project}/settings/templates/new?back=${backLink}`}>create a template</Link> to assign default fields to this collection.
+        </p>
+      )}
       <input type='hidden' name='meta_fields' value={attrs.map(f => f.field).join(',')} />
       <fieldset
         className="space-y-6 mb-10 mt-5"

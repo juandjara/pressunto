@@ -11,12 +11,13 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { ArrowsUpDownIcon, Bars2Icon, PencilIcon, PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
 import type { ActionFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
-import { Form, useNavigate, useParams, useTransition } from "@remix-run/react"
+import { Form, useNavigate, useParams, useSearchParams, useTransition } from "@remix-run/react"
 import { useState } from "react"
 import { createPortal } from "react-dom"
 
 export const action: ActionFunction = async ({ request, params }) => {
   const { token } = await requireUserSession(request)
+  const backlink = new URL(request.url).searchParams.get('back')
   const formData = await request.formData()
 
   const project = JSON.parse((formData.get('project') || '') as string) as Project
@@ -53,7 +54,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   await updateConfigFile(token, project, config)
 
-  return redirect(`/p/${project.id}/settings`, {
+  return redirect(backlink || `/p/${project.id}/settings`, {
     headers: new Headers({
       'cache-control': 'no-cache',
       'Set-Cookie': await setFlashMessage(request, 'Project settings updated')
@@ -70,6 +71,8 @@ export default function EditTemplate() {
   const navigate = useNavigate()
   const project = useProject()
   const config = useProjectConfig()
+  const [searchParams] = useSearchParams()
+  const backlink = searchParams.get('back')
   const { tid: templateId } = useParams()
   const template = config.templates.find((t) => t.id === templateId)
   const [fields, setFields] = useState(template?.fields || [])
@@ -78,7 +81,7 @@ export default function EditTemplate() {
   const busy = transition.state === 'submitting'
 
   function closeModal() {
-    navigate('..')
+    navigate(backlink || '..', { replace: true })
   }
 
   function handleSubmit(ev: React.MouseEvent) {
