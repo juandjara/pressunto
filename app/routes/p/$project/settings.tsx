@@ -4,7 +4,7 @@ import { deleteConfigFile, deleteProject, updateProject } from "@/lib/projects.s
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { buttonCN, checkboxCN, iconCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
-import { Cog6ToothIcon, DocumentDuplicateIcon, ListBulletIcon, PlusIcon } from "@heroicons/react/20/solid"
+import { DocumentDuplicateIcon, ListBulletIcon, PlusIcon } from "@heroicons/react/20/solid"
 import type { ActionFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { Form, Link, Outlet, useTransition } from "@remix-run/react"
