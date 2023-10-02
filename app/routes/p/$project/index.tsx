@@ -33,7 +33,7 @@ export default function Collections() {
           </li>
         ))}
       </ul>
-      <Link to='settings/collections/new' className="mt-8 inline-block">
+      <Link to={`settings/collections/new?back=${backLink}`} className="mt-8 inline-block">
         <button className={`${buttonCN.normal} ${buttonCN.slate} ${buttonCN.iconLeft}`}>
           <PlusIcon className='w-5 h-5' />
           <p>Create collection</p>
