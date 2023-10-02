@@ -197,7 +197,7 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
               <Menu.Items
                 static
                 className="mt-2 w-72 shadow-lg absolute top-full right-0 ring-1 ring-black ring-opacity-5">
-                <div className="rounded-md text-left py-2 bg-white dark:bg-white/30">
+                <div className="rounded-md text-left py-2 bg-white dark:bg-white/20">
                   <Menu.Item
                     as="button"
                     type="button"
@@ -222,7 +222,7 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
                     value='delete'
                     disabled={busy}
                     onClick={handleDelete}
-                    className={`dark:text-red-400 text-red-900 w-full text-left rounded-none ${buttonCN.iconLeft} ${buttonCN.normal} ${buttonCN.cancel}`}
+                    className={`dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-100/20 text-red-900 w-full text-left rounded-none ${buttonCN.iconLeft} ${buttonCN.normal}`}
                   >
                     <TrashIcon className="w-5 h-5" />
                     <p>Delete file</p>

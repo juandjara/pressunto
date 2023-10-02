@@ -87,7 +87,7 @@ export default function App() {
         <div className="lg:container mx-auto min-h-screen relative">
           <FlashMessage />
           <Header user={user} />
-          <div className="bg-slate-50 dark:bg-slate-800 rounded-md">
+          <div className="bg-slate-50 dark:bg-slate-800 rounded-md shadow">
             <Outlet />
           </div>
         </div>

@@ -1,10 +1,11 @@
-import { iconCN } from "@/lib/styles"
+import { borderColor, iconCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { BookOpenIcon, CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, EyeSlashIcon, FolderIcon } from "@heroicons/react/20/solid"
 import { NavLink } from "@remix-run/react"
 import { useRef } from "react"
 import { HeaderTitle } from "./Header"
 import { PhotoIcon } from "@heroicons/react/20/solid"
+import clsx from "clsx"
 
 const baseLinkCN = [
   'flex items-center gap-3 rounded-md py-1 px-2',
@@ -36,12 +37,14 @@ export default function ProjectSidebar() {
         {collections.map((c) => (
           <li key={c.route}>
             <NavLink to={c.id} className={linkCN}>
-              <DocumentDuplicateIcon className={iconCN.small} />
-              <span className="ml-1">{c.name}</span>
+              <DocumentDuplicateIcon className={clsx('mx-0.5', iconCN.small)} />
+              <span>{c.name}</span>
             </NavLink>
           </li>
         ))}
-        <li className="py-3"></li>
+        <li className="py-3 px-1">
+          <hr className={borderColor} />
+        </li>
         <li>
           <NavLink to='media' className={linkCN}>
             <PhotoIcon className={iconCN.big} />

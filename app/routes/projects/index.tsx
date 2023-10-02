@@ -28,14 +28,14 @@ export default function ProjectsList() {
   const listCN = 'py-2 px-2 rounded-md text-lg bg-slate-100 dark:bg-slate-700'
   
   return (
-    <div className="px-3 py-8">
-      <h2 className="font-medium text-4xl mb-4">Projects</h2>
+    <div className="px-3 pt-8 pb-2">
+      <h2 className="font-medium text-4xl mb-6">Projects</h2>
       {projects.length === 0 && (
         <p className="dark:text-stone-200">
           You don't have any project saved yet
         </p>
       )}
-      <ul className="mb-8 space-y-4">
+      <ul className="mb-4 space-y-4">
         {projects.map((p) => (
           <li key={p.id} className={listCN}>
             <Link className="text-xl pb-1 flex items-center gap-3" to={`/p/${p.id}`}>
@@ -58,7 +58,7 @@ export default function ProjectsList() {
           <p>New project</p>
         </button>
       </Link>
-      <footer className="-mx-2 mt-6 flex items-center gap-2 text-sm">
+      <footer className="-mx-1 mt-8 flex items-center gap-2 text-sm">
         <Link className="p-2 hover:underline" to='/doc'>Documentation</Link>
         <div className="h-6 border-r border-slate-300"></div>
         <Link className="p-2 hover:underline" to='/privacy'>Privacy</Link>

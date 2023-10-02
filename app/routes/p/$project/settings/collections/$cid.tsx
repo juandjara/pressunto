@@ -16,6 +16,7 @@ import { Form, useLoaderData, useNavigate, useParams, useTransition } from "@rem
 
 export const action: ActionFunction = async ({ request, params }) => {
   const { token } = await requireUserSession(request)
+  const backlink = new URL(request.url).searchParams.get('back')
   const formData = await request.formData()
 
   const name = formData.get('name') as string
@@ -60,7 +61,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   await updateConfigFile(token, project, config)
 
-  return redirect(`/p/${project.id}/settings`, {
+  return redirect(backlink || `/p/${project.id}/settings`, {
     headers: new Headers({
       'cache-control': 'no-cache',
       'Set-Cookie': await setFlashMessage(request, 'Project settings updated')
@@ -72,7 +73,8 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const { token } = await requireUserSession(request)
   const project = await getProject(Number(params.project))
   const tree = await getRepoFiles(token, project.repo, project.branch)
-  return json({ tree: tree.filter((t) => t.type === 'tree') })
+  const backlink = new URL(request.url).searchParams.get('back')
+  return json({ backlink, tree: tree.filter((t) => t.type === 'tree') })
 }
 
 export default function EditCollection() {
@@ -83,11 +85,11 @@ export default function EditCollection() {
   const project = useProject()
   const transition = useTransition()
   const busy = transition.state === 'submitting'
-  const { tree } = useLoaderData<{ tree: TreeItem[] }>()
+  const { backlink, tree } = useLoaderData<{ backlink: string | null; tree: TreeItem[] }>()
   const templateOptions = [{ id: '', name: 'No template', fields: [] as any }].concat(config.templates)
 
   function closeModal() {
-    navigate('..')
+    navigate(backlink || '..', { replace: true })
   }
   
   function handleSubmit(ev: React.MouseEvent) {
