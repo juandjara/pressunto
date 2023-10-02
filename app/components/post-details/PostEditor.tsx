@@ -6,6 +6,7 @@ import MarkdownEditor from "./markdown-editor/MarkdownEditor"
 import MarkdownPreview from "./markdown-editor/MarkdownPreview"
 import clsx from "clsx"
 import { XMarkIcon as CloseIcon } from '@heroicons/react/20/solid'
+import { DocumentMagnifyingGlassIcon } from "@heroicons/react/24/outline"
 
 type LoaderData = {
   file: CollectionFile,
@@ -67,9 +68,10 @@ export default function PostEditor({ onDraft }: { onDraft: () => void }) {
             <button
               type="button"
               onClick={() => setPreview(true)}
-              className={clsx(buttonCN.slate, buttonCN.normal)}
+              className={clsx(buttonCN.slate, buttonCN.normal, buttonCN.iconLeft)}
             >
-              Preview
+              <DocumentMagnifyingGlassIcon className="w-6 h-6" />
+              <p>Preview</p>
             </button>
           </div>
           <MarkdownEditor
