@@ -83,40 +83,4 @@ export default function PostEditor({ onDraft }: { onDraft: () => void }) {
       )}
     </div>
   )
-
-  // return (
-  //   <Tab.Group
-  //     as="div"
-  //     className='-mx-2 md:mx-0 pt-1'
-  //     style={{ flexBasis: '75ch' }}
-  //     onBlur={(ev: React.FocusEvent<HTMLDivElement>) => {
-  //       const isEditor = ev.target.getAttribute("contenteditable") === 'true'
-  //       if (isEditor) {
-  //         onDraft()
-  //       }
-  //     }}
-  //   >
-  //     <Tab.List className="md:mx-1 mb-2 flex items-center">
-  //       <Tab className={tabButtonCN}>Editor</Tab>
-  //       <Tab className={tabButtonCN}>Preview</Tab>
-  //     </Tab.List>
-  //     <Tab.Panels>
-  //       <Tab.Panel>
-  //         <MarkdownEditor
-  //           name="markdown"
-  //           initialValue={tempContent || file.body || ''}
-  //           onChange={setTempContent}
-  //         />
-  //         {/* <p className="mx-2 mt-2 text-sm text-slate-600 dark:text-slate-300">
-  //           Changes are saved automatically to your local copy. <Link className="underline" to="/doc">Learn more</Link>
-  //         </p> */}
-  //       </Tab.Panel>
-  //       <Tab.Panel className='-mt-2'>
-  //         <div className={clsx(borderColor, 'p-3 md:rounded-md border bg-white dark:bg-slate-700')}>
-  //           <MarkdownPreview code={tempContent} />
-  //         </div>
-  //       </Tab.Panel>
-  //     </Tab.Panels>
-  //   </Tab.Group>
-  // )
 }
