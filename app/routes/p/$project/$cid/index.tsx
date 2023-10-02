@@ -80,7 +80,7 @@ function CollectionLinks({ onToggleMode }: DisplayModeProps) {
   return (
     <div className="p-4">
       <header className="flex items-center my-4">
-        <h2 className="font-medium text-4xl">{collection.name}</h2>
+        <h2 className="font-medium text-4xl text-slate-500 dark:text-slate-300">{collection.name}</h2>
         <div className="flex-grow"></div>
         <Link to='new'>
           <button
@@ -121,7 +121,7 @@ function CollectionReorder({ onToggleMode }: DisplayModeProps) {
   return (
     <Form replace method="post" className="p-4" onSubmit={() => onToggleMode('links')}>
       <header className="flex items-center my-4">
-        <h2 className="font-medium text-4xl truncate">
+        <h2 className="font-medium text-4xl text-slate-500 dark:text-slate-300 truncate">
           {collection.name} <small className="text-base opacity-75">reorder</small>
         </h2>
         <div className="flex-grow"></div>

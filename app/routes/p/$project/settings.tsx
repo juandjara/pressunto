@@ -61,93 +61,94 @@ export default function ProjectSettings() {
   const config = useProjectConfig()
 
   return (
-    <div className="p-4 space-y-8">
+    <div className="p-4">
       <Outlet />
       <header>
-        <h2 className="font-medium text-4xl my-4 flex items-center gap-2">
-          <Cog6ToothIcon className={iconCN.big} />
-          <p>Settings</p>
+        <h2 className="font-medium text-4xl text-slate-500 dark:text-slate-300 mt-4 mb-2">
+          Settings
         </h2>
         <p className="max-w-prose font-medium">
           Here you can edit the configuration for your project, how content is organized and what defaults field are added to every content collection 
         </p>
       </header>
-      <section>
-        <header className="flex items-end justify-between mb-2">
-          <h3 className="font-medium text-2xl">Collections</h3>
-          <Link to='collections/new'>
-            <button
-              type="button"
-              title="Create new collection"
-              aria-label="Create new collection"
-              className={`${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconRight}`}>
-              <span>New</span>
-              <PlusIcon className="w-6 h-6" />
-            </button>
-          </Link>
-        </header>
-        <details>
-          <summary className="text-slate-700 dark:text-slate-300 mb-2">What is this?</summary>
-          <p className="bg-slate-100 dark:bg-slate-100/25 mb-2 px-3 py-2 rounded-md">
-            Collections map to folders in your repository.
-            <br />
-            Every collection you define will be showed in the left sidebar.
-            <br />
-            Every collection you define will list the markdown files of that folder as posts, but not the ones in subfolders.
-          </p>
-        </details>
-        <div className={groupCN}>
-          {config.collections.length === 0 && (
-            <p>You don't have any saved collection.</p>
-          )}
-          <ul className="space-y-1">
-            {config.collections.map((c) => (
-              <li key={c.id} className={listCN}>
-                <DocumentDuplicateIcon className={iconCN.small} />
-                <Link to={`collections/${c.id}`} className="flex-grow">{c.name}</Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-      <section>
-        <header className="flex items-end justify-between gap-3 mb-2">
-          <h3 className="font-medium text-2xl">Templates</h3>
-          <Link to='templates/new'>
-            <button
-              type="button"
-              title="Create new template"
-              aria-label="Create new template"
-              className={`${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconRight}`}>
-              <span>New</span>
-              <PlusIcon className="w-6 h-6" />
-            </button>
-          </Link>
-        </header>
-        <details>
-          <summary className="text-slate-700 dark:text-slate-300 mb-2">What is this?</summary>
-          <p className="bg-slate-100 dark:bg-slate-100/25 mb-2 px-3 py-2 rounded-md">
-            Templates are a predefined set of fields you can add to any content collection.
-            <br />
-            Adding a template to a collection will add all the fields that are not already present there to every post of the collection
-          </p>
-        </details>
-        <div className={groupCN}>
-          {config.templates.length === 0 && (
-            <p>You don't have any saved template.</p>
-          )}
-          <ul className="space-y-1">
-            {config.templates.map((t) => (
-              <li key={t.id} className={listCN}>
-                <ListBulletIcon className={iconCN.small} />
-                <Link to={`templates/${t.id}`} className="flex-grow">{t.name}</Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-      <EditProject />
-      <DangerZone />
+      <main className="space-y-8 mt-10">
+        <section>
+          <header className="flex items-end justify-between mb-2">
+            <h3 className="font-medium text-2xl">Collections</h3>
+            <Link to='collections/new'>
+              <button
+                type="button"
+                title="Create new collection"
+                aria-label="Create new collection"
+                className={`${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconRight}`}>
+                <span>New</span>
+                <PlusIcon className="w-6 h-6" />
+              </button>
+            </Link>
+          </header>
+          <details>
+            <summary className="text-slate-700 dark:text-slate-300 mb-2">What is this?</summary>
+            <p className="bg-slate-100 dark:bg-slate-100/25 mb-2 px-3 py-2 rounded-md">
+              Collections map to folders in your repository.
+              <br />
+              Every collection you define will be showed in the left sidebar.
+              <br />
+              Every collection you define will list the markdown files of that folder as posts, but not the ones in subfolders.
+            </p>
+          </details>
+          <div className={groupCN}>
+            {config.collections.length === 0 && (
+              <p>You don't have any saved collection.</p>
+            )}
+            <ul className="space-y-1">
+              {config.collections.map((c) => (
+                <li key={c.id} className={listCN}>
+                  <DocumentDuplicateIcon className={iconCN.small} />
+                  <Link to={`collections/${c.id}`} className="flex-grow">{c.name}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+        <section>
+          <header className="flex items-end justify-between gap-3 mb-2">
+            <h3 className="font-medium text-2xl">Templates</h3>
+            <Link to='templates/new'>
+              <button
+                type="button"
+                title="Create new template"
+                aria-label="Create new template"
+                className={`${buttonCN.small} ${buttonCN.slate} ${buttonCN.iconRight}`}>
+                <span>New</span>
+                <PlusIcon className="w-6 h-6" />
+              </button>
+            </Link>
+          </header>
+          <details>
+            <summary className="text-slate-700 dark:text-slate-300 mb-2">What is this?</summary>
+            <p className="bg-slate-100 dark:bg-slate-100/25 mb-2 px-3 py-2 rounded-md">
+              Templates are a predefined set of fields you can add to any content collection.
+              <br />
+              Adding a template to a collection will add all the fields that are not already present there to every post of the collection
+            </p>
+          </details>
+          <div className={groupCN}>
+            {config.templates.length === 0 && (
+              <p>You don't have any saved template.</p>
+            )}
+            <ul className="space-y-1">
+              {config.templates.map((t) => (
+                <li key={t.id} className={listCN}>
+                  <ListBulletIcon className={iconCN.small} />
+                  <Link to={`templates/${t.id}`} className="flex-grow">{t.name}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+        <EditProject />
+        <DangerZone />
+      </main>
     </div>
   )
 }

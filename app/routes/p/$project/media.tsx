@@ -31,15 +31,14 @@ export default function Media() {
   return (
     <div className="p-4">
       <header>
-        <h2 className="font-medium text-4xl my-4 flex items-center gap-2">
-          <PhotoIcon className={iconCN.big} />
-          <p>Media</p>
+        <h2 className="font-medium text-4xl text-slate-500 dark:text-slate-300 mt-4 mb-2">
+          Media
         </h2>
         <p className="max-w-prose font-medium">
           This page lists all the images in your repository
         </p>
       </header>
-      <Form replace method="post" className="py-6">
+      <Form replace method="post" className="py-8">
         <label htmlFor="mediaFolder" className={labelCN}>
           Media Folder
           <small> - Where are your images stored</small>
