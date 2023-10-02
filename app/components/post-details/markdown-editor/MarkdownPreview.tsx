@@ -16,7 +16,7 @@ export default function MarkdownPreview({ code }: { code: string }) {
       {markdown.length ? (
         <div dangerouslySetInnerHTML={{ __html: markdown }} />
       ) : (
-        <p>Nothing to preview</p>
+        <p className='min-h-[320px]'></p>
       )}
     </div>
   )
