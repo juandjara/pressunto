@@ -210,7 +210,7 @@ function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: b
                   <Menu.Item
                     as="button"
                     type="button"
-                    disabled={busy}
+                    disabled={!isDraft || busy}
                     onClick={() => window.location.reload()}
                     className={`w-full text-left rounded-none ${buttonCN.iconLeft} ${buttonCN.normal} ${buttonCN.cancel}`}
                   >
