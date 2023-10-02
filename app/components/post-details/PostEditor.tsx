@@ -5,8 +5,7 @@ import { useEffect, useState } from "react"
 import MarkdownEditor from "./markdown-editor/MarkdownEditor"
 import MarkdownPreview from "./markdown-editor/MarkdownPreview"
 import clsx from "clsx"
-import { XMarkIcon as CloseIcon } from '@heroicons/react/20/solid'
-import { DocumentMagnifyingGlassIcon } from "@heroicons/react/24/outline"
+import { ArrowLeftIcon, DocumentMagnifyingGlassIcon } from "@heroicons/react/24/outline"
 
 type LoaderData = {
   file: CollectionFile,
@@ -41,21 +40,15 @@ export default function PostEditor({ onDraft }: { onDraft: () => void }) {
     >
       {preview ? (
         <>
-          <div className="flex items-center mb-4 md:pr-0 pr-2">
-            <p className="font-medium pl-2 text-xl text-slate-600 dark:text-slate-200 flex-grow">
-              Preview
-            </p>
-            <button
-              type="button"
-              onClick={() => setPreview(false)}
-              aria-label="Close preview"
-              title="Close preview"
-              className={clsx(buttonCN.normal, buttonCN.cancel, buttonCN.icon)}
-            >
-              <CloseIcon className="w-6 h-6" />
-            </button>
-          </div>
-          <div className={clsx(borderColor, '-mt-2 p-3 md:rounded-md border bg-white dark:bg-slate-700')}>
+          <button
+            type="button"
+            onClick={() => setPreview(false)}
+            className={clsx(buttonCN.normal, buttonCN.cancel, buttonCN.iconLeft)}
+          >
+            <ArrowLeftIcon className="w-5 h-5" />
+            <p>Back</p>
+          </button>
+          <div className={clsx(borderColor, 'p-3 mt-2 md:rounded-md border bg-white dark:bg-slate-700')}>
             <MarkdownPreview code={tempContent} />
           </div>
         </>
