@@ -24,6 +24,7 @@ export const inputCN = [
   'dark:border-gray-500',
   'text-slate-700',
   'dark:text-slate-100',
+  'bg-white',
   'dark:bg-slate-800',
   'placeholder:text-slate-400',
   'dark:placeholder:text-slate-500',
