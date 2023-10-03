@@ -60,7 +60,8 @@ export async function createProject(project: Omit<Project, 'id'>) {
   const id = await db.incr(NEXT_PROJECT_KEY)
   await Promise.all([
     db.sadd(`projects:${project.user}`, id),
-    db.set(`project:${id}`, { ...project, id })
+    db.set(`project:${id}`, { ...project, id }),
+    db.set(`repo:${project.repo}`, id)
   ])
 
   return id
@@ -73,7 +74,8 @@ export async function updateProject(project: Project) {
 export async function deleteProject(project: Project) {
   return Promise.all([
     db.srem(`projects:${project.user}`, project.id),
-    db.del(`project:${project.id}`)
+    db.del(`project:${project.id}`),
+    db.del(`repo:${project.repo}`)
   ])
 }
 
