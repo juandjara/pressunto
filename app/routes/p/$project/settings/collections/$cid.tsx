@@ -1,18 +1,15 @@
 import { ComboBoxLocal } from "@/components/ComboBoxLocal"
 import Modal from "@/components/Modal"
 import type { TreeItem } from "@/lib/github"
-import { getRepoFiles } from "@/lib/github"
 import type { Project, ProjectConfig, ProjectTemplates} from "@/lib/projects.server"
-import { getProject} from "@/lib/projects.server"
 import { updateConfigFile } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import slugify from "@/lib/slugify"
 import { buttonCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
-import type { ActionFunction, LoaderFunction} from "@remix-run/node"
-import { json} from "@remix-run/node"
+import type { ActionFunction } from "@remix-run/node"
 import { redirect } from "@remix-run/node"
-import { Form, useLoaderData, useNavigate, useParams, useTransition } from "@remix-run/react"
+import { Form, useNavigate, useParams, useSearchParams, useTransition, useMatches } from "@remix-run/react"
 import clsx from "clsx"
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -70,23 +67,19 @@ export const action: ActionFunction = async ({ request, params }) => {
   })
 }
 
-export const loader: LoaderFunction = async ({ params, request }) => {
-  const { token } = await requireUserSession(request)
-  const project = await getProject(Number(params.project))
-  const tree = await getRepoFiles(token, project.repo, project.branch)
-  const backlink = new URL(request.url).searchParams.get('back')
-  return json({ backlink, tree: tree.filter((t) => t.type === 'tree') })
-}
-
 export default function EditCollection() {
   const navigate = useNavigate()
   const { cid: collectionId } = useParams()
+  const [searchParams] = useSearchParams()
+  const backlink = searchParams.get('back')
   const config = useProjectConfig()
   const collection = config.collections.find((c) => c.id === collectionId)
   const project = useProject()
+  const route = useMatches().find((m) => m.id === 'routes/p/$project/settings')
+  const tree = route?.data.tree as TreeItem[]
   const transition = useTransition()
   const busy = transition.state === 'submitting'
-  const { backlink, tree } = useLoaderData<{ backlink: string | null; tree: TreeItem[] }>()
+
   const templateOptions = [{ id: '', name: 'No template', fields: [] as any }].concat(config.templates)
 
   function closeModal() {

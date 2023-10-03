@@ -1,32 +1,48 @@
+import { ComboBoxLocal } from "@/components/ComboBoxLocal"
+import type { TreeItem} from "@/lib/github"
+import { getRepoFiles } from "@/lib/github"
 import metaTitle from "@/lib/metaTitle"
-import { getProject } from "@/lib/projects.server"
+import { getProject, getProjectConfig, updateConfigFile } from "@/lib/projects.server"
 import { deleteConfigFile, deleteProject, updateProject } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { buttonCN, checkboxCN, iconCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
 import { DocumentDuplicateIcon, ListBulletIcon, PlusIcon } from "@heroicons/react/20/solid"
-import type { ActionFunction} from "@remix-run/node"
-import { redirect } from "@remix-run/node"
-import { Form, Link, Outlet, useTransition } from "@remix-run/react"
+import type { ActionFunction, LoaderArgs} from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
+import { Form, Link, Outlet, useLoaderData, useTransition } from "@remix-run/react"
+
+export const meta = {
+  title: metaTitle('Settings')
+}
 
 export const action: ActionFunction = async ({ request, params }) => {
   const { token } = await requireUserSession(request)
   const project = await getProject(Number(params.project))
+  const config = await getProjectConfig(token, project)
   const formData = await request.formData()
   const delete_config_file = formData.get('delete_config_file') === 'on'
   const op = formData.get('operation')
   const isDelete = op === 'delete'
   const branch = formData.get('branch') as string
   const title = formData.get('title') as string
+  const mediaFolder = formData.get('mediaFolder') as string
 
   let flashMessage = ''
 
   if (op === 'update') {
-    await updateProject({
-      ...project,
-      branch,
-      title
-    })
+    const shouldUpdateProject = branch !== project.branch || title !== project.title
+    const shouldUpdateConfig = config.mediaFolder !== mediaFolder
+
+    await Promise.all([
+      shouldUpdateProject
+        ? updateProject({ ...project, branch, title })
+        : Promise.resolve(null),
+      shouldUpdateConfig
+        ? updateConfigFile(token, project, { ...config, mediaFolder })
+        : Promise.resolve(null)
+    ])
+
     flashMessage = 'Project updated successfully'
   }
 
@@ -47,13 +63,25 @@ export const action: ActionFunction = async ({ request, params }) => {
   return redirect(isDelete ? '/' : `/p/${project.id}/settings`, { headers })
 }
 
-export const meta = {
-  title: metaTitle('Settings')
+export async function loader({ params, request }: LoaderArgs) {
+  const { token } = await requireUserSession(request)
+  const project = await getProject(Number(params.project))
+  const tree = await getRepoFiles(token, project.repo, project.branch)
+  tree.unshift({
+    path: '/',
+    type: 'tree' as const,
+    url: '',
+    mode: '',
+    sha: '',
+  })
+
+  return json({ tree: tree.filter((t) => t.type === 'tree') })
 }
 
 const listCN = 'flex items-center gap-2 p-2 pr-1 rounded-md bg-slate-100 dark:bg-slate-700'
 
 export default function ProjectSettings() {
+  const { tree } = useLoaderData<typeof loader>()
   const config = useProjectConfig()
 
   return (
@@ -100,7 +128,7 @@ export default function ProjectSettings() {
               {config.collections.map((c) => (
                 <li key={c.id} className={listCN}>
                   <DocumentDuplicateIcon className={iconCN.big} />
-                  <Link to={`collections/${c.id}`} className="text-slate-600 dark:text-slate-200 text-xl flex-grow">{c.name}</Link>
+                  <Link to={`collections/${c.id}`} className="text-slate-600 dark:text-slate-200 text-lg flex-grow">{c.name}</Link>
                 </li>
               ))}
             </ul>
@@ -140,21 +168,22 @@ export default function ProjectSettings() {
               {config.templates.map((t) => (
                 <li key={t.id} className={listCN}>
                   <ListBulletIcon className={iconCN.big} />
-                  <Link to={`templates/${t.id}`} className="text-slate-600 dark:text-slate-200 text-xl flex-grow">{t.name}</Link>
+                  <Link to={`templates/${t.id}`} className="text-slate-600 dark:text-slate-200 text-lg flex-grow">{t.name}</Link>
                 </li>
               ))}
             </ul>
           </div>
         </section>
-        <EditProject />
+        <EditProject tree={tree} />
         <DangerZone />
       </main>
     </div>
   )
 }
 
-function EditProject() {
+function EditProject({ tree }: { tree: TreeItem[] }) {
   const project = useProject()
+  const config = useProjectConfig()
   const transition = useTransition()
   const busy = transition.state === 'submitting'
 
@@ -169,6 +198,20 @@ function EditProject() {
         <div>
           <label className={labelCN}>Branch</label>
           <input type="text" name="branch" defaultValue={project.branch} placeholder="master" className={inputCN} />
+        </div>
+        <div>
+          <label htmlFor="route" className={labelCN}>Media folder</label>
+          <ComboBoxLocal<TreeItem>
+            name='mediaFolder'
+            options={tree}
+            labelKey='path'
+            valueKey='path'
+            defaultValue={config.mediaFolder || '/'}
+          />
+          <p className="text-slate-400 text-sm mt-1">
+            This is the folder where your media files (images and other binary files) will be stored.
+            If you don't specify a folder, all media files will be stored in the root of your repository.
+          </p>
         </div>
         <button
           name="operation"
