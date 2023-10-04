@@ -25,7 +25,7 @@ export default function Collections() {
           <li key={c.id} className={listCN}>
             <DocumentDuplicateIcon className={iconCN.big} />
             <Link to={c.id} className="text-slate-600 dark:text-slate-200 text-xl flex-grow">{c.name}</Link>
-            <Link to={`settings/collections/${c.id}?back=${backLink}`} className='opacity-0 group-hover:opacity-100 transition-opacity'>
+            <Link to={`settings/collections/${c.id}?back=${backLink}`} className='md:opacity-0 group-hover:opacity-100 transition-opacity'>
               <button title="Edit collection" className="ml-2 p-2 rounded-lg dark:hover:bg-slate-500 hover:bg-slate-200">
                 <Cog6ToothIcon className={iconCN.big} />
               </button>
