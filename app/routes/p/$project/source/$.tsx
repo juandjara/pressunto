@@ -1,5 +1,5 @@
 import FileDetails from "@/components/source-files/FileDetails"
-import { getFileContent, getRepoDetails, saveFile } from "@/lib/github"
+import { deleteFile, getFileContent, getRepoDetails, saveFile } from "@/lib/github"
 import { getBasename } from "@/lib/pathUtils"
 import { getProject } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
@@ -52,16 +52,24 @@ export async function action({ request, params }: ActionArgs) {
 
   const isDelete = op === 'delete'
 
-  await saveFile(token, {
-    branch,
-    repo,
-    sha,
-    name,
-    path: path || '',
-    message,
-    method: isDelete ? 'DELETE' : 'PUT',
-    content: body
-  })
+  if (isDelete) {
+    await deleteFile(token, {
+      branch,
+      repo,
+      path: path + name,
+      message,
+    })
+  } else {
+    await saveFile(token, {
+      branch,
+      repo,
+      sha,
+      name,
+      path: path || '',
+      message,
+      content: body
+    })
+  }
 
   const returnPath = isDelete ? '' : path + name
   const redirectPath = `/p/${params.project}/source/${returnPath}`

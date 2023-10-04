@@ -65,7 +65,8 @@ export const buttonCN = {
   iconLeftWide: 'flex items-center gap-3 pl-3',
   iconRight: 'flex items-center gap-2',
   cancel: 'hover:bg-slate-100 dark:hover:bg-slate-100/25',
-  delete: 'text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-400/20'
+  delete: 'text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-400/20',
+  deleteBold: 'bg-red-700 hover:bg-red-800 text-white'
 }
 
 export const borderColor = 'border-gray-200 dark:border-gray-600'

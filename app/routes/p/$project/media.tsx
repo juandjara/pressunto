@@ -1,8 +1,10 @@
+import { ComboBoxLocal } from "@/components/ComboBoxLocal"
+import Modal from "@/components/Modal"
 import type { TreeItem} from "@/lib/github"
-import { getRepoDetails, getRepoFiles, uploadImage } from "@/lib/github"
+import { deleteFile, getRepoDetails, getRepoFiles, renameFile, uploadImage } from "@/lib/github"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
-import { borderColor, buttonCN, iconCN } from "@/lib/styles"
+import { borderColor, buttonCN, iconCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { Menu, Transition } from "@headlessui/react"
 import { CloudArrowUpIcon, EllipsisVerticalIcon, FolderOpenIcon, PencilIcon, PhotoIcon, TrashIcon } from "@heroicons/react/20/solid"
@@ -31,33 +33,102 @@ export async function action({ params, request }: ActionArgs) {
   const project = await getProject(Number(params.project))
   const conf = await getProjectConfig(token, project)
 
-  async function githubUploadHandler({ name, contentType, data, filename }: UploadHandlerPart) {
-    if (name !== 'file') return
-    const file = await uploadImage(token, {
-      repo: project.repo,
-      branch: project.branch,
-      folder: conf.mediaFolder || '',
-      file: {
-        contentType,
-        data,
-        filename: filename!,
-      }
-    })
-    return file.content.path
+  // differiantiate between "file upload" and "file edit / delete" using http method to not affect the reading of form data
+
+  // upload file
+  if (request.method.toLowerCase() === 'post') {
+    async function githubUploadHandler({ name, contentType, data, filename }: UploadHandlerPart) {
+      if (name !== 'file') return
+      const file = await uploadImage(token, {
+        repo: project.repo,
+        branch: project.branch,
+        folder: conf.mediaFolder || '',
+        file: {
+          contentType,
+          data,
+          filename: filename!,
+        }
+      })
+      return file.content.path
+    }
+  
+    const uploadHandler = unstable_composeUploadHandlers(
+      githubUploadHandler,
+      unstable_createMemoryUploadHandler(),
+    )
+  
+    const formData = await unstable_parseMultipartFormData(request, uploadHandler)
+    const urls = formData.getAll('file')
+    return urls
   }
 
-  const uploadHandler = unstable_composeUploadHandlers(
-    githubUploadHandler,
-    unstable_createMemoryUploadHandler(),
-  )
+  // rename file or move to other folder
+  if (request.method.toLowerCase() === 'put') {
+    const fd = await request.formData()
+    const sha = fd.get('sha') as string
+    const path = fd.get('path') as string
+    const operation = fd.get('operation') as 'move' | 'rename'
 
-  const formData = await unstable_parseMultipartFormData(request, uploadHandler)
-  const urls = formData.getAll('file')
-  return urls
+    let newPath = ''
+    if (operation === 'move') {
+      const folder = fd.get('folder') as string
+      newPath = `${folder}/${basename(path)}`
+    }
+    if (operation === 'rename') {
+      const name = fd.get('name') as string
+      newPath = `${dirname(path)}/${name}`
+    }
+
+    return await renameFile(token, {
+      repo: project.repo,
+      branch: project.branch,
+      sha,
+      path,
+      newPath,
+      message: `Move file ${path} to ${newPath}`
+    })
+  }
+
+  // delete file
+  if (request.method.toLowerCase() === 'delete') {
+    const fd = await request.formData()
+    const path = fd.get('path') as string
+
+    return await deleteFile(token, {
+      branch: project.branch,
+      repo: project.repo,
+      message: `Delete file ${path}`,
+      path,
+    })
+  }
 }
 
 function basename(path: string) {
   return path.split('/').pop() || ''
+}
+function dirname(path: string) {
+  return path.split('/').slice(0, -1).join('/')
+}
+
+type ModalData = {
+  operation: 'move' | 'rename' | 'delete'
+  file: TreeItem
+}
+
+const modalTitle = {
+  move: 'Move file to another folder',
+  rename: 'Rename file',
+  delete: 'Delete file'
+}
+const modalConfirmLabel = {
+  move: 'Move',
+  rename: 'Rename',
+  delete: 'Delete'
+}
+const modalBusyLabel = {
+  move: 'Moving...',
+  rename: 'Renaming...',
+  delete: 'Deleting...'
 }
 
 export default function Media() {
@@ -65,13 +136,6 @@ export default function Media() {
   const mediaFolder = conf.mediaFolder === '/' ? '' : conf.mediaFolder
   const { tree, repo, branch } = useLoaderData<typeof loader>()
   const folders = tree.filter(t => t.type === 'tree')
-  folders.unshift({
-    path: '/',
-    type: 'tree' as const,
-    url: '',
-    mode: '',
-    sha: '',
-  })
 
   const images = tree.filter(t => isBinaryPath(t.path))
   const [previews, setPreviews] = useState([] as FilePreview[])
@@ -87,9 +151,77 @@ export default function Media() {
     }))
 
   const allImages = [...images, ...notExistingPreviews]
+  const [modalData, setModalData] = useState<ModalData | null>(null)
+
+  const transition = useTransition()
+  const busy = transition.state !== 'idle'
+
+  function closeModal() {
+    setModalData(null)
+  }
 
   return (
-    <div className="p-4">
+    <div className="p-4 relative">
+      {modalData && (
+        <Modal open onClose={closeModal} title={modalTitle[modalData.operation]}>
+          <Form replace method={modalData.operation === 'delete' ? 'delete' : 'put'}>
+            <input type="hidden" name="sha" value={modalData.file.sha} />
+            <input type="hidden" name="path" value={modalData.file.path} />
+            {modalData?.operation === 'move' && (
+              <div>
+                <label htmlFor="folder" className={labelCN}>New folder for the file</label>
+                <ComboBoxLocal<TreeItem>
+                  name='folder'
+                  options={folders}
+                  labelKey='path'
+                  valueKey='path'
+                  defaultValue={dirname(modalData.file.path)}
+                />
+              </div>
+            )}
+            {modalData?.operation === 'rename' && (
+              <div className="my-4">
+                <label htmlFor="name" className={labelCN}>New name for the file</label>
+                <input
+                  required
+                  type="text"
+                  name="name"
+                  defaultValue={basename(modalData.file.path)}
+                  className={inputCN}
+                />
+              </div>
+            )}
+            {modalData?.operation === 'delete' && (
+              <div>
+                <p className="text-slate-600 dark:text-slate-200 text-lg max-w-prose my-4">
+                  Are you sure you want to delete the file <code>{modalData.file.path}</code> ?
+                </p>
+              </div>
+            )}
+            <div className="flex items-center justify-end gap-2 mt-4">
+              <button
+                type="button"
+                onClick={closeModal}
+                className={`${buttonCN.normal} ml-3 hover:bg-slate-100 dark:hover:bg-slate-100/25`}>
+                Cancel
+              </button>
+              <button
+                type="submit"
+                name="operation"
+                value={modalData.operation}
+                disabled={busy}
+                className={
+                  clsx({
+                    [buttonCN.slate]: modalData.operation !== 'delete',
+                    [buttonCN.deleteBold]: modalData.operation === 'delete'
+                  }, buttonCN.normal)
+                }>
+                {busy ? modalBusyLabel[modalData.operation] : modalConfirmLabel[modalData.operation]}
+              </button>
+            </div>
+          </Form>
+        </Modal>
+      )}
       <header className="mb-8">
         <h2 className="font-medium text-4xl text-slate-500 dark:text-slate-300 mt-4 mb-2">
           Media
@@ -105,6 +237,7 @@ export default function Media() {
             file={f}
             key={f.sha}
             baseURL={`https://raw.githubusercontent.com/${repo}/${branch}`}
+            setModalData={setModalData}
           />
         ))}
       </ul>
@@ -112,13 +245,36 @@ export default function Media() {
   )
 }
 
-function ImageCard({ baseURL, file }: { baseURL: string; file: TreeItem }) {
+function ImageCard({
+  baseURL,
+  file,
+  setModalData
+}: {
+  baseURL: string
+  file: TreeItem
+  setModalData: (data: ModalData) => void
+}) {
   const transition = useTransition()
   const busy = transition.state !== 'idle'
 
-  function handleMove() {}
-  function handleRename() {}
-  function handleDelete() {}
+  function handleMove() {
+    setModalData({
+      operation: 'move',
+      file
+    })
+  }
+  function handleRename() {
+    setModalData({
+      operation: 'rename',
+      file
+    })
+  }
+  function handleDelete() {
+    setModalData({
+      operation: 'delete',
+      file
+    })
+  }
 
   return (
     <li key={file.sha} className={clsx('group relative rounded-md border w-[250px]', borderColor, { 'opacity-50': !file.sha })}>
@@ -175,9 +331,7 @@ function ImageCard({ baseURL, file }: { baseURL: string; file: TreeItem }) {
                   </Menu.Item>
                   <Menu.Item
                     as="button"
-                    type='submit'
-                    name='_op'
-                    value='delete'
+                    type='button'
                     disabled={busy}
                     onClick={handleDelete}
                     className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.delete, buttonCN.normal)}
@@ -227,26 +381,6 @@ function ImageUpload({ onChange }: { onChange: (previews: FilePreview[]) => void
     onChange(await Promise.all(promises))
   }
 
-  // function removeFile(idx: number) {
-  //   if (inputRef.current) {
-  //     const dt = new DataTransfer()
-  //     ;[...(inputRef.current.files || [])].forEach((f, i) => {
-  //       if (i !== idx) {
-  //         dt.items.add(f)
-  //       }
-  //     })
-  //     inputRef.current.files = dt.files
-  //   }
-  //   setPreviews(prev => prev.filter((_, i) => i !== idx))
-  // }
-
-  // function clearFiles() {
-  //   if (inputRef.current) {
-  //     inputRef.current.files = null
-  //   }
-  //   setPreviews([])
-  // }
-
   return (
     <Form method="post" encType="multipart/form-data">
       <input
@@ -269,39 +403,6 @@ function ImageUpload({ onChange }: { onChange: (previews: FilePreview[]) => void
       <p className="text-slate-500 dark:text-slate-300 text-sm mt-1">
         Images will be uploaded to your media folder. You can change this folder in <Link className="underline" to="../settings">project settings</Link>.
       </p>
-      {/* <div className="flex items-start gap-4 py-4 flex-wrap mt-4">
-        {previews.map((preview, idx) => (
-          <div key={idx} className="relative">
-            <img className="w-40 h-40 rounded-md object-cover" src={preview} alt="" />
-            <button
-              type="button"
-              aria-label="Remove file"
-              title="Remove file"
-              onClick={() => removeFile(idx)}
-              className={clsx('absolute top-0 right-0 text-sm p-1 bg-white/50 rounded-tr-md rounded-bl-md', buttonCN.cancel)}
-            >
-              <CloseIcon className='w-5 h-5' />
-            </button>
-          </div>
-        ))}  
-      </div>
-      {previews.length > 0 && (
-        <div className="flex items-center gap-4">
-          <button
-            type="submit"
-            className={clsx(buttonCN.slate, buttonCN.normal)}
-          >
-            Upload
-          </button>
-          <button
-            type="button"
-            onClick={clearFiles}
-            className={clsx(buttonCN.cancel, buttonCN.normal)}
-          >
-            Cancel
-          </button>       
-        </div>
-      )} */}
     </Form>
   )
 }

@@ -11,6 +11,7 @@ import { DocumentDuplicateIcon, ListBulletIcon, PlusIcon } from "@heroicons/reac
 import type { ActionFunction, LoaderArgs} from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { Form, Link, Outlet, useLoaderData, useTransition } from "@remix-run/react"
+import clsx from "clsx"
 
 export const meta = {
   title: metaTitle('Settings')
@@ -200,7 +201,7 @@ function EditProject({ tree }: { tree: TreeItem[] }) {
           <input type="text" name="branch" defaultValue={project.branch} placeholder="master" className={inputCN} />
         </div>
         <div>
-          <label htmlFor="route" className={labelCN}>Media folder</label>
+          <label htmlFor="mediaFolder" className={labelCN}>Media folder</label>
           <ComboBoxLocal<TreeItem>
             name='mediaFolder'
             options={tree}
@@ -258,7 +259,7 @@ function DangerZone() {
           type="submit"
           disabled={busy}
           onClick={handleSubmit}
-          className={`${buttonCN.normal} bg-red-700 hover:bg-red-800 text-white`}>
+          className={clsx(buttonCN.normal, buttonCN.deleteBold)}>
           Delete Project
         </button>
       </Form>

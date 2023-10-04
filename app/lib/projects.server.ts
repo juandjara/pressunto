@@ -1,6 +1,6 @@
 import { Redis } from "@upstash/redis"
 import type { ParsedFile } from "./github"
-import { createBlob, getFileContent, getRepoFiles, pushFolder, saveFile } from "./github"
+import { createBlob, deleteFile, getFileContent, getRepoFiles, pushFolder, saveFile } from "./github"
 import { getDirname, isMarkdown } from "./pathUtils"
 import matter from 'front-matter'
 
@@ -56,6 +56,10 @@ export async function getProject(id: number) {
   return await db.get(`project:${id}`) as Project
 }
 
+export async function getIdForRepo(repo: string) {
+  return await db.get(`repo:${repo}`)
+}
+
 export async function createProject(project: Omit<Project, 'id'>) {
   const id = await db.incr(NEXT_PROJECT_KEY)
   await Promise.all([
@@ -94,7 +98,6 @@ export async function createConfigFile(token: string, repo: string, branch: stri
   }
 
   await saveFile(token, {
-    method: 'PUT',
     repo,
     branch: branch || 'master',
     name: CONFIG_FILE_NAME,
@@ -111,7 +114,6 @@ export async function updateConfigFile(token: string, project: Project, config: 
     branch: project.branch
   })
   await saveFile(token, {
-    method: 'PUT',
     sha: file?.sha,
     repo: project.repo,
     branch: project.branch || 'master',
@@ -130,15 +132,11 @@ export async function deleteConfigFile(token: string, { repo, branch }: Project)
   })
 
   if (file) {
-    await saveFile(token, {
+    await deleteFile(token, {
       repo,
       branch,
       message: '[skip ci] Delete config file for Pressunto',
-      method: 'DELETE',
-      sha: file?.sha,
       path: CONFIG_FILE_NAME,
-      name: '',
-      content: file.content
     })
   }
 }

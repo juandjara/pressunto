@@ -1,4 +1,4 @@
-import { getFileContent, getRepoDetails, saveFile } from "@/lib/github"
+import { deleteFile, getFileContent, getRepoDetails, saveFile } from "@/lib/github"
 import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
 import { processFileContent } from "@/lib/projects.server"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
@@ -110,16 +110,25 @@ export async function action({ request, params }: ActionArgs) {
     ? `Create file ${fullPath}`
     : `Update file ${fullPath}`
 
-  await saveFile(token, {
-    branch,
-    repo,
-    sha,
-    name: '',
-    path: fullPath,
-    message,
-    method: isDelete ? 'DELETE' : 'PUT',
-    content
-  })
+
+  if (isDelete) {
+    await deleteFile(token, {
+      branch,
+      repo,
+      path: fullPath,
+      message,
+    })
+  } else {
+    await saveFile(token, {
+      branch,
+      repo,
+      sha,
+      name: '',
+      path: fullPath,
+      message,
+      content
+    })
+  }
 
   const returnPath = isDelete ? '' : getBasename(fullPath)
   const redirectPath = `/p/${params.project}/${params.cid}/${returnPath}`

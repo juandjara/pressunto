@@ -15,6 +15,7 @@ async function callGithubAPI(token: string, url: fetchURL, options?: fetchOption
   const res = await fetch(fullUrl, {
     ...options,
     headers: {
+      'Content-Type': 'application/json',
       'Accept': ACCEPT_HEADER,
       'Authorization': `Bearer ${token}`,
       ...options?.headers
@@ -243,7 +244,6 @@ export async function getFileContent(token: string, { repo, file, isNew = false,
     branch = details.default_branch
   }
 
-  // console.log({ token, url: `${API_URL}/repos/${repo}/contents/${file}?ref=${branch}` })
   const fileURL = `/repos/${repo}/contents/${file}?ref=${branch}`
   const { data } = await callGithubAPI(token, fileURL)
   if (data.encoding === 'none') {
@@ -284,6 +284,7 @@ export function parseFile(file: File) {
 
 // from here: https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
 function b64DecodeUnicode(str: string) {
+  if (!str) return str
   // Going backwards: from bytestream, to percent-encoding, to original string.
   return decodeURIComponent(atob(str).split('').map(function(c) {
       return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
@@ -291,6 +292,7 @@ function b64DecodeUnicode(str: string) {
 }
 
 function b64EncodeUnicode(str: string) {
+  if (!str) return str
   // first we use encodeURIComponent to get percent-encoded UTF-8,
   // then we convert the percent encodings into raw bytes which can be fed into btoa.
   return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
@@ -322,7 +324,6 @@ export type CommitParams = {
   path: string
   sha?: string
   content: string
-  method: 'PUT' | 'DELETE'
   name: string
 }
 
@@ -358,11 +359,16 @@ export async function uploadImage(token: string, params: FileUploadParams) {
 }
 
 export async function saveFile(token: string, params: CommitParams) {
-  const { method, repo, message, branch, sha, path, name, content } = params
+  const { repo, message, branch, sha, path, name, content } = params
 
-  const url = `/repos/${repo}/contents/${path}${name}`
+  const url = `/repos/${repo}/contents/${encodeURIComponent(`${path}${name}`)}`
   const body = { message, sha, branch, content: b64EncodeUnicode(content) }
-  const { data } = await callGithubAPI(token, url, { method, body: JSON.stringify(body) })
+  if (!body.content) {
+    // @ts-ignore
+    delete body.content
+  }
+
+  const { data } = await callGithubAPI(token, url, { method: 'PUT', body: JSON.stringify(body) })
   return data
 }
 
@@ -425,6 +431,94 @@ export async function pushFolder(token: string, repo: string, branch: string, pa
     message: payload.message,
     tree: tree.sha,
     parents: [branchData.object.sha]
+  }
+
+  const { data: commitData } = await callGithubAPI(token, `/repos/${repo}/git/commits`, { method: 'POST', body: JSON.stringify(commitBody) })
+  
+  await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch || 'master'}`, {
+    method: 'PUT',
+    body: JSON.stringify({ sha: commitData.sha })
+  })
+
+  return commitData
+}
+
+type RenameParams = {
+  repo: string
+  branch: string
+  sha: string
+  path: string
+  newPath: string
+  message: string
+}
+
+export async function renameFile(token: string, params: RenameParams) {
+  const { repo, branch, sha, path, newPath, message } = params
+  const branchData = await getBranch(token, repo, branch)
+  const baseSha = branchData.object.sha
+
+  const tree = await createTree(token, repo, {
+    base_tree: baseSha,
+    tree: [
+      {
+        path,
+        mode: '100644',
+        type: 'blob',
+        sha: null as any,
+      },
+      {
+        path: newPath,
+        mode: '100644',
+        type: 'blob',
+        sha,
+      },
+    ],
+  })
+
+  const commitBody = {
+    message,
+    tree: tree.sha,
+    parents: [baseSha]
+  }
+
+  const { data: commitData } = await callGithubAPI(token, `/repos/${repo}/git/commits`, { method: 'POST', body: JSON.stringify(commitBody) })
+  
+  await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch || 'master'}`, {
+    method: 'PUT',
+    body: JSON.stringify({ sha: commitData.sha })
+  })
+
+  return commitData
+}
+
+type DeleteFileParams = {
+  repo: string
+  branch: string
+  path: string
+  message: string
+}
+
+export async function deleteFile(token: string, params: DeleteFileParams) {
+  const { repo, branch, path, message } = params
+  const branchData = await getBranch(token, repo, branch)
+  const baseSha = branchData.object.sha
+
+  const tree = await createTree(token, repo, {
+    base_tree: baseSha,
+    tree: [
+      {
+        path,
+        mode: '100644',
+        type: 'blob',
+        sha: null as any,
+      }
+    ],
+  })
+
+  const commitBody = {
+    message,
+    tree: tree.sha,
+    parents: [baseSha]
   }
 
   const { data: commitData } = await callGithubAPI(token, `/repos/${repo}/git/commits`, { method: 'POST', body: JSON.stringify(commitBody) })
