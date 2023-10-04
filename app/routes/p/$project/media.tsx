@@ -1,12 +1,14 @@
+import type { TreeItem} from "@/lib/github"
 import { getRepoDetails, getRepoFiles, uploadImage } from "@/lib/github"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
 import { borderColor, buttonCN, iconCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
-import { CloudArrowUpIcon, PhotoIcon } from "@heroicons/react/20/solid"
+import { Menu, Transition } from "@headlessui/react"
+import { CloudArrowUpIcon, EllipsisVerticalIcon, FolderOpenIcon, PencilIcon, PhotoIcon, TrashIcon } from "@heroicons/react/20/solid"
 import type { ActionArgs, LoaderArgs, UploadHandlerPart } from "@remix-run/node"
 import { json, unstable_composeUploadHandlers, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node"
-import { Form, Link, useFetcher, useLoaderData } from "@remix-run/react"
+import { Form, Link, useFetcher, useLoaderData, useTransition } from "@remix-run/react"
 import clsx from "clsx"
 import isBinaryPath from "is-binary-path"
 import type { ChangeEvent} from "react"
@@ -54,6 +56,10 @@ export async function action({ params, request }: ActionArgs) {
   return urls
 }
 
+function basename(path: string) {
+  return path.split('/').pop() || ''
+}
+
 export default function Media() {
   const conf = useProjectConfig()
   const mediaFolder = conf.mediaFolder === '/' ? '' : conf.mediaFolder
@@ -89,22 +95,103 @@ export default function Media() {
           Media
         </h2>
         <p className="max-w-prose font-medium">
-          This page lists all the images in your repository
+          This page lists all the images in your media folder <code>{mediaFolder}</code>
         </p>
       </header>
       <ImageUpload onChange={setPreviews} />
       <ul className="my-8 flex items-start flex-wrap gap-4">
         {allImages.map(f => (
-          <li key={f.sha} className={clsx('rounded-md border w-[250px]', borderColor, { 'opacity-50': !f.sha })}>
-            <img loading="lazy" className="object-contain py-2 mx-auto w-40 h-40 mb-2" src={`https://raw.githubusercontent.com/${repo}/${branch}/${f.path}`} alt={f.path} />
-            <Link to={`../source/${f.path}`} className="p-2 rounded-b-md flex items-center gap-3 bg-slate-100 dark:bg-slate-700">
-              <PhotoIcon className={clsx('flex-shrink-0', iconCN.big)} />
-              <p className="text-lg truncate">{f.path}</p>
-            </Link>
-          </li>
+          <ImageCard
+            file={f}
+            key={f.sha}
+            baseURL={`https://raw.githubusercontent.com/${repo}/${branch}`}
+          />
         ))}
       </ul>
     </div>
+  )
+}
+
+function ImageCard({ baseURL, file }: { baseURL: string; file: TreeItem }) {
+  const transition = useTransition()
+  const busy = transition.state !== 'idle'
+
+  function handleMove() {}
+  function handleRename() {}
+  function handleDelete() {}
+
+  return (
+    <li key={file.sha} className={clsx('group relative rounded-md border w-[250px]', borderColor, { 'opacity-50': !file.sha })}>
+      <Link to={`../source/${file.path}`} className="block relative">
+        <img loading="lazy" className="object-contain py-2 mx-auto w-40 h-40" src={`${baseURL}/${file.path}`} aria-labelledby={file.sha} />
+        <div className="p-2 rounded-b-md flex items-center gap-2 bg-slate-100 dark:bg-slate-700">
+          <PhotoIcon className={clsx('flex-shrink-0', iconCN.big)} />
+          <p id={file.sha} className="text-lg truncate">{basename(file.path)}</p>
+        </div>
+      </Link>
+      <Menu as="div" className="md:opacity-0 group-hover:opacity-100 transition-opacity z-20 absolute top-0 left-0">
+        {({ open }) => (
+          <>
+            <Menu.Button
+              as="button"
+              type="button"
+              title="Open actions menu"
+              aria-label="Open actions menu"
+              className={`p-2 rounded-md ${buttonCN.cancel}`}
+            >
+              <EllipsisVerticalIcon className="w-6 h-6" />
+            </Menu.Button> 
+            <Transition
+              show={open}
+              enter="transition transform duration-100 ease-out"
+              enterFrom="scale-y-50 opacity-0"
+              enterTo="scale-y-100 opacity-100"
+              leave="transition transform duration-100 ease-out"
+              leaveFrom="scale-y-100 opacity-100"
+              leaveTo="scale-y-50 opacity-0">
+              <Menu.Items
+                static
+                className="w-72 rounded-md shadow-lg absolute top-full left-0 ring-1 ring-black ring-opacity-5">
+                <div className="rounded-md text-left py-2 bg-white dark:bg-slate-600">
+                  <Menu.Item
+                    as="button"
+                    type="button"
+                    disabled={busy}
+                    onClick={handleMove}
+                    className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
+                  >
+                    <FolderOpenIcon className="w-5 h-5" />
+                    <span>Move to another folder</span>
+                  </Menu.Item>
+                  <Menu.Item
+                    as="button"
+                    type="button"
+                    disabled={busy}
+                    onClick={handleRename}
+                    className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
+                  >
+                    <PencilIcon className="w-5 h-5" />
+                    <span>Rename file</span>
+                  </Menu.Item>
+                  <Menu.Item
+                    as="button"
+                    type='submit'
+                    name='_op'
+                    value='delete'
+                    disabled={busy}
+                    onClick={handleDelete}
+                    className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.delete, buttonCN.normal)}
+                  >
+                    <TrashIcon className="w-5 h-5" />
+                    <p>Delete file</p>
+                  </Menu.Item>
+                </div>
+              </Menu.Items>
+            </Transition>
+          </>
+        )}
+      </Menu>
+    </li>
   )
 }
 
