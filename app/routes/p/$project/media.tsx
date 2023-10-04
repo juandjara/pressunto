@@ -3,18 +3,18 @@ import Modal from "@/components/Modal"
 import type { TreeItem} from "@/lib/github"
 import { deleteFile, getRepoDetails, getRepoFiles, renameFile, uploadImage } from "@/lib/github"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
-import { requireUserSession } from "@/lib/session.server"
+import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { borderColor, buttonCN, iconCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { Menu, Transition } from "@headlessui/react"
 import { CloudArrowUpIcon, EllipsisVerticalIcon, FolderOpenIcon, PencilIcon, PhotoIcon, TrashIcon } from "@heroicons/react/20/solid"
 import type { ActionArgs, LoaderArgs, UploadHandlerPart } from "@remix-run/node"
 import { json, unstable_composeUploadHandlers, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node"
-import { Form, Link, useFetcher, useLoaderData, useTransition } from "@remix-run/react"
+import { Form, Link, useActionData, useFetcher, useLoaderData, useTransition } from "@remix-run/react"
 import clsx from "clsx"
 import isBinaryPath from "is-binary-path"
 import type { ChangeEvent} from "react"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 export async function loader({ params, request }: LoaderArgs) {
   const { token } = await requireUserSession(request)
@@ -79,14 +79,18 @@ export async function action({ params, request }: ActionArgs) {
       newPath = `${dirname(path)}/${name}`
     }
 
-    return await renameFile(token, {
+    const message = `Move file ${path} to ${newPath}`
+    await renameFile(token, {
       repo: project.repo,
       branch: project.branch,
       sha,
       path,
       newPath,
-      message: `Move file ${path} to ${newPath}`
+      message
     })
+
+    const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
+    return json({ ok: true }, { headers: { 'Set-Cookie': cookie }})
   }
 
   // delete file
@@ -94,12 +98,16 @@ export async function action({ params, request }: ActionArgs) {
     const fd = await request.formData()
     const path = fd.get('path') as string
 
-    return await deleteFile(token, {
+    const message = `Delete file ${path}`
+    await deleteFile(token, {
       branch: project.branch,
       repo: project.repo,
-      message: `Delete file ${path}`,
+      message,
       path,
     })
+
+    const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
+    return json({ ok: true }, { headers: { 'Set-Cookie': cookie }})
   }
 }
 
@@ -155,6 +163,14 @@ export default function Media() {
 
   const transition = useTransition()
   const busy = transition.state !== 'idle'
+
+  const data = useActionData()
+
+  useEffect(() => {
+    if (data) {
+      setModalData(null)
+    }
+  }, [data])
 
   function closeModal() {
     setModalData(null)
