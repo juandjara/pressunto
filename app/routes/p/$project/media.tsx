@@ -129,7 +129,7 @@ function ImageCard({ baseURL, file }: { baseURL: string; file: TreeItem }) {
           <p id={file.sha} className="text-lg truncate">{basename(file.path)}</p>
         </div>
       </Link>
-      <Menu as="div" className="md:opacity-0 group-hover:opacity-100 transition-opacity z-20 absolute top-0 left-0">
+      <Menu as="div" className="z-20 absolute top-0 left-0">
         {({ open }) => (
           <>
             <Menu.Button
@@ -137,7 +137,7 @@ function ImageCard({ baseURL, file }: { baseURL: string; file: TreeItem }) {
               type="button"
               title="Open actions menu"
               aria-label="Open actions menu"
-              className={`p-2 rounded-md ${buttonCN.cancel}`}
+              className={clsx({ 'md:opacity-0': !open }, 'group-hover:opacity-100 transition-opacity p-2 rounded-md', buttonCN.cancel)}
             >
               <EllipsisVerticalIcon className="w-6 h-6" />
             </Menu.Button> 
