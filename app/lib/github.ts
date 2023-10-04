@@ -326,6 +326,37 @@ export type CommitParams = {
   name: string
 }
 
+type FileUploadParams = {
+  repo: string
+  branch: string
+  folder: string
+  file: {
+    contentType: string
+    filename: string
+    data: AsyncIterable<Uint8Array>
+  }
+}
+
+async function asyncIterableToBase64(iterable: AsyncIterable<Uint8Array>) {
+  let result = ''
+  for await (const chunk of iterable) {
+    result += btoa(String.fromCharCode.apply(null, [...chunk]))
+  }
+  return result
+}
+
+export async function uploadImage(token: string, params: FileUploadParams) {
+  const { filename, data } = params.file
+  const url = `/repos/${params.repo}/contents/${params.folder}/${filename}`
+  const body = {
+    branch: params.branch,
+    message: `upload image ${filename} to ${params.folder}`,
+    content: await asyncIterableToBase64(data),
+  }
+  const { data: file } = await callGithubAPI(token, url, { method: 'PUT', body: JSON.stringify(body) })
+  return file
+}
+
 export async function saveFile(token: string, params: CommitParams) {
   const { method, repo, message, branch, sha, path, name, content } = params
 
