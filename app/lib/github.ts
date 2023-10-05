@@ -206,7 +206,7 @@ export async function getRepoFiles(token: string, repo: string, branch?: string)
 }
 
 export type TreeItem = {
-  mode: string
+  mode: FileMode
   path: string
   sha: string
   type: 'tree' | 'blob'
@@ -358,7 +358,7 @@ type TreeCreatePayload = {
   tree: Array<{
     sha: string
     path: string
-    mode: string
+    mode: FileMode
     type: string
   }>
 }
@@ -384,7 +384,7 @@ type PushFilesPayload = {
   files: Array<{
     sha: string
     path: string
-    mode: string
+    mode: FileMode
     type: string
   }>
 }
@@ -412,6 +412,14 @@ export async function pushFolder(token: string, repo: string, branch: string, pa
   return commitData
 }
 
+export enum FileMode {
+  FILE = '100644',
+  EXECUTABLE = '100755',
+  SYMLINK = '120000',
+  TREE = '040000',
+  SUBMODULE = '160000'
+}
+
 type RenameParams = {
   repo: string
   branch: string
@@ -431,13 +439,13 @@ export async function renameFile(token: string, params: RenameParams) {
     tree: [
       {
         path,
-        mode: '100644',
+        mode: FileMode.FILE,
         type: 'blob',
         sha: null as any,
       },
       {
         path: newPath,
-        mode: '100644',
+        mode: FileMode.FILE,
         type: 'blob',
         sha,
       },
@@ -477,7 +485,7 @@ export async function deleteFile(token: string, params: DeleteFileParams) {
     tree: [
       {
         path,
-        mode: '100644',
+        mode: FileMode.FILE,
         type: 'blob',
         sha: null as any,
       }

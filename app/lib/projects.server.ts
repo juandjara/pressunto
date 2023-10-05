@@ -1,6 +1,6 @@
 import { Redis } from "@upstash/redis"
 import type { ParsedFile } from "./github"
-import { createBlob, deleteFile, getFileContent, getRepoFiles, pushFolder, saveFile } from "./github"
+import { FileMode, createBlob, deleteFile, getFileContent, getRepoFiles, pushFolder, saveFile } from "./github"
 import { getDirname, isMarkdown } from "./pathUtils"
 import matter from 'front-matter'
 
@@ -234,7 +234,7 @@ export async function updateCollectionFileOrder(token: string, payload: UpdateOr
   const blobs = files.map((f, i) => ({
     sha: newBlobIds[i],
     path: f.path,
-    mode: '100644',
+    mode: FileMode.FILE,
     type: 'blob'
   }))
 
