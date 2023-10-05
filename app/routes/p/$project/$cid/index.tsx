@@ -54,7 +54,7 @@ export const action: ActionFunction = async ({ request }) => {
   return json({ commit })
 }
 
-const listCN = 'flex-grow block p-2 rounded-md text-lg hover:bg-slate-100 dark:hover:bg-slate-700'
+const listCN = 'flex-grow block p-2 rounded-md bg-slate-100 dark:bg-slate-700'
 
 type CollectionDisplay = 'links' | 'reorder'
 
@@ -100,7 +100,7 @@ function CollectionLinks({ onToggleMode }: DisplayModeProps) {
           <ArrowsUpDownIcon className="w-6 h-6" />
         </button>
       </header>
-      <ul className="space-y-1">
+      <ul className="space-y-4">
         {fileList.map((f) => (
           <li key={f.id}>
             <CollectionListItem file={f} clickable />
@@ -205,9 +205,9 @@ function CollectionListItem({ file, clickable = false }: { file: CollectionFile;
   if (clickable) {
     return (
       <Link to={file.name} className={listCN}>
-        <p className="flex items-center gap-3">
-          <DocumentIcon className={iconCN.small} />
-          <span>{file.title}</span>
+        <p className="flex items-center pl-1 gap-3 h-10">
+          <DocumentIcon className={iconCN.big} />
+          <span className="text-slate-600 dark:text-slate-200 text-xl">{file.title}</span>
         </p>
       </Link>
     )
