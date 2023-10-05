@@ -10,3 +10,8 @@ export function isMarkdown(file: string) {
   const regex = /.(md|mdx|mkdn?|mdown|markdown)$/
   return !!(regex.test(file))
 }
+
+export function getExtension(path: string) {
+  const match = path.match(/\.(\w+)$/)
+  return match ? match[1] : null
+}

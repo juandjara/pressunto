@@ -1,7 +1,5 @@
 import parseLink from 'parse-link-header'
-import * as mime from 'mime'
-import isbinary from 'is-binary-path'
-import { isMarkdown } from './pathUtils'
+import { b64EncodeUnicode, parseGithubFile } from './file-utils'
 
 const OAUTH_URL = 'https://github.com/login/oauth'
 const API_URL = 'https://api.github.com'
@@ -54,8 +52,13 @@ export async function getAccessToken({ code, clientID, clientSecret }: getAccess
   })
 
   try {
+    if (!res.ok) {
+      const text = await res.text()
+      throw new Response(text, { status: 500 })
+    }
+
     const data = await res.json()
-    if (data?.error || !res.ok) {
+    if (data?.error) {
       throw new Response(JSON.stringify(data), { status: 500 })
     }
 
@@ -171,11 +174,17 @@ export async function searchRepos(token: string, {
   } as RepoSearchResults
 }
 
+export type Permissions = {
+  admin: boolean
+  push: boolean
+  pull: boolean
+}
+
 export async function getRepoDetails(token: string, repo: string) {
   const { data } = await callGithubAPI(token, `/repos/${repo}`)
   return {
-    default_branch: data.default_branch,
-    permissions: data.permissions
+    default_branch: data.default_branch as string,
+    permissions: data.permissions as Permissions
   }
 }
 
@@ -213,19 +222,7 @@ export type TreeItem = {
   url: string
 }
 
-type File = {
-  content: string
-  size: number
-  type: string
-  sha: string
-  name: string
-  path: string
-  download_url: string
-  html_url: string
-  encoding: 'base64' | 'none'
-}
-
-export type ParsedFile = ReturnType<typeof parseFile>
+export type ParsedFile = ReturnType<typeof parseGithubFile>
 
 type FileRequest = {
   repo: string
@@ -256,68 +253,10 @@ export async function getFileContent(token: string, { repo, file, isNew = false,
     data.content = await res.text()
   }
 
-  return parseFile(data)
+  return parseGithubFile(data)
 }
 
-export function parseFile(file: File) {
-  const extension = getExtension(file.name)
-  const lang = extensionToCodeMirrorLang(extension || '')
-  const mimeType = mime.getType(file.name)
-  const format = mimeType?.split('/')[0] || ''
-  const isBinary = isbinary(file.name)
-
-  let content = file.content
-  if (!isBinary && file.encoding === 'base64') {
-    content = b64DecodeUnicode(file.content)
-  }
-
-  return {
-    ...file,
-    lang,
-    format,
-    mimeType,
-    isBinary,
-    isMarkdown: isMarkdown(file.name),
-    content
-  }
-}
-
-// from here: https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
-function b64DecodeUnicode(str: string) {
-  if (!str) return str
-  // Going backwards: from bytestream, to percent-encoding, to original string.
-  return decodeURIComponent(atob(str).split('').map(function(c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-  }).join(''))
-}
-
-function b64EncodeUnicode(str: string) {
-  if (!str) return str
-  // first we use encodeURIComponent to get percent-encoded UTF-8,
-  // then we convert the percent encodings into raw bytes which can be fed into btoa.
-  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
-      function toSolidBytes(match, p1) {
-          return String.fromCharCode(Number('0x' + p1))
-  }))
-}
-
-function extensionToCodeMirrorLang(extension: string) {
-  if (isMarkdown(extension)) return 'gfm'
-  if (['js', 'json'].indexOf(extension) !== -1) return 'javascript'
-  if (extension === 'html') return 'htmlmixed'
-  if (extension === 'rb') return 'ruby'
-  if (/(yml|yaml)/.test(extension)) return 'yaml'
-  if (['java', 'c', 'cpp', 'cs', 'php'].indexOf(extension) !== -1) return 'clike'
-
-  return extension
-}
-
-function getExtension(path: string) {
-  const match = path.match(/\.(\w+)$/)
-  return match ? match[1] : null
-}
-
-export type CommitParams = {
+export type SaveFileParams = {
   repo: string
   message: string
   branch?: string
@@ -327,7 +266,7 @@ export type CommitParams = {
   name: string
 }
 
-export async function saveFile(token: string, params: CommitParams) {
+export async function saveFile(token: string, params: SaveFileParams) {
   const { repo, message, branch, sha, path, name, content } = params
 
   const url = `/repos/${repo}/contents/${encodeURIComponent(`${path}${name}`)}`
@@ -339,6 +278,14 @@ export async function saveFile(token: string, params: CommitParams) {
 
   const { data } = await callGithubAPI(token, url, { method: 'PUT', body: JSON.stringify(body) })
   return data
+}
+
+export enum FileMode {
+  FILE = '100644',
+  EXECUTABLE = '100755',
+  SYMLINK = '120000',
+  TREE = '040000',
+  SUBMODULE = '160000'
 }
 
 type GitTreeItem = {
@@ -368,40 +315,37 @@ export async function getBranches(token: string, repo: string) {
   return data as any[]
 }
 
-type PushFilesPayload = {
+type CommitFilesParams = {
+  repo: string
+  branch: string
   message: string
   files: GitTreeItem[]
 }
 
-export async function pushFolder(token: string, repo: string, branch: string, payload: PushFilesPayload) {
+export async function commitAndPush(token: string, params: CommitFilesParams) {
+  const { repo, branch, message, files } = params
   const branchData = await getBranch(token, repo, branch)
+  const baseSha = branchData.object.sha
   const tree = await createTree(token, repo, {
-    base_tree: branchData.object.sha,
-    tree: payload.files
+    base_tree: baseSha,
+    tree: files
   })
 
-  const commitBody = {
-    message: payload.message,
-    tree: tree.sha,
-    parents: [branchData.object.sha]
-  }
+  const { data: commitData } = await callGithubAPI(token, `/repos/${repo}/git/commits`, {
+    method: 'POST',
+    body: JSON.stringify({
+      message,
+      tree: tree.sha,
+      parents: [baseSha]  
+    })
+  })
 
-  const { data: commitData } = await callGithubAPI(token, `/repos/${repo}/git/commits`, { method: 'POST', body: JSON.stringify(commitBody) })
-  
-  await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch || 'master'}`, {
+  await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch}`, {
     method: 'PUT',
     body: JSON.stringify({ sha: commitData.sha })
   })
 
   return commitData
-}
-
-export enum FileMode {
-  FILE = '100644',
-  EXECUTABLE = '100755',
-  SYMLINK = '120000',
-  TREE = '040000',
-  SUBMODULE = '160000'
 }
 
 type RenameParams = {
@@ -415,17 +359,16 @@ type RenameParams = {
 
 export async function renameFile(token: string, params: RenameParams) {
   const { repo, branch, sha, path, newPath, message } = params
-  const branchData = await getBranch(token, repo, branch)
-  const baseSha = branchData.object.sha
-
-  const tree = await createTree(token, repo, {
-    base_tree: baseSha,
-    tree: [
+  const commit = await commitAndPush(token, {
+    repo,
+    branch,
+    message,
+    files: [
       {
         path,
         mode: FileMode.FILE,
         type: 'blob',
-        sha: null as any,
+        sha: null,
       },
       {
         path: newPath,
@@ -433,23 +376,9 @@ export async function renameFile(token: string, params: RenameParams) {
         type: 'blob',
         sha,
       },
-    ],
+    ]
   })
-
-  const commitBody = {
-    message,
-    tree: tree.sha,
-    parents: [baseSha]
-  }
-
-  const { data: commitData } = await callGithubAPI(token, `/repos/${repo}/git/commits`, { method: 'POST', body: JSON.stringify(commitBody) })
-  
-  await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch || 'master'}`, {
-    method: 'PUT',
-    body: JSON.stringify({ sha: commitData.sha })
-  })
-
-  return commitData
+  return commit
 }
 
 type DeleteFileParams = {
@@ -461,33 +390,18 @@ type DeleteFileParams = {
 
 export async function deleteFile(token: string, params: DeleteFileParams) {
   const { repo, branch, path, message } = params
-  const branchData = await getBranch(token, repo, branch)
-  const baseSha = branchData.object.sha
-
-  const tree = await createTree(token, repo, {
-    base_tree: baseSha,
-    tree: [
+  const commit = await commitAndPush(token, {
+    repo,
+    branch,
+    message,
+    files: [
       {
         path,
         mode: FileMode.FILE,
         type: 'blob',
-        sha: null as any,
+        sha: null,
       }
-    ],
+    ]
   })
-
-  const commitBody = {
-    message,
-    tree: tree.sha,
-    parents: [baseSha]
-  }
-
-  const { data: commitData } = await callGithubAPI(token, `/repos/${repo}/git/commits`, { method: 'POST', body: JSON.stringify(commitBody) })
-  
-  await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch || 'master'}`, {
-    method: 'PUT',
-    body: JSON.stringify({ sha: commitData.sha })
-  })
-
-  return commitData
+  return commit
 }

@@ -1,6 +1,6 @@
 import { Redis } from "@upstash/redis"
 import type { ParsedFile } from "./github"
-import { FileMode, deleteFile, getFileContent, getRepoFiles, pushFolder, saveFile } from "./github"
+import { FileMode, commitAndPush, deleteFile, getFileContent, getRepoFiles, saveFile } from "./github"
 import { getDirname, isMarkdown } from "./pathUtils"
 import matter from 'front-matter'
 
@@ -227,16 +227,16 @@ export async function updateCollectionFileOrder(token: string, payload: UpdateOr
     contents.push(content)
   }
 
-  const blobs = files.map((f, i) => ({
-    content: contents[i],
-    path: f.path,
-    mode: FileMode.FILE,
-    type: 'blob' as const
-  }))
-
-  const commit = await pushFolder(token, repo, branch, {
+  const commit = await commitAndPush(token, {
+    repo,
+    branch,
     message: `Updated order for files in ${collectionRoute}`,
-    files: blobs
+    files: files.map((f, i) => ({
+      content: contents[i],
+      path: f.path,
+      mode: FileMode.FILE,
+      type: 'blob' as const
+    }))
   })
 
   return commit
