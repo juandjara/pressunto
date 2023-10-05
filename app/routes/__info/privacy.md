@@ -1,5 +1,5 @@
 ---
-meta: { "title": "Privacy | Pressunto" }
+meta: {"title":"Privacy | Pressunto"}
 ---
 
 ## Privacy
