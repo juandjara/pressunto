@@ -1,5 +1,5 @@
 import parseLink from 'parse-link-header'
-import { b64EncodeUnicode, parseGithubFile } from './file-utils'
+import { b64EncodeUnicode, parseGithubFile } from './fileUtils'
 
 const OAUTH_URL = 'https://github.com/login/oauth'
 const API_URL = 'https://api.github.com'
@@ -252,6 +252,8 @@ export async function getFileContent(token: string, { repo, file, isNew = false,
     })
     data.content = await res.text()
   }
+
+  console.log(data)
 
   return parseGithubFile(data)
 }
