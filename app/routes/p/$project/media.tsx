@@ -12,10 +12,10 @@ import { Menu, Transition } from "@headlessui/react"
 import { CloudArrowUpIcon, EllipsisVerticalIcon, FolderOpenIcon, PencilIcon, PhotoIcon, TrashIcon } from "@heroicons/react/20/solid"
 import type { ActionArgs, LoaderArgs, UploadHandlerPart } from "@remix-run/node"
 import { json, unstable_composeUploadHandlers, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node"
-import { Form, Link, useActionData, useFetcher, useLoaderData, useTransition } from "@remix-run/react"
+import { Form, Link, Outlet, useActionData, useFetcher, useLoaderData, useTransition } from "@remix-run/react"
 import clsx from "clsx"
 import isBinaryPath from "is-binary-path"
-import type { ChangeEvent} from "react"
+import type { ChangeEvent } from "react"
 import { useEffect, useRef, useState } from "react"
 
 export async function loader({ params, request }: LoaderArgs) {
@@ -240,10 +240,11 @@ export default function Media() {
           Media
         </h2>
         <p className="max-w-prose font-medium">
-          This page lists all the images in your media folder <code>{mediaFolder}</code>
+          This page lists all the images in your repository. You can upload new images or move, rename or delete existing images.
         </p>
       </header>
-      <ImageUpload onChange={setPreviews} />
+      <ImageUpload mediaFolder={mediaFolder} onChange={setPreviews} />
+      <Outlet />
       <ul className="my-8 flex items-start flex-wrap gap-4">
         {allImages.map(f => (
           <ImageCard
@@ -291,7 +292,7 @@ function ImageCard({
 
   return (
     <li key={file.sha} className={clsx('group relative rounded-md border w-[250px]', borderColor, { 'opacity-50': !file.sha })}>
-      <Link to={`../source/${file.path}`} className="block relative">
+      <Link to={`./${file.sha}`} className="block relative">
         <img loading="lazy" className="object-contain py-2 mx-auto w-40 h-40" src={`${baseURL}/${file.path}`} aria-labelledby={file.sha} />
         <div className="p-2 rounded-b-md flex items-center gap-2 bg-slate-100 dark:bg-slate-700">
           <PhotoIcon className={clsx('flex-shrink-0', iconCN.big)} />
@@ -367,7 +368,13 @@ type FilePreview = {
   name: string
 }
 
-function ImageUpload({ onChange }: { onChange: (previews: FilePreview[]) => void }) {
+function ImageUpload({
+  mediaFolder,
+  onChange
+}: {
+  mediaFolder?: string
+  onChange: (previews: FilePreview[]) => void
+}) {
   const inputRef = useRef<HTMLInputElement>(null)
   const fetcher = useFetcher()
 
@@ -414,7 +421,7 @@ function ImageUpload({ onChange }: { onChange: (previews: FilePreview[]) => void
         <p>Upload new images</p>
       </button>
       <p className="text-slate-500 dark:text-slate-300 text-sm mt-1">
-        Images will be uploaded to your media folder. You can change this folder in <Link className="underline" to="../settings">project settings</Link>.
+        Images will be uploaded to your media folder <code>{mediaFolder}</code>. You can change this folder in <Link className="underline" to="../settings">project settings</Link>.
       </p>
     </Form>
   )

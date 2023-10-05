@@ -405,3 +405,5 @@ export async function deleteFile(token: string, params: DeleteFileParams) {
   })
   return commit
 }
+
+export const CONTENT_BASE_URL = 'https://raw.githubusercontent.com'
