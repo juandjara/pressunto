@@ -5,6 +5,7 @@ import { ArrowLeftIcon, ArrowUpTrayIcon, ArrowUturnLeftIcon, DocumentIcon, Folde
 import { EllipsisVerticalIcon } from "@heroicons/react/24/solid"
 import { Menu, Transition } from "@headlessui/react"
 import clsx from "clsx"
+import { getBasename } from "@/lib/pathUtils"
 
 export default function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: boolean }) {
   const transition = useTransition()
@@ -12,6 +13,7 @@ export default function PostDetailsHeader({ file, isDraft }: { file: CollectionF
   const navigate = useNavigate()
   const { project, cid, pid } = useParams()
   const backLink = `/p/${project}/${cid}`
+  const isNew = pid === 'new'
 
   function handleDelete(ev: React.MouseEvent) {
     const isDelete = (ev.target as HTMLButtonElement).value === 'delete'
@@ -31,8 +33,15 @@ export default function PostDetailsHeader({ file, isDraft }: { file: CollectionF
         <ArrowLeftIcon className='w-5 h-5' />
       </button>
       <div className="relative flex-grow">
-        <DocumentIcon className={clsx(iconCN.small, 'absolute top-3 left-2')} />
-        <input type="text" placeholder="file name" className={`pl-9 ${inputCN}`} name="name" defaultValue={file.name} />
+        <DocumentIcon className={clsx(iconCN.small, 'absolute top-[11px] left-2')} />
+        <input
+          type="text"
+          placeholder="file name"
+          className={`pl-9 ${inputCN}`}
+          name="name"
+          defaultValue={isNew ? '' : getBasename(file.path)}
+          readOnly
+        />
       </div>
       <button
         type='submit'
@@ -71,7 +80,7 @@ export default function PostDetailsHeader({ file, isDraft }: { file: CollectionF
                   <Menu.Item
                     as="button"
                     type="button"
-                    disabled={busy || pid === 'new'}
+                    disabled={busy || isNew}
                     className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
                   >
                     <FolderOpenIcon className="w-5 h-5" />
@@ -92,7 +101,7 @@ export default function PostDetailsHeader({ file, isDraft }: { file: CollectionF
                     type='submit'
                     name='_op'
                     value='delete'
-                    disabled={busy || pid === 'new'}
+                    disabled={busy || isNew}
                     onClick={handleDelete}
                     className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.delete, buttonCN.normal)}
                   >

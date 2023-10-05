@@ -1,4 +1,5 @@
 import type { Permissions } from "@/lib/github"
+import { getBasename } from "@/lib/pathUtils"
 import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
 import { buttonCN, inputCN, labelCN } from "@/lib/styles"
 import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
@@ -16,7 +17,7 @@ export default function FrontmatterEditor({ onDraft }: { onDraft: () => void }) 
   const { config, file } = useLoaderData<LoaderData>()
   const collection = config.collections.find((c) => c.id === cid)
   const template = collection && config.templates.find((t) => t.id === collection.template)
-  const backLink = `/p/${project}/${cid}/${file.name}`
+  const backLink = `/p/${project}/${cid}/${getBasename(file.path)}`
 
   const [attrs, setAttrs] = useState(() => {
     const fields = template?.fields || []

@@ -1,7 +1,7 @@
 import { Redis } from "@upstash/redis"
 import type { ParsedFile } from "./github"
 import { FileMode, commitAndPush, deleteFile, getFileContent, getRepoFiles, saveFile } from "./github"
-import { getDirname, isMarkdown } from "./pathUtils"
+import { getBasename, getDirname, isMarkdown } from "./pathUtils"
 import matter from 'front-matter'
 
 const db = Redis.fromEnv()
@@ -100,10 +100,9 @@ export async function createConfigFile(token: string, repo: string, branch: stri
   await saveFile(token, {
     repo,
     branch: branch || 'master',
-    name: CONFIG_FILE_NAME,
+    path: CONFIG_FILE_NAME,
     content: CONFIG_FILE_TEMPLATE,
     message: '[skip ci] Create config file for Pressunto',
-    path: '',
   })
 }
 
@@ -117,10 +116,9 @@ export async function updateConfigFile(token: string, project: Project, config: 
     sha: file?.sha,
     repo: project.repo,
     branch: project.branch || 'master',
-    name: CONFIG_FILE_NAME,
+    path: CONFIG_FILE_NAME,
     content: JSON.stringify(config, null, 2),
     message: '[skip ci] Update config file for Pressunto',
-    path: '',
   })
 }
 
@@ -153,19 +151,17 @@ export async function getProjectConfig(token: string, project: Project) {
 
 export type CollectionFile = {
   id: string
-  name: string
   title: string
   path: string
   attributes: Record<string, any>
   body: string
 }
 
-export function processFileContent(fileContent: Pick<ParsedFile, 'content' | 'name' | 'sha' | 'path'>) {
+export function processFileContent(fileContent: Pick<ParsedFile, 'content' | 'sha' | 'path'>) {
   const data = matter<{ title: string; order: number }>(fileContent.content)
-  const title = data.attributes.title || fileContent.name
+  const title = data.attributes.title || getBasename(fileContent.path)
   return {
     id: fileContent.sha,
-    name: fileContent.name,
     title,
     path: fileContent.path,
     attributes: data.attributes,
@@ -193,7 +189,7 @@ export async function getCollectionFiles(token: string, project: Project, collec
     const fileContent = contents[collectionTree.indexOf(f)]
 
     if (!fileContent) {
-      throw new Response(`File ${f.path} not found in github content API`, {
+      throw new Response(`Content for file "${f.path}" was not found in github API`, {
         status: 404,
         statusText: 'Not found'
       })

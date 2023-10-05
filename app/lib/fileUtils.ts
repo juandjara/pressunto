@@ -1,4 +1,4 @@
-import { getExtension, isMarkdown } from "./pathUtils"
+import { getBasename, getExtension, isMarkdown } from "./pathUtils"
 import * as mime from 'mime'
 import isbinary from 'is-binary-path'
 
@@ -7,7 +7,6 @@ type GithubFile = {
   size: number
   type: string
   sha: string
-  name: string
   path: string
   download_url: string
   html_url: string
@@ -15,11 +14,12 @@ type GithubFile = {
 }
 
 export function parseGithubFile(file: GithubFile) {
-  const extension = getExtension(file.name)
+  const filename = getBasename(file.path)
+  const extension = getExtension(filename)
   const lang = extensionToCodeMirrorLang(extension || '')
-  const mimeType = mime.getType(file.name)
+  const isBinary = isbinary(filename)
+  const mimeType = mime.getType(filename)
   const format = mimeType?.split('/')[0] || ''
-  const isBinary = isbinary(file.name)
 
   let content = file.content
   if (!isBinary && file.encoding === 'base64') {
@@ -32,7 +32,7 @@ export function parseGithubFile(file: GithubFile) {
     format,
     mimeType,
     isBinary,
-    isMarkdown: isMarkdown(file.name),
+    isMarkdown: isMarkdown(filename),
     content
   }
 }

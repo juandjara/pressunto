@@ -64,8 +64,7 @@ export async function action({ request, params }: ActionArgs) {
       branch,
       repo,
       sha,
-      name,
-      path: path || '',
+      path: (path || '') + name,
       message,
       content: body
     })

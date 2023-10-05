@@ -9,7 +9,7 @@ import { redirect } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import { Form, useLoaderData } from "@remix-run/react"
 import { useProject } from "@/lib/useProjectConfig"
-import { getBasename } from "@/lib/pathUtils"
+import { folderFromCollection, getBasename } from "@/lib/pathUtils"
 import slugify from "@/lib/slugify"
 import FrontmatterEditor from "@/components/post-details/FrontmatterEditor"
 import PostEditor from "@/components/post-details/PostEditor"
@@ -25,7 +25,7 @@ type LoaderData = {
 
 export const meta: MetaFunction = ({ data }) => {
   return {
-    title: metaTitle((data as LoaderData).file.title)
+    title: metaTitle((data as LoaderData)?.file?.title)
   }
 }
 
@@ -38,15 +38,14 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const collection = config.collections.find((c) => c.id === collectionId)
 
   if (!collection) {
-    throw new Response(`Collection ${collectionId} not found`, { status: 404, statusText: 'Not found' })
+    throw new Response(`Collection ${collectionId} not found`, { status: 404 })
   }
 
-  const folder = collection.route.replace(/^\//, '').replace(/\/$/, '')
+  const folder = folderFromCollection(collection)
   const isNew = filename === 'new'
 
   const blankFile = {
     sha: '',
-    name: '',
     path: folder,
     content: ''
   }
@@ -59,6 +58,10 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     }),
     getRepoDetails(token, project.repo)
   ])
+
+  if (!file) {
+    throw new Response(`File ${filename} not found in folder ${folder}`, { status: 404 })
+  }
 
   return json<LoaderData>({
     config,
@@ -98,8 +101,7 @@ export async function action({ request, params }: ActionArgs) {
 
   const isDelete = op === 'delete'
   const slug = slugify(formData.get('meta__title') as string || '')
-  const name = isNew ? `/${slug}.md` : ''
-  const fullPath = path + name
+  const fullPath = isNew ? `${path}/${slug}.md` : path
 
   const message = op === 'delete' 
   ? `Delete file ${fullPath}` 
@@ -120,7 +122,6 @@ export async function action({ request, params }: ActionArgs) {
       branch,
       repo,
       sha,
-      name: '',
       path: fullPath,
       message,
       content

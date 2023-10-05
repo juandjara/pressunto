@@ -1,7 +1,8 @@
 import { ComboBoxLocal } from "@/components/ComboBoxLocal"
 import Modal from "@/components/Modal"
 import type { TreeItem} from "@/lib/github"
-import { deleteFile, getRepoDetails, getRepoFiles, renameFile } from "@/lib/github"
+import { FileMode, deleteFile, getRepoDetails, getRepoFiles, renameFile } from "@/lib/github"
+import { getBasename, getDirname } from "@/lib/pathUtils"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { borderColor, buttonCN, iconCN, inputCN, labelCN } from "@/lib/styles"
@@ -75,11 +76,11 @@ export async function action({ params, request }: ActionArgs) {
     let newPath = ''
     if (operation === 'move') {
       const folder = fd.get('folder') as string
-      newPath = `${folder}/${basename(path)}`
+      newPath = `${folder}/${getBasename(path)}`
     }
     if (operation === 'rename') {
       const name = fd.get('name') as string
-      newPath = `${dirname(path)}/${name}`
+      newPath = `${getDirname(path)}/${name}`
     }
 
     const message = `Move file ${path} to ${newPath}`
@@ -112,13 +113,6 @@ export async function action({ params, request }: ActionArgs) {
     const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
     return json({ ok: true }, { headers: { 'Set-Cookie': cookie }})
   }
-}
-
-function basename(path: string) {
-  return path.split('/').pop() || ''
-}
-function dirname(path: string) {
-  return path.split('/').slice(0, -1).join('/')
 }
 
 type ModalData = {
@@ -154,11 +148,11 @@ export default function Media() {
   const notExistingPreviews = previews
     .filter(p => !images.some(img => img.path.includes(p.name)))
     .map(p => ({
+      sha: '',
       path: mediaFolder ? `${mediaFolder}/${p.name}` : p.name,
       type: 'blob' as const,
+      mode: FileMode.FILE,
       url: p.url,
-      mode: '',
-      sha: '',
     }))
 
   const allImages = [...images, ...notExistingPreviews]
@@ -194,7 +188,7 @@ export default function Media() {
                   options={folders}
                   labelKey='path'
                   valueKey='path'
-                  defaultValue={dirname(modalData.file.path)}
+                  defaultValue={getDirname(modalData.file.path)}
                 />
               </div>
             )}
@@ -205,7 +199,7 @@ export default function Media() {
                   required
                   type="text"
                   name="name"
-                  defaultValue={basename(modalData.file.path)}
+                  defaultValue={getBasename(modalData.file.path)}
                   className={inputCN}
                 />
               </div>
@@ -301,7 +295,7 @@ function ImageCard({
         <img loading="lazy" className="object-contain py-2 mx-auto w-40 h-40" src={`${baseURL}/${file.path}`} aria-labelledby={file.sha} />
         <div className="p-2 rounded-b-md flex items-center gap-2 bg-slate-100 dark:bg-slate-700">
           <PhotoIcon className={clsx('flex-shrink-0', iconCN.big)} />
-          <p id={file.sha} className="text-lg truncate">{basename(file.path)}</p>
+          <p id={file.sha} className="text-lg truncate">{getBasename(file.path)}</p>
         </div>
       </Link>
       <Menu as="div" className="z-20 absolute top-0 left-0">

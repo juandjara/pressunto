@@ -14,6 +14,7 @@ import { ArrowsUpDownIcon, Bars2Icon, PlusIcon } from "@heroicons/react/20/solid
 import { buttonCN, iconCN } from "@/lib/styles"
 import SortableItem from "@/components/SortableItem"
 import { DocumentIcon } from "@heroicons/react/24/outline"
+import { getBasename } from "@/lib/pathUtils"
 
 type LoaderData = {
   files: CollectionFile[]
@@ -204,7 +205,7 @@ function SortableList({ files, setFiles }: SortableListProps) {
 function CollectionListItem({ file, clickable = false }: { file: CollectionFile; clickable?: boolean }) {
   if (clickable) {
     return (
-      <Link to={file.name} className={listCN}>
+      <Link to={getBasename(file.path)} className={listCN}>
         <p className="flex items-center pl-1 gap-3 h-10">
           <DocumentIcon className={iconCN.big} />
           <span className="text-slate-600 dark:text-slate-200 text-xl">{file.title}</span>

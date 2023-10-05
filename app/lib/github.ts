@@ -243,6 +243,7 @@ export async function getFileContent(token: string, { repo, file, isNew = false,
 
   const fileURL = `/repos/${repo}/contents/${file}?ref=${branch}`
   const { data } = await callGithubAPI(token, fileURL)
+
   if (data.encoding === 'none') {
     const res = await fetch(API_URL + fileURL, {
       headers: new Headers({
@@ -252,8 +253,6 @@ export async function getFileContent(token: string, { repo, file, isNew = false,
     })
     data.content = await res.text()
   }
-
-  console.log(data)
 
   return parseGithubFile(data)
 }
@@ -265,13 +264,12 @@ export type SaveFileParams = {
   path: string
   sha?: string
   content: string
-  name: string
 }
 
 export async function saveFile(token: string, params: SaveFileParams) {
-  const { repo, message, branch, sha, path, name, content } = params
+  const { repo, message, branch, sha, path, content } = params
 
-  const url = `/repos/${repo}/contents/${encodeURIComponent(`${path}${name}`)}`
+  const url = `/repos/${repo}/contents/${encodeURIComponent(path)}`
   const body = { message, sha, branch, content: b64EncodeUnicode(content) }
   if (!body.content) {
     // @ts-ignore
