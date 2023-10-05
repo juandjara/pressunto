@@ -6,15 +6,12 @@ import MarkdownEditor from "./markdown-editor/MarkdownEditor"
 import MarkdownPreview from "./markdown-editor/MarkdownPreview"
 import clsx from "clsx"
 import { ArrowLeftIcon, DocumentMagnifyingGlassIcon } from "@heroicons/react/24/outline"
+import type { Permissions } from "@/lib/github"
 
 type LoaderData = {
   file: CollectionFile,
   config: ProjectConfig,
-  permissions: {
-    admin: boolean
-    push: boolean
-    pull: boolean
-  }
+  permissions: Permissions
 }
 
 export default function PostEditor({ onDraft }: { onDraft: () => void }) {

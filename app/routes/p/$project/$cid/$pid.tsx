@@ -1,3 +1,4 @@
+import type { Permissions} from "@/lib/github"
 import { deleteFile, getFileContent, getRepoDetails, saveFile } from "@/lib/github"
 import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
 import { processFileContent } from "@/lib/projects.server"
@@ -19,11 +20,7 @@ import PostDetailsHeader from "@/components/post-details/PostDetailHeader"
 type LoaderData = {
   file: CollectionFile,
   config: ProjectConfig,
-  permissions: {
-    admin: boolean
-    push: boolean
-    pull: boolean
-  }
+  permissions: Permissions
 }
 
 export const meta: MetaFunction = ({ data }) => {

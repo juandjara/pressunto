@@ -1,3 +1,4 @@
+import type { Permissions } from "@/lib/github"
 import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
 import { buttonCN, inputCN, labelCN } from "@/lib/styles"
 import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
@@ -7,11 +8,7 @@ import { useState } from "react"
 type LoaderData = {
   file: CollectionFile,
   config: ProjectConfig,
-  permissions: {
-    admin: boolean
-    push: boolean
-    pull: boolean
-  }
+  permissions: Permissions
 }
 
 export default function FrontmatterEditor({ onDraft }: { onDraft: () => void }) {

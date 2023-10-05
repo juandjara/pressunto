@@ -1,6 +1,6 @@
 import { ComboBoxLocal } from "@/components/ComboBoxLocal"
 import type { TreeItem} from "@/lib/github"
-import { getRepoFiles } from "@/lib/github"
+import { FileMode, getRepoFiles } from "@/lib/github"
 import metaTitle from "@/lib/metaTitle"
 import { getProject, getProjectConfig, updateConfigFile } from "@/lib/projects.server"
 import { deleteConfigFile, deleteProject, updateProject } from "@/lib/projects.server"
@@ -71,9 +71,9 @@ export async function loader({ params, request }: LoaderArgs) {
   tree.unshift({
     path: '/',
     type: 'tree' as const,
-    url: '',
-    mode: '',
+    mode: FileMode.TREE,
     sha: '',
+    url: '',
   })
 
   return json({ tree: tree.filter((t) => t.type === 'tree') })

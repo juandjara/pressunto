@@ -1,6 +1,6 @@
 import {  useEffect, useState } from 'react'
 import FileEditor from './FileEditor'
-import type { ParsedFile } from '@/lib/github'
+import type { ParsedFile, Permissions } from '@/lib/github'
 import FileLabel from './FileLabel'
 import { Form, Link, useLoaderData, useParams, useTransition } from '@remix-run/react'
 import { buttonCN } from '@/lib/styles'
@@ -9,11 +9,7 @@ import { useProject } from '@/lib/useProjectConfig'
 type LoaderData = {
   branch: string
   file: ParsedFile
-  permissions: {
-    admin: boolean
-    push: boolean
-    pull: boolean
-  }
+  permissions: Permissions
 }
 
 function BackIcon() {
