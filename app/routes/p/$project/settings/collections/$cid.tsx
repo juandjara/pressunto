@@ -94,7 +94,7 @@ export default function EditCollection() {
   }
 
   return (
-    <Modal open onClose={closeModal} title={collection ? 'Edit Collection' : 'New Collection'}>
+    <Modal open onClose={() => navigate('..')} title={collection ? 'Edit Collection' : 'New Collection'}>
       <Form replace method="post">
         <fieldset disabled={busy} className="space-y-4">
           <input name="config" type="hidden" value={JSON.stringify(config)} />

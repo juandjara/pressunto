@@ -93,7 +93,7 @@ export default function EditTemplate() {
   }
 
   return (
-    <Modal open onClose={closeModal} title={template ? 'Edit template' : 'New template'}>
+    <Modal open onClose={() => navigate('..')} title={template ? 'Edit template' : 'New template'}>
       <Form replace method="post" className="relative">
         <input name="config" type="hidden" value={JSON.stringify(config)} />
         <input name="project" type="hidden" value={JSON.stringify(project)} />  
