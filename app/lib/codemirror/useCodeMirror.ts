@@ -1,6 +1,6 @@
 import type { MutableRefObject } from "react"
 import { useRef, useState, useEffect } from "react"
-import { EditorState } from "@codemirror/state"
+import { Compartment, EditorState } from "@codemirror/state"
 import type { KeyBinding } from "@codemirror/view"
 import {
   EditorView,
@@ -21,6 +21,7 @@ import { italicBinding } from "./italic"
 import { customTheme } from "./customTheme"
 import { baseTheme } from "./baseTheme"
 import { imageFormat, insertImage } from "./imageFormat"
+import { useParams } from "@remix-run/react"
 
 type useCodeMirrorProps = {
   initialValue: string
@@ -41,10 +42,13 @@ const markdownHighlighting = HighlightStyle.define([
   },
 ])
 
+export const EditableComparment = new Compartment()
+
 export default function useCodeMirror(
   textarea: MutableRefObject<HTMLTextAreaElement | null>,
   { initialValue, setValue }: useCodeMirrorProps
 ) {
+  const { project } = useParams()
   const ref = useRef(null)
   const [view, setView] = useState<EditorView>()
   const [flags, setFlags] = useState({
@@ -86,7 +90,7 @@ export default function useCodeMirror(
           drop: (ev, view) => {
             const file = ev.dataTransfer?.files[0]
             if (file) {
-              insertImage(view, file)
+              insertImage(view, file, project!)
             }
           },
         }),
@@ -124,6 +128,7 @@ export default function useCodeMirror(
           ...boldBinding,
           ...italicBinding
         ] as readonly KeyBinding[]),
+        EditableComparment.of(EditorView.editable.of(true))
       ]
     })
 

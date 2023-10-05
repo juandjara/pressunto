@@ -10,6 +10,7 @@ import { buttonCN } from "@/lib/styles"
 import type { EditorView } from "@codemirror/view"
 import { Menu, Transition } from "@headlessui/react"
 import { CodeBracketIcon, LinkIcon, ListBulletIcon, PhotoIcon } from "@heroicons/react/20/solid"
+import { useParams } from "@remix-run/react"
 import { useRef } from "react"
 
 const headingButtonCN = (flag: boolean) => [
@@ -77,6 +78,7 @@ type MarkdownToolbarProps = {
 }
 
 export default function MarkdownToolbar({ view, flags }: MarkdownToolbarProps) {
+  const { project } = useParams()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   if (!view) {
@@ -142,7 +144,7 @@ export default function MarkdownToolbar({ view, flags }: MarkdownToolbarProps) {
           type='file'
           accept='image/*'
           className='hidden'
-          onChange={ev => ev.target.files && insertImage(view, ev.target.files[0])}
+          onChange={ev => ev.target.files && insertImage(view, ev.target.files[0], project!)}
         />
         <button
           title="Image"
