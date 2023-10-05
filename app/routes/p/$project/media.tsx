@@ -1,10 +1,11 @@
 import { ComboBoxLocal } from "@/components/ComboBoxLocal"
 import Modal from "@/components/Modal"
 import type { TreeItem} from "@/lib/github"
-import { deleteFile, getRepoDetails, getRepoFiles, renameFile, uploadImage } from "@/lib/github"
+import { deleteFile, getRepoDetails, getRepoFiles, renameFile } from "@/lib/github"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { borderColor, buttonCN, iconCN, inputCN, labelCN } from "@/lib/styles"
+import { uploadImage } from "@/lib/uploadImage"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { Menu, Transition } from "@headlessui/react"
 import { CloudArrowUpIcon, EllipsisVerticalIcon, FolderOpenIcon, PencilIcon, PhotoIcon, TrashIcon } from "@heroicons/react/20/solid"
@@ -32,6 +33,7 @@ export async function action({ params, request }: ActionArgs) {
   const { token } = await requireUserSession(request)
   const project = await getProject(Number(params.project))
   const conf = await getProjectConfig(token, project)
+  const folder = conf.mediaFolder === '/' ? '' : conf.mediaFolder || ''
 
   // differiantiate between "file upload" and "file edit / delete" using http method to not affect the reading of form data
 
@@ -42,7 +44,7 @@ export async function action({ params, request }: ActionArgs) {
       const file = await uploadImage(token, {
         repo: project.repo,
         branch: project.branch,
-        folder: conf.mediaFolder || '',
+        folder,
         file: {
           contentType,
           data,
@@ -58,8 +60,9 @@ export async function action({ params, request }: ActionArgs) {
     )
   
     const formData = await unstable_parseMultipartFormData(request, uploadHandler)
-    const urls = formData.getAll('file')
-    return urls
+    const files = formData.getAll('file') as string[]
+    const cookie = await setFlashMessage(request, `Pushed commit "upload image ${files} to ${folder || 'root folder'}" successfully`)
+    return json({ ok: true }, { headers: { 'Set-Cookie': cookie }})
   }
 
   // rename file or move to other folder
@@ -151,7 +154,7 @@ export default function Media() {
   const notExistingPreviews = previews
     .filter(p => !images.some(img => img.path.includes(p.name)))
     .map(p => ({
-      path: `${mediaFolder}/${p.name}`,
+      path: mediaFolder ? `${mediaFolder}/${p.name}` : p.name,
       type: 'blob' as const,
       url: p.url,
       mode: '',
