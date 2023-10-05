@@ -341,26 +341,15 @@ export async function saveFile(token: string, params: CommitParams) {
   return data
 }
 
-export async function createBlob(token: string, repo: string, content: string) {
-  const body = {
-    encoding: 'base64',
-    content: b64EncodeUnicode(content)
-  }
-
-  const url = `/repos/${repo}/git/blobs`
-  const { data } = await callGithubAPI(token, url, { method: 'POST', body: JSON.stringify(body) })
-
-  return data
-}
+type GitTreeItem = {
+  path: string
+  mode: FileMode
+  type: 'blob' | 'tree' | 'commit'
+} & ({ sha: string | null } | { content: string })
 
 type TreeCreatePayload = {
   base_tree: string
-  tree: Array<{
-    sha: string
-    path: string
-    mode: FileMode
-    type: string
-  }>
+  tree: GitTreeItem[]
 }
 
 export async function createTree(token: string, repo: string, tree: TreeCreatePayload) {
@@ -381,12 +370,7 @@ export async function getBranches(token: string, repo: string) {
 
 type PushFilesPayload = {
   message: string
-  files: Array<{
-    sha: string
-    path: string
-    mode: FileMode
-    type: string
-  }>
+  files: GitTreeItem[]
 }
 
 export async function pushFolder(token: string, repo: string, branch: string, payload: PushFilesPayload) {
