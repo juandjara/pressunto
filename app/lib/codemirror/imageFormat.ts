@@ -1,12 +1,13 @@
 // NOTE: adapted from here: https://github.com/voracious/ink-mde/blob/main/src/vendor/extensions/images.ts
-
-import { cursorLineDown, insertBlankLine } from "@codemirror/commands"
 import { syntaxTree } from "@codemirror/language"
-import type { EditorState, Extension, Range} from "@codemirror/state"
+import type { EditorState, Extension, Range } from "@codemirror/state"
+import { EditorSelection } from "@codemirror/state"
 import { RangeSet, StateField } from "@codemirror/state"
 import type { DecorationSet} from "@codemirror/view"
 import { EditorView, WidgetType } from "@codemirror/view"
 import { Decoration } from "@codemirror/view"
+import { EditableComparment } from "./useCodeMirror"
+import { uploadImage } from "@/lib/uploadImage"
 
 const MD_IMAGE_REGEX = /!\[(?<title>.*)\]\((?<url>.*)\)/
 
@@ -76,13 +77,38 @@ export const imageFormat = (): Extension => {
   })
 }
 
-export function insertImage(view: EditorView, file: File) {
-  const reader = new FileReader()
-  reader.addEventListener('load', (ev) => {
-    const src = ev.target?.result as string
-    const markup = `![${file.name}](${src})`
+async function uploadImageAsBase64(file: File, projectId: string) {
+  const res = await fetch(`/api/upload-config/${projectId}`)
+  const { token, repo, branch, folder } = await res.json() as { token: string, repo: string, branch: string, folder: string }
+  const body = {
+    repo,
+    branch,
+    folder,
+    format: 'base64' as const,
+    file: {
+      filename: file.name,
+      data: ''
+    }
+  }
 
-    const changes = view.state.changeByRange((range) => {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = async (ev) => {
+      const dataUrl = ev.target?.result?.toString() || ''
+      const base64 = dataUrl.split(',')[1]
+      body.file.data = base64
+      const file = await uploadImage(token, body)
+      const url = file.content.download_url
+      resolve(url)
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+export function writeMarkup(view: EditorView, markup: string, mode: 'insert' | 'replace') {
+  const changes = view.state.changeByRange((range) => {
+    if (mode === 'replace') {
       return {
         range,
         changes: [{
@@ -91,15 +117,32 @@ export function insertImage(view: EditorView, file: File) {
           insert: markup
         }]
       }
-    })
-    view.dispatch(
-      view.state.update(
-        changes,
-      )
-    )
+    }
 
-    insertBlankLine(view)
-    cursorLineDown(view)
+    return {
+      range: EditorSelection.range(range.from, range.from + markup.length),
+      changes: [{
+        from: range.from,
+        insert: markup
+      }]
+    }
   })
-  reader.readAsDataURL(file)
+  view.dispatch(
+    view.state.update(
+      changes,
+    )
+  )
+}
+
+export async function insertImage(view: EditorView, file: File, projectId: string) {
+  writeMarkup(view, `![${file.name}](Uploading ${file.name}...) `, 'insert')
+  view.dispatch({
+    effects: EditableComparment.reconfigure(EditorView.editable.of(false))
+  })
+
+  const url = await uploadImageAsBase64(file, projectId)
+  writeMarkup(view, `![${file.name}](${url}) `, 'replace')
+  view.dispatch({
+    effects: EditableComparment.reconfigure(EditorView.editable.of(true))
+  })
 }
