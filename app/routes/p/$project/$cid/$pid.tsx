@@ -32,7 +32,7 @@ export const meta: MetaFunction = ({ data }) => {
 export const loader: LoaderFunction = async ({ params, request }) => {
   const { token } = await requireUserSession(request)
   const collectionId = params.cid
-  const postFile = params.pid
+  const filename = params.pid
   const project = await getProject(Number(params.project))
   const config = await getProjectConfig(token, project)
   const collection = config.collections.find((c) => c.id === collectionId)
@@ -42,7 +42,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   }
 
   const folder = collection.route.replace(/^\//, '').replace(/\/$/, '')
-  const isNew = postFile === 'new'
+  const isNew = filename === 'new'
 
   const blankFile = {
     sha: '',
@@ -55,7 +55,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     isNew ? Promise.resolve(blankFile) : getFileContent(token, {
       repo: project.repo,
       branch: project.branch,
-      file: `${folder}/${postFile}`
+      file: `${folder}/${filename}`
     }),
     getRepoDetails(token, project.repo)
   ])
