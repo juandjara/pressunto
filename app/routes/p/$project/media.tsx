@@ -1,3 +1,4 @@
+import Spinner from "@/components/Spinner"
 import FileActionsMenu from "@/components/file-actions/FileActionsMenu"
 import FileActionsModal from "@/components/file-actions/FileActionsModal"
 import type { TreeItem} from "@/lib/github"
@@ -138,7 +139,7 @@ export default function Media() {
       url: p.url,
     }))
 
-  const allImages = [...images, ...notExistingPreviews]
+  const allImages = [...notExistingPreviews, ...images]
   const [modalData, setModalData] = useState<ModalData | null>(null)
 
   const data = useActionData()
@@ -195,12 +196,31 @@ function ImageCard({
   setModalData: (data: ModalData) => void
 }) {
   return (
-    <li key={file.sha} className={clsx('group relative rounded-md border w-[250px]', borderColor, { 'opacity-50': !file.sha })}>
+    <li
+      key={file.sha}
+      className={
+        clsx(
+          borderColor,
+          'group relative rounded-md border w-[250px]',
+          { 'opacity-40 pointer-events-none': !file.sha }
+        )
+      }
+    >
       <Link to={`./${file.sha}`} className="block relative">
-        <img loading="lazy" className="object-contain py-2 mx-auto w-40 h-40" src={`${baseURL}/${file.path}`} aria-labelledby={file.sha} />
+        {!file.sha && (
+          <div className="absolute mb-8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <Spinner className="h-12 w-12" />
+          </div>
+        )}
+        <img
+          loading="lazy"
+          className="object-contain py-2 mx-auto w-40 h-40"
+          src={file.sha ? `${baseURL}/${file.path}` : file.url}
+          aria-labelledby={file.sha || ''}
+        />
         <div className="p-2 rounded-b-md flex items-center gap-2 bg-slate-100 dark:bg-slate-700">
           <PhotoIcon className={clsx('flex-shrink-0', iconCN.big)} />
-          <p id={file.sha} className="text-lg truncate">{getBasename(file.path)}</p>
+          <p id={file.sha || ''} className="text-lg truncate">{getBasename(file.path)}</p>
         </div>
       </Link>
       <FileActionsMenu file={file} setModalData={setModalData} />
