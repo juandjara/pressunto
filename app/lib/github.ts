@@ -28,13 +28,13 @@ async function callGithubAPI(token: string, url: fetchURL, options?: fetchOption
   return { data, headers: res.headers }
 }
 
-type getAccessTokenParams = {
+type GetAccessTokenParams = {
   code: string
   clientID: string
   clientSecret: string
 }
 
-export async function getAccessToken({ code, clientID, clientSecret }: getAccessTokenParams) {
+export async function getAccessToken({ code, clientID, clientSecret }: GetAccessTokenParams) {
   const url = `${OAUTH_URL}/access_token`
   const body = {
     client_id: clientID,
@@ -85,9 +85,24 @@ export async function getCurrentUser(token: string) {
   } as User
 }
 
+type Org = {
+  login: string
+  id: number
+  node_id: string
+  url: string
+  repos_url: string
+  events_url: string
+  hooks_url: string
+  issues_url: string
+  members_url: string
+  public_members_url: string
+  avatar_url: string
+  description: string
+}
+
 export async function getOrgs(token: string) {
-  const { data } = await callGithubAPI(token, `/user/orgs`)
-  return data.map((o: any) => o.login) as string[]
+  const { data } = await callGithubAPI(token, `/user/orgs`) as { data: Org[] }
+  return data.map((o) => o.login)
 }
 
 export type RepoItem = {
@@ -147,9 +162,9 @@ export async function searchRepos(token: string, {
   const fullUrl = new URL(url.toString() + `&q=${q}`)
   const { data, headers } = await callGithubAPI(token, fullUrl)
 
-  data.items = data.items
-    .filter((r: any) => r.permissions.push) // keep only repos you have write access to
-    .map((r: any) => ({ // keep only relevant data
+  data.items = (data.items as (RepoItem & { permissions: Permissions })[])
+    .filter((r) => r.permissions.push) // keep only repos you have write access to
+    .map((r) => ({ // keep only relevant fields
       name: r.name,
       full_name: r.full_name,
       description: r.description,
@@ -188,10 +203,20 @@ export async function getRepoDetails(token: string, repo: string) {
   }
 }
 
-export async function getRepoBranches(token: string, repo: string, selectedBranch?: string) {
-  const { data } = await callGithubAPI(token, `/repos/${repo}/branches?per_page=100`)
-  const branches = data.map((b: any) => b.name) as string[]
-  return selectedBranch ? Array.from(new Set([selectedBranch, ...branches])) : branches
+export type TreeItem = {
+  mode: FileMode
+  path: string
+  sha: string
+  type: 'tree' | 'blob'
+  size: number // field not used anywhere in the app
+  url: string // field not used anywhere in the app
+}
+
+type TreeResponse = {
+  sha: string
+  url: string
+  tree: TreeItem[]
+  truncated: boolean
 }
 
 export async function getRepoFiles(token: string, repo: string, branch?: string) {
@@ -203,35 +228,29 @@ export async function getRepoFiles(token: string, repo: string, branch?: string)
   const { data: repoDetails } = await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch}`)
 
   const treeSha = repoDetails.object.sha
-  const { data: files } = await callGithubAPI(token, `/repos/${repo}/git/trees/${treeSha}?recursive=true`)
+  const res = await callGithubAPI(token, `/repos/${repo}/git/trees/${treeSha}?recursive=true`)
+  const data = res.data as TreeResponse
 
-  files.tree.sort((a: any, b: any) => {
+
+  data.tree.sort((a, b) => {
     if (a.type === 'blob' && b.type === 'tree') return 1
     else if (a.type === 'tree' && b.type === 'blob') return -1
     else return a.path < b.path ? -1 : 1
   })
 
-  return files.tree as TreeItem[]
-}
-
-export type TreeItem = {
-  mode: FileMode
-  path: string
-  sha: string
-  type: 'tree' | 'blob'
-  url: string
+  return data.tree
 }
 
 export type ParsedFile = ReturnType<typeof parseGithubFile>
 
-type FileRequest = {
+type GetContentParams = {
   repo: string
   file: string
   isNew?: boolean
   branch?: string
 }
 
-export async function getFileContent(token: string, { repo, file, isNew = false, branch }: FileRequest) {
+export async function getFileContent(token: string, { repo, file, isNew = false, branch }: GetContentParams) {
   if (isNew) {
     return null
   }
@@ -244,6 +263,11 @@ export async function getFileContent(token: string, { repo, file, isNew = false,
   const fileURL = `/repos/${repo}/contents/${file}?ref=${branch}`
   const { data } = await callGithubAPI(token, fileURL)
 
+  /*
+    if encoding is none,
+    it means it is too big to be returned inside the json response
+    so we need to fetch it as raw text
+  */
   if (data.encoding === 'none') {
     const res = await fetch(API_URL + fileURL, {
       headers: new Headers({
@@ -271,10 +295,6 @@ export async function saveFile(token: string, params: SaveFileParams) {
 
   const url = `/repos/${repo}/contents/${encodeURIComponent(path)}`
   const body = { message, sha, branch, content: b64EncodeUnicode(content) }
-  if (!body.content) {
-    // @ts-ignore
-    delete body.content
-  }
 
   const { data } = await callGithubAPI(token, url, { method: 'PUT', body: JSON.stringify(body) })
   return data
@@ -305,14 +325,42 @@ export async function createTree(token: string, repo: string, tree: TreeCreatePa
   return data
 }
 
+type BranchReference = {
+  ref: string
+  node_id: string
+  url: string
+  object: {
+    sha: string
+    type: string
+    url: string
+  }
+}
+
 export async function getBranch(token: string, repo: string, branch: string) {
-  const { data } = await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch || 'master'}`)
+  const url = `/repos/${repo}/git/refs/heads/${branch || 'master'}`
+  const { data } = await callGithubAPI(token, url) as { data: BranchReference }
   return data
 }
 
+type BranchListItem = {
+  name: string
+  commit: {
+    sha: string
+    url: string
+  }
+  protected: boolean
+  protection: {
+    required_status_checks: {
+      enforcement_level: string
+      contexts: string[]
+    }
+  }
+  protection_url: string
+}
+
 export async function getBranches(token: string, repo: string) {
-  const { data } = await callGithubAPI(token, `/repos/${repo}/branches`)
-  return data as any[]
+  const { data } = await callGithubAPI(token, `/repos/${repo}/branches`) as { data: BranchListItem[] }
+  return data
 }
 
 type CommitFilesParams = {
@@ -405,5 +453,3 @@ export async function deleteFile(token: string, params: DeleteFileParams) {
   })
   return commit
 }
-
-export const CONTENT_BASE_URL = 'https://raw.githubusercontent.com'
