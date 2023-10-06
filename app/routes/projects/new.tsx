@@ -1,4 +1,4 @@
-import { Form, Link, useActionData, useFetcher, useLoaderData, useSearchParams, useTransition } from "@remix-run/react"
+import { Form, Link, useActionData, useFetcher, useLoaderData, useNavigation, useSearchParams } from "@remix-run/react"
 import { buttonCN, inputCN, labelCN } from '@/lib/styles'
 import ComboBox from "@/components/ComboBox"
 import type { RepoItem } from "@/lib/github"
@@ -60,8 +60,8 @@ export async function loader({ request }: LoaderArgs) {
 export default function NewProject() {
   const { orgs, user } = useLoaderData<LoaderData>()
   const fetcher = useFetcher<RepoItem[]>()
-  const transition = useTransition()
-  const busy = transition.state === 'submitting'
+  const navigation = useNavigation()
+  const busy = navigation.state !== 'idle'
   const actionData = useActionData<ActionData>()
   const errors = actionData?.errors
   const selectRef = useRef<HTMLInputElement>(null)
