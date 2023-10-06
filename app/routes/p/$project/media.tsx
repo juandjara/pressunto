@@ -1,18 +1,17 @@
 import Spinner from "@/components/Spinner"
 import FileActionsMenu from "@/components/file-actions/FileActionsMenu"
 import FileActionsModal from "@/components/file-actions/FileActionsModal"
-import type { TreeItem} from "@/lib/github"
-import { FileMode, deleteFile, getRepoDetails, getRepoFiles, renameFile } from "@/lib/github"
-import { getBasename, getDirname } from "@/lib/pathUtils"
-import { getProject, getProjectConfig } from "@/lib/projects.server"
-import { requireUserSession, setFlashMessage } from "@/lib/session.server"
+import type { TreeItem } from "@/lib/github"
+import { FileMode, getRepoDetails, getRepoFiles } from "@/lib/github"
+import { getBasename } from "@/lib/pathUtils"
+import { getProject } from "@/lib/projects.server"
+import { requireUserSession } from "@/lib/session.server"
 import { borderColor, buttonCN, iconCN } from "@/lib/styles"
-import { uploadImage } from "@/lib/uploadImage"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { CloudArrowUpIcon, PhotoIcon } from "@heroicons/react/20/solid"
-import type { ActionArgs, LoaderArgs, UploadHandlerPart } from "@remix-run/node"
-import { json, unstable_composeUploadHandlers, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node"
-import { Form, Link, Outlet, useActionData, useFetcher, useLoaderData } from "@remix-run/react"
+import type { LoaderArgs } from "@remix-run/node"
+import { json } from "@remix-run/node"
+import { Link, Outlet, useActionData, useFetcher, useLoaderData, useParams, useRevalidator } from "@remix-run/react"
 import clsx from "clsx"
 import isBinaryPath from "is-binary-path"
 import type { ChangeEvent } from "react"
@@ -28,91 +27,6 @@ export async function loader({ params, request }: LoaderArgs) {
   const repo = project.repo
 
   return json({ tree, branch, repo })
-}
-
-export async function action({ params, request }: ActionArgs) {
-  const { token } = await requireUserSession(request)
-  const project = await getProject(Number(params.project))
-  const conf = await getProjectConfig(token, project)
-  const folder = conf.mediaFolder === '/' ? '' : conf.mediaFolder || ''
-
-  // differiantiate between "file upload" and "file edit / delete" using http method to not affect the reading of form data
-
-  // upload file
-  if (request.method.toLowerCase() === 'post') {
-    async function githubUploadHandler({ name, contentType, data, filename }: UploadHandlerPart) {
-      if (name !== 'file') return
-      const file = await uploadImage(token, {
-        repo: project.repo,
-        branch: project.branch,
-        folder,
-        file: {
-          contentType,
-          data,
-          filename: filename!,
-        }
-      })
-      return file.content.path
-    }
-  
-    const uploadHandler = unstable_composeUploadHandlers(
-      githubUploadHandler,
-      unstable_createMemoryUploadHandler(),
-    )
-  
-    const formData = await unstable_parseMultipartFormData(request, uploadHandler)
-    const files = formData.getAll('file') as string[]
-    const cookie = await setFlashMessage(request, `Pushed commit "upload image ${files} to ${folder || 'root folder'}" successfully`)
-    return json({ ok: true }, { headers: { 'Set-Cookie': cookie }})
-  }
-
-  // rename file or move to other folder
-  if (request.method.toLowerCase() === 'put') {
-    const fd = await request.formData()
-    const sha = fd.get('sha') as string
-    const path = fd.get('path') as string
-    const operation = fd.get('operation') as 'move' | 'rename'
-
-    let newPath = ''
-    if (operation === 'move') {
-      const folder = fd.get('folder') as string
-      newPath = `${folder}/${getBasename(path)}`
-    }
-    if (operation === 'rename') {
-      const name = fd.get('name') as string
-      newPath = `${getDirname(path)}/${name}`
-    }
-
-    const message = `Move file ${path} to ${newPath}`
-    await renameFile(token, {
-      repo: project.repo,
-      branch: project.branch,
-      sha,
-      path,
-      newPath,
-      message
-    })
-
-    const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
-    return json({ ok: true }, { headers: { 'Set-Cookie': cookie }})
-  }
-
-  // delete file
-  if (request.method.toLowerCase() === 'delete') {
-    const fd = await request.formData()
-    const path = fd.get('path') as string
-
-    const message = `Delete file ${path}`
-    await deleteFile(token, {
-      branch: project.branch,
-      repo: project.repo,
-      message,
-      path,
-    })
-
-    const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
-    return json({ ok: true }, { headers: { 'Set-Cookie': cookie }})
-  }
 }
 
 type ModalData = {
@@ -235,14 +149,19 @@ type FilePreview = {
 
 function ImageUpload({ onChange }: { onChange: (previews: FilePreview[]) => void }) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const { project } = useParams()
+  const actionURL = `/api/files/${project}`
+  const revalidator = useRevalidator()
   const fetcher = useFetcher()
 
+  useEffect(() => {
+    if (fetcher.data && fetcher.state === 'idle' && revalidator.state === 'idle')  {
+      revalidator.revalidate()
+    }
+  }, [revalidator, fetcher])
+
   async function handleFileChange(ev: ChangeEvent<HTMLInputElement>) {
-    fetcher.submit(ev.currentTarget.form, {
-      method: 'post',
-      encType: 'multipart/form-data',
-      replace: true,
-    })
+    fetcher.submit(ev.currentTarget.form, { replace: true })
     const files = ev.currentTarget.files || []
     const promises = Array.from([...files]).map((file) => {
       return new Promise<FilePreview>((resolve, reject) => {
@@ -261,7 +180,7 @@ function ImageUpload({ onChange }: { onChange: (previews: FilePreview[]) => void
   }
 
   return (
-    <Form method="post" encType="multipart/form-data">
+    <fetcher.Form action={actionURL} method="post" encType="multipart/form-data">
       <input
         ref={inputRef}
         onChange={handleFileChange}
@@ -279,6 +198,6 @@ function ImageUpload({ onChange }: { onChange: (previews: FilePreview[]) => void
         <CloudArrowUpIcon className='w-5 h-5' />
         <p>Upload new images</p>
       </button>
-    </Form>
+    </fetcher.Form>
   )
 }

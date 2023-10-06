@@ -1,10 +1,11 @@
 import type { TreeItem } from "@/lib/github"
-import { Form, useParams, useTransition } from "@remix-run/react"
+import { useFetcher, useParams } from "@remix-run/react"
 import Modal from "../Modal"
 import { ComboBoxLocal } from "../ComboBoxLocal"
 import { buttonCN, inputCN, labelCN } from "@/lib/styles"
 import { getBasename, getDirname } from "@/lib/pathUtils"
 import clsx from "clsx"
+import { useEffect } from "react"
 
 const modalTitle = {
   move: 'Move file to another folder',
@@ -37,13 +38,20 @@ export default function FileActionsModal({
   folders: TreeItem[]
 }) {
   const { project } = useParams()
-  const actionURL = `/p/${project}/media`
-  const transition = useTransition()
-  const busy = transition.state !== 'idle'
+  const actionURL = `/api/files/${project}`
+  const fetcher = useFetcher()
+  const busy = fetcher.state !== 'idle'
+
+  useEffect(() => {
+    if (fetcher.data && fetcher.state === 'idle')  {
+      onClose()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcher])
 
   return (
     <Modal open onClose={onClose} title={modalTitle[modalData.operation]}>
-      <Form action={actionURL} replace method={modalData.operation === 'delete' ? 'delete' : 'put'}>
+      <fetcher.Form action={actionURL} replace method={modalData.operation === 'delete' ? 'delete' : 'put'}>
         <input type="hidden" name="sha" value={modalData.file.sha} />
         <input type="hidden" name="path" value={modalData.file.path} />
         {modalData?.operation === 'move' && (
@@ -98,7 +106,7 @@ export default function FileActionsModal({
             {busy ? modalBusyLabel[modalData.operation] : modalConfirmLabel[modalData.operation]}
           </button>
         </div>
-      </Form>
+      </fetcher.Form>
     </Modal>
   )
 }
