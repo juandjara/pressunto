@@ -1,4 +1,4 @@
-import { searchRepos } from "@/lib/github"
+import { searchRepos } from "@/lib/github.search"
 import { requireUserSession } from "@/lib/session.server"
 import type { LoaderArgs } from "@remix-run/node"
 import { json } from "@remix-run/node"

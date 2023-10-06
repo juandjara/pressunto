@@ -1,3 +1,5 @@
+import { callGithubAPI } from "./github"
+
 type FileUploadParams = {
   repo: string
   branch: string
@@ -36,30 +38,4 @@ export async function uploadImage(token: string, params: FileUploadParams) {
   }
   const { data: file } = await callGithubAPI(token, url, { method: 'PUT', body: JSON.stringify(body) })
   return file
-}
-
-const API_URL = 'https://api.github.com'
-const ACCEPT_HEADER = 'application/vnd.github+json'
-
-type fetchURL = Parameters<typeof fetch>[0]
-type fetchOptions = Parameters<typeof fetch>[1]
-
-async function callGithubAPI(token: string, url: fetchURL, options?: fetchOptions) {
-  const fullUrl = typeof url === 'string' ? API_URL + url : url
-  const res = await fetch(fullUrl, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': ACCEPT_HEADER,
-      'Authorization': `Bearer ${token}`,
-      ...options?.headers
-    }
-  })
-
-  if (!res.ok) {
-    throw res
-  }
-
-  const data = await res.json()
-  return { data, headers: res.headers }
 }

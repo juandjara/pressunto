@@ -1,7 +1,6 @@
 import { Form, Link, useActionData, useFetcher, useLoaderData, useNavigation, useSearchParams } from "@remix-run/react"
 import { buttonCN, inputCN, labelCN } from '@/lib/styles'
 import ComboBox from "@/components/ComboBox"
-import type { RepoItem } from "@/lib/github"
 import { getOrgs } from "@/lib/github"
 import { useEffect, useMemo, useRef, useState } from "react"
 import debounce from 'debounce'
@@ -11,6 +10,7 @@ import { requireUserSession } from "@/lib/session.server"
 import { createConfigFile, createProject, getIdForRepo } from "@/lib/projects.server"
 import InlineCode from "@/components/InlineCode"
 import metaTitle from "@/lib/metaTitle"
+import type { RepoItem } from "@/lib/github.search"
 
 const DEBOUNCE_TIME = 300
 
