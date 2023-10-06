@@ -166,7 +166,10 @@ export default function Media() {
           This page lists all the images in your repository. You can upload new images or move, rename or delete existing images.
         </p>
       </header>
-      <ImageUpload mediaFolder={mediaFolder} onChange={setPreviews} />
+      <ImageUpload onChange={setPreviews} />
+      <p className="text-slate-500 dark:text-slate-300 text-sm mt-1">
+        Images will be uploaded to your media folder <code>{mediaFolder}</code>. You can change this folder in <Link className="underline" to="../settings">project settings</Link>.
+      </p>
       <Outlet />
       <ul className="my-8 flex items-start flex-wrap gap-4">
         {allImages.map(f => (
@@ -210,13 +213,7 @@ type FilePreview = {
   name: string
 }
 
-function ImageUpload({
-  mediaFolder,
-  onChange
-}: {
-  mediaFolder?: string
-  onChange: (previews: FilePreview[]) => void
-}) {
+function ImageUpload({ onChange }: { onChange: (previews: FilePreview[]) => void }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const fetcher = useFetcher()
 
@@ -262,9 +259,6 @@ function ImageUpload({
         <CloudArrowUpIcon className='w-5 h-5' />
         <p>Upload new images</p>
       </button>
-      <p className="text-slate-500 dark:text-slate-300 text-sm mt-1">
-        Images will be uploaded to your media folder <code>{mediaFolder}</code>. You can change this folder in <Link className="underline" to="../settings">project settings</Link>.
-      </p>
     </Form>
   )
 }
