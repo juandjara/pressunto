@@ -9,7 +9,7 @@ import { EllipsisVerticalIcon, FolderOpenIcon, PencilIcon, TrashIcon } from "@he
 export default function FileActionsMenu({
   file,
   setModalData,
-  wrapperCN = 'z-20 absolute top-0 right-0',
+  wrapperCN = 'z-20 absolute top-0 left-0',
   hasGroupTransition = true,
   menuPosition = 'top-full left-0',
 }: {
