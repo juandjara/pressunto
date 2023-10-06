@@ -1,18 +1,17 @@
-import { ComboBoxLocal } from "@/components/ComboBoxLocal"
-import Modal from "@/components/Modal"
+import FileActionsMenu from "@/components/file-actions/FileActionsMenu"
+import FileActionsModal from "@/components/file-actions/FileActionsModal"
 import type { TreeItem} from "@/lib/github"
 import { FileMode, deleteFile, getRepoDetails, getRepoFiles, renameFile } from "@/lib/github"
 import { getBasename, getDirname } from "@/lib/pathUtils"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
-import { borderColor, buttonCN, iconCN, inputCN, labelCN } from "@/lib/styles"
+import { borderColor, buttonCN, iconCN } from "@/lib/styles"
 import { uploadImage } from "@/lib/uploadImage"
 import useProjectConfig from "@/lib/useProjectConfig"
-import { Menu, Transition } from "@headlessui/react"
-import { CloudArrowUpIcon, EllipsisVerticalIcon, FolderOpenIcon, PencilIcon, PhotoIcon, TrashIcon } from "@heroicons/react/20/solid"
+import { CloudArrowUpIcon, PhotoIcon } from "@heroicons/react/20/solid"
 import type { ActionArgs, LoaderArgs, UploadHandlerPart } from "@remix-run/node"
 import { json, unstable_composeUploadHandlers, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node"
-import { Form, Link, Outlet, useActionData, useFetcher, useLoaderData, useTransition } from "@remix-run/react"
+import { Form, Link, Outlet, useActionData, useFetcher, useLoaderData } from "@remix-run/react"
 import clsx from "clsx"
 import isBinaryPath from "is-binary-path"
 import type { ChangeEvent } from "react"
@@ -120,22 +119,6 @@ type ModalData = {
   file: TreeItem
 }
 
-const modalTitle = {
-  move: 'Move file to another folder',
-  rename: 'Rename file',
-  delete: 'Delete file'
-}
-const modalConfirmLabel = {
-  move: 'Move',
-  rename: 'Rename',
-  delete: 'Delete'
-}
-const modalBusyLabel = {
-  move: 'Moving...',
-  rename: 'Renaming...',
-  delete: 'Deleting...'
-}
-
 export default function Media() {
   const conf = useProjectConfig()
   const mediaFolder = conf.mediaFolder === '/' ? '' : conf.mediaFolder
@@ -158,9 +141,6 @@ export default function Media() {
   const allImages = [...images, ...notExistingPreviews]
   const [modalData, setModalData] = useState<ModalData | null>(null)
 
-  const transition = useTransition()
-  const busy = transition.state !== 'idle'
-
   const data = useActionData()
 
   useEffect(() => {
@@ -176,64 +156,7 @@ export default function Media() {
   return (
     <div className="p-4 relative">
       {modalData && (
-        <Modal open onClose={closeModal} title={modalTitle[modalData.operation]}>
-          <Form replace method={modalData.operation === 'delete' ? 'delete' : 'put'}>
-            <input type="hidden" name="sha" value={modalData.file.sha} />
-            <input type="hidden" name="path" value={modalData.file.path} />
-            {modalData?.operation === 'move' && (
-              <div>
-                <label htmlFor="folder" className={labelCN}>New folder for the file</label>
-                <ComboBoxLocal<TreeItem>
-                  name='folder'
-                  options={folders}
-                  labelKey='path'
-                  valueKey='path'
-                  defaultValue={getDirname(modalData.file.path)}
-                />
-              </div>
-            )}
-            {modalData?.operation === 'rename' && (
-              <div className="my-4">
-                <label htmlFor="name" className={labelCN}>New name for the file</label>
-                <input
-                  required
-                  type="text"
-                  name="name"
-                  defaultValue={getBasename(modalData.file.path)}
-                  className={inputCN}
-                />
-              </div>
-            )}
-            {modalData?.operation === 'delete' && (
-              <div>
-                <p className="text-slate-600 dark:text-slate-200 text-lg max-w-prose my-4">
-                  Are you sure you want to delete the file <code>{modalData.file.path}</code> ?
-                </p>
-              </div>
-            )}
-            <div className="flex items-center justify-end gap-2 mt-4">
-              <button
-                type="button"
-                onClick={closeModal}
-                className={`${buttonCN.normal} ml-3 hover:bg-slate-100 dark:hover:bg-slate-100/25`}>
-                Cancel
-              </button>
-              <button
-                type="submit"
-                name="operation"
-                value={modalData.operation}
-                disabled={busy}
-                className={
-                  clsx({
-                    [buttonCN.slate]: modalData.operation !== 'delete',
-                    [buttonCN.deleteBold]: modalData.operation === 'delete'
-                  }, buttonCN.normal)
-                }>
-                {busy ? modalBusyLabel[modalData.operation] : modalConfirmLabel[modalData.operation]}
-              </button>
-            </div>
-          </Form>
-        </Modal>
+        <FileActionsModal modalData={modalData} onClose={closeModal} folders={folders} />
       )}
       <header className="mb-8">
         <h2 className="font-medium text-4xl text-slate-500 dark:text-slate-300 mt-4 mb-2">
@@ -268,28 +191,6 @@ function ImageCard({
   file: TreeItem
   setModalData: (data: ModalData) => void
 }) {
-  const transition = useTransition()
-  const busy = transition.state !== 'idle'
-
-  function handleMove() {
-    setModalData({
-      operation: 'move',
-      file
-    })
-  }
-  function handleRename() {
-    setModalData({
-      operation: 'rename',
-      file
-    })
-  }
-  function handleDelete() {
-    setModalData({
-      operation: 'delete',
-      file
-    })
-  }
-
   return (
     <li key={file.sha} className={clsx('group relative rounded-md border w-[250px]', borderColor, { 'opacity-50': !file.sha })}>
       <Link to={`./${file.sha}`} className="block relative">
@@ -299,66 +200,7 @@ function ImageCard({
           <p id={file.sha} className="text-lg truncate">{getBasename(file.path)}</p>
         </div>
       </Link>
-      <Menu as="div" className="z-20 absolute top-0 left-0">
-        {({ open }) => (
-          <>
-            <Menu.Button
-              as="button"
-              type="button"
-              title="Open actions menu"
-              aria-label="Open actions menu"
-              className={clsx({ 'md:opacity-0': !open }, 'group-hover:opacity-100 transition-opacity p-2 rounded-md', buttonCN.cancel)}
-            >
-              <EllipsisVerticalIcon className="w-6 h-6" />
-            </Menu.Button> 
-            <Transition
-              show={open}
-              enter="transition transform duration-100 ease-out"
-              enterFrom="scale-y-50 opacity-0"
-              enterTo="scale-y-100 opacity-100"
-              leave="transition transform duration-100 ease-out"
-              leaveFrom="scale-y-100 opacity-100"
-              leaveTo="scale-y-50 opacity-0">
-              <Menu.Items
-                static
-                className="w-72 rounded-md shadow-lg absolute top-full left-0 ring-1 ring-black ring-opacity-5">
-                <div className="rounded-md text-left py-2 bg-white dark:bg-slate-600">
-                  <Menu.Item
-                    as="button"
-                    type="button"
-                    disabled={busy}
-                    onClick={handleMove}
-                    className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
-                  >
-                    <FolderOpenIcon className="w-5 h-5" />
-                    <span>Move to another folder</span>
-                  </Menu.Item>
-                  <Menu.Item
-                    as="button"
-                    type="button"
-                    disabled={busy}
-                    onClick={handleRename}
-                    className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
-                  >
-                    <PencilIcon className="w-5 h-5" />
-                    <span>Rename file</span>
-                  </Menu.Item>
-                  <Menu.Item
-                    as="button"
-                    type='button'
-                    disabled={busy}
-                    onClick={handleDelete}
-                    className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.delete, buttonCN.normal)}
-                  >
-                    <TrashIcon className="w-5 h-5" />
-                    <p>Delete file</p>
-                  </Menu.Item>
-                </div>
-              </Menu.Items>
-            </Transition>
-          </>
-        )}
-      </Menu>
+      <FileActionsMenu file={file} setModalData={setModalData} />
     </li>
   )
 }
