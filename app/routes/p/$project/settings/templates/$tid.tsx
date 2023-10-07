@@ -6,12 +6,13 @@ import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import slugify from "@/lib/slugify"
 import { buttonCN, checkboxCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
+import type { DragEndEvent, DragStartEvent} from "@dnd-kit/core"
 import { closestCenter, DndContext, DragOverlay, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { ArrowsUpDownIcon, Bars2Icon, PencilIcon, PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
 import type { ActionFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
-import { Form, useNavigate, useParams, useSearchParams, useTransition } from "@remix-run/react"
+import { Form, useNavigate, useParams, useSearchParams, useNavigation } from "@remix-run/react"
 import clsx from "clsx"
 import { useState } from "react"
 import { createPortal } from "react-dom"
@@ -36,7 +37,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const operation = formData.get('operation') as string
 
-  let id = slugify(name)
+  const id = slugify(name)
 
   const foundTemplate = config.templates.find((t) => t.id === params.tid)
   if (foundTemplate) {
@@ -78,7 +79,7 @@ export default function EditTemplate() {
   const template = config.templates.find((t) => t.id === templateId)
   const [fields, setFields] = useState(template?.fields || [])
   const [mode, setMode] = useState<LIST_MODE>(LIST_MODE.EDIT)
-  const transition = useTransition()
+  const transition = useNavigation()
   const busy = transition.state === 'submitting'
 
   function closeModal() {
@@ -174,7 +175,7 @@ type FieldListProps = {
 }
 
 function FieldReorder({ fields, setFields }: FieldListProps) {
-  const [activeId, setActiveId] = useState(null)
+  const [activeId, setActiveId] = useState<string | number | null>(null)
   const activeItem = fields.find(f => f.field === activeId)
 
   const sensors = useSensors(
@@ -182,14 +183,14 @@ function FieldReorder({ fields, setFields }: FieldListProps) {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
-  function handleDragStart(ev: any) {
+  function handleDragStart(ev: DragStartEvent) {
     setActiveId(ev.active.id)
   }
 
-  function handleDragEnd(ev: any) {
-    if (ev.active.id !== ev.over.id) {
+  function handleDragEnd(ev: DragEndEvent) {
+    if (ev.active.id !== ev.over?.id) {
       const oldIndex = fields.findIndex(f => f.field === ev.active.id)
-      const newIndex = fields.findIndex(f => f.field === ev.over.id)
+      const newIndex = fields.findIndex(f => f.field === ev.over?.id)
       const newFields = arrayMove(fields, oldIndex, newIndex)
       setFields(newFields)
     }
