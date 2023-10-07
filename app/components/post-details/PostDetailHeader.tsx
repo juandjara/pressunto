@@ -1,29 +1,60 @@
 import type { CollectionFile } from "@/lib/projects.server"
 import { buttonCN, iconCN, inputCN } from "@/lib/styles"
-import { useNavigate, useParams, useTransition } from "@remix-run/react"
+import { useNavigate, useParams, useNavigation } from "@remix-run/react"
 import { ArrowLeftIcon, ArrowUpTrayIcon, ArrowUturnLeftIcon, DocumentIcon, FolderOpenIcon, TrashIcon } from "@heroicons/react/24/outline"
 import { EllipsisVerticalIcon } from "@heroicons/react/24/solid"
 import { Menu, Transition } from "@headlessui/react"
 import clsx from "clsx"
 import { getBasename } from "@/lib/pathUtils"
+import type { FileModalData } from "../file-actions/FileActionsModal"
+import type { TreeItem } from "@/lib/github"
+import { FileMode } from "@/lib/github"
+import { PencilIcon } from "@heroicons/react/20/solid"
+import { useState } from "react"
+import FileActionsModal from "../file-actions/FileActionsModal"
+import useProjectConfig from "@/lib/useProjectConfig"
 
-export default function PostDetailsHeader({ file, isDraft }: { file: CollectionFile, isDraft: boolean }) {
-  const transition = useTransition()
+export default function PostDetailsHeader({
+  file,
+  isDraft,
+}: {
+  file: CollectionFile,
+  isDraft: boolean
+}) {
+  const transition = useNavigation()
   const busy = transition.state === 'submitting'
   const navigate = useNavigate()
   const { project, cid, pid } = useParams()
+  const conf = useProjectConfig()
   const backLink = `/p/${project}/${cid}`
   const isNew = pid === 'new'
+  const [modalData, setModalData] = useState<FileModalData | null>(null)
+  const folders = conf.collections.map((c) => {
+    return {
+      mode: FileMode.TREE,
+      path: c.route,
+      sha: c.id,
+      type: 'tree' as const
+    } as TreeItem
+  })
 
-  function handleDelete(ev: React.MouseEvent) {
-    const isDelete = (ev.target as HTMLButtonElement).value === 'delete'
-    if (isDelete && !window.confirm('¿Are you sure you want to delete this post?')) {
-      ev.preventDefault()
-    }
+  function openModal(operation: FileModalData['operation']) {
+    setModalData({
+      operation,
+      file: {
+        mode: FileMode.FILE,
+        path: file.path,
+        sha: file.id,
+        type: 'blob' as const,
+      }
+    })
   }
 
   return (
     <div className="mb-2 flex items-center gap-2">
+      {modalData && (
+        <FileActionsModal folders={folders} modalData={modalData} onClose={() => setModalData(null)} />
+      )}
       <button
         onClick={() => navigate(backLink)}
         title="Back"
@@ -80,7 +111,18 @@ export default function PostDetailsHeader({ file, isDraft }: { file: CollectionF
                   <Menu.Item
                     as="button"
                     type="button"
-                    disabled={busy || isNew}
+                    disabled={!isDraft || busy}
+                    onClick={() => window.location.reload()}
+                    className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
+                  >
+                    <ArrowUturnLeftIcon className="w-5 h-5" />
+                    <span>Discard unsaved changes</span>
+                  </Menu.Item>
+                    <Menu.Item
+                    as="button"
+                    type="button"
+                    disabled={busy}
+                    onClick={() => openModal('move')}
                     className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
                   >
                     <FolderOpenIcon className="w-5 h-5" />
@@ -89,20 +131,18 @@ export default function PostDetailsHeader({ file, isDraft }: { file: CollectionF
                   <Menu.Item
                     as="button"
                     type="button"
-                    disabled={!isDraft || busy}
-                    onClick={() => window.location.reload()}
+                    disabled={busy || isNew}
+                    onClick={() => openModal('rename')}
                     className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
                   >
-                    <ArrowUturnLeftIcon className="w-5 h-5" />
-                    <span>Discard unsaved changes</span>
+                    <PencilIcon className="w-5 h-5" />
+                    <span>Rename file</span>
                   </Menu.Item>
                   <Menu.Item
                     as="button"
-                    type='submit'
-                    name='_op'
-                    value='delete'
+                    type='button'
                     disabled={busy || isNew}
-                    onClick={handleDelete}
+                    onClick={() => openModal('delete')}
                     className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.delete, buttonCN.normal)}
                   >
                     <TrashIcon className="w-5 h-5" />

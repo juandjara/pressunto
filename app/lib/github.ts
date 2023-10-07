@@ -123,7 +123,7 @@ export type TreeItem = {
   path: string
   sha: string
   type: 'tree' | 'blob'
-  url: string
+  url?: string
 }
 
 type TreeResponse = {
