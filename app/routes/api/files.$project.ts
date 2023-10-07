@@ -4,13 +4,14 @@ import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { uploadImage } from "@/lib/uploadImage"
 import type { ActionArgs, UploadHandlerPart } from "@remix-run/node"
-import { json, unstable_composeUploadHandlers, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node"
+import { json, redirect, unstable_composeUploadHandlers, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node"
 
 export async function action({ params, request }: ActionArgs) {
   const { token } = await requireUserSession(request)
   const project = await getProject(Number(params.project))
   const conf = await getProjectConfig(token, project)
   const folder = conf.mediaFolder === '/' ? '' : conf.mediaFolder || ''
+  const hasRedirect = !!new URL(request.url).searchParams.get('redirect')
 
   // differiantiate between "file upload" and "file edit / delete" using http method to not affect the reading of form data
 
@@ -62,6 +63,11 @@ export async function action({ params, request }: ActionArgs) {
       newPath = `${getDirname(path)}/${name}`
     }
 
+    if (path === newPath) {
+      const cookie = await setFlashMessage(request, `Not moving from ${path} to ${newPath} because it's the same path`)
+      return json({ ok: true }, { status: 204, headers: { 'Set-Cookie': cookie }})
+    }
+
     const message = `Move file ${path} to ${newPath}`
     await renameFile(token, {
       repo: project.repo,
@@ -90,6 +96,9 @@ export async function action({ params, request }: ActionArgs) {
     })
 
     const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
+    if (hasRedirect) {
+      return redirect(`${request.url}/..`, { headers: { 'Set-Cookie': cookie }})
+    }
     return json({ ok: true }, { headers: { 'Set-Cookie': cookie }})
   }
 }
