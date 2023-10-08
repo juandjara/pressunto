@@ -71,7 +71,12 @@ export default function Media() {
   return (
     <div className="p-4 relative">
       {modalData && (
-        <FileActionsModal modalData={modalData} onClose={closeModal} folders={folders} />
+        <FileActionsModal
+          modalData={modalData}
+          onClose={closeModal}
+          folders={folders}
+          redirect={false}
+        />
       )}
       <header className="mb-8">
         <h2 className="font-medium text-4xl text-slate-500 dark:text-slate-300 mt-4 mb-2">
