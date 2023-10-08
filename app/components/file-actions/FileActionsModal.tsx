@@ -31,14 +31,16 @@ export type FileModalData = {
 export default function FileActionsModal({
   modalData,
   onClose,
-  folders
+  folders,
+  redirect = true
 }: {
   modalData: FileModalData
   onClose: () => void
   folders: TreeItem[]
+  redirect: boolean
 }) {
   const { project } = useParams()
-  const actionURL = `/api/files/${project}`
+  const actionURL = `/api/files/${project}${redirect ? '?redirect=true' : ''}`
   const fetcher = useFetcher()
   const busy = fetcher.state !== 'idle'
 
