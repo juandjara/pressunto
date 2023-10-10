@@ -5,7 +5,7 @@ import type { TreeItem } from "@/lib/github"
 import { borderColor, buttonCN, iconCN } from "@/lib/styles"
 import { XMarkIcon } from "@heroicons/react/20/solid"
 import { PhotoIcon } from "@heroicons/react/24/outline"
-import { Link, useMatches, useNavigate, useParams } from "@remix-run/react"
+import { Link, useMatches, useParams } from "@remix-run/react"
 import clsx from "clsx"
 import { useState } from "react"
 
@@ -16,7 +16,6 @@ type LoaderData = {
 }
 
 export default function MediaDetails() {
-  const navigate = useNavigate()
   const { mid } = useParams()
   const route = useMatches().find((m) => m.id === 'routes/p/$project/media')
   const { tree, repo, branch } = route?.data as LoaderData
@@ -56,11 +55,7 @@ export default function MediaDetails() {
           folders={folders}
           modalData={modalData}
           onClose={() => setModalData(null)}
-          onComplete={() => {
-            if (modalData.operation === 'delete') {
-              navigate('..')
-            }
-          }}
+          redirectTarget="media"
         />
       )}
     </div>

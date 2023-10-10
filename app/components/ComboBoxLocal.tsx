@@ -4,7 +4,7 @@ import ComboBox from "./ComboBox"
 
 type LocalComboBoxProps<T> = Pick<
   ComboBoxProps<T>,
-  'options' | 'labelKey' | 'valueKey' | 'name' | 'defaultValue' | 'onSelect'
+  'options' | 'labelKey' | 'valueKey' | 'name' | 'defaultValue' | 'onSelect' | 'icon'
 >
 
 export function ComboBoxLocal<T>(props: LocalComboBoxProps<T>) {

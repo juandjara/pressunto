@@ -1,11 +1,12 @@
 import type { TreeItem } from "@/lib/github"
-import { useFetcher, useParams } from "@remix-run/react"
+import { Form, useNavigation, useParams } from "@remix-run/react"
 import Modal from "../Modal"
 import { ComboBoxLocal } from "../ComboBoxLocal"
-import { buttonCN, inputCN, labelCN } from "@/lib/styles"
+import { buttonCN, iconCN, inputCN, labelCN } from "@/lib/styles"
 import { getBasename, getDirname } from "@/lib/pathUtils"
 import clsx from "clsx"
 import { useEffect } from "react"
+import { DocumentIcon, FolderOpenIcon } from "@heroicons/react/24/outline"
 
 const modalTitle = {
   move: 'Move file to another folder',
@@ -32,34 +33,35 @@ export default function FileActionsModal({
   modalData,
   onClose,
   folders,
-  redirect = true
+  redirectTarget
 }: {
   modalData: FileModalData
   onClose: () => void
   folders: TreeItem[]
-  redirect: boolean
+  redirectTarget?: 'source' | 'media' | 'post'
 }) {
   const { project } = useParams()
-  const actionURL = `/api/files/${project}${redirect ? '?redirect=true' : ''}`
-  const fetcher = useFetcher()
-  const busy = fetcher.state !== 'idle'
+  const actionURL = `/api/files/${project}?redirectTarget=${redirectTarget || ''}`
+  const nav = useNavigation()
+  const busy = nav.state !== 'idle'
 
   useEffect(() => {
-    if (fetcher.data && fetcher.state === 'idle')  {
+    if (nav.state === 'loading') {
       onClose()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetcher])
+  }, [nav.state])
 
   return (
     <Modal open onClose={onClose} title={modalTitle[modalData.operation]}>
-      <fetcher.Form action={actionURL} replace method={modalData.operation === 'delete' ? 'delete' : 'put'}>
+      <Form replace action={actionURL} method={modalData.operation === 'delete' ? 'delete' : 'put'}>
         <input type="hidden" name="sha" value={modalData.file.sha} />
         <input type="hidden" name="path" value={modalData.file.path} />
         {modalData?.operation === 'move' && (
           <div>
             <label htmlFor="folder" className={labelCN}>New folder for the file</label>
             <ComboBoxLocal<TreeItem>
+              icon={<FolderOpenIcon className={iconCN.big} aria-hidden="true" />}
               name='folder'
               options={folders}
               labelKey='path'
@@ -71,13 +73,16 @@ export default function FileActionsModal({
         {modalData?.operation === 'rename' && (
           <div className="my-4">
             <label htmlFor="name" className={labelCN}>New name for the file</label>
-            <input
-              required
-              type="text"
-              name="name"
-              defaultValue={getBasename(modalData.file.path)}
-              className={inputCN}
-            />
+            <div className="relative">  
+              <DocumentIcon className={clsx(iconCN.big, 'absolute top-2 left-2')} aria-hidden="true" />
+              <input
+                required
+                type="text"
+                name="name"
+                defaultValue={getBasename(modalData.file.path)}
+                className={clsx(inputCN, 'pl-10')}
+              />
+            </div>
           </div>
         )}
         {modalData?.operation === 'delete' && (
@@ -108,7 +113,7 @@ export default function FileActionsModal({
             {busy ? modalBusyLabel[modalData.operation] : modalConfirmLabel[modalData.operation]}
           </button>
         </div>
-      </fetcher.Form>
+      </Form>
     </Modal>
   )
 }

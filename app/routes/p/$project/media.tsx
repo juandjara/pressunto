@@ -4,14 +4,15 @@ import FileActionsModal from "@/components/file-actions/FileActionsModal"
 import type { TreeItem } from "@/lib/github"
 import { FileMode, getRepoDetails, getRepoFiles } from "@/lib/github"
 import { getBasename } from "@/lib/pathUtils"
-import { getProject } from "@/lib/projects.server"
-import { requireUserSession } from "@/lib/session.server"
+import { getProject, getProjectConfig } from "@/lib/projects.server"
+import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { borderColor, buttonCN, iconCN } from "@/lib/styles"
+import { uploadImage } from "@/lib/uploadImage"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { CloudArrowUpIcon, PhotoIcon } from "@heroicons/react/20/solid"
-import type { LoaderArgs } from "@remix-run/node"
-import { json } from "@remix-run/node"
-import { Link, Outlet, useActionData, useFetcher, useLoaderData, useParams, useRevalidator } from "@remix-run/react"
+import type { ActionArgs, LoaderArgs, UploadHandlerPart } from "@remix-run/node"
+import { json, unstable_composeUploadHandlers, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node"
+import { Link, Outlet, useActionData, useFetcher, useLoaderData, useRevalidator } from "@remix-run/react"
 import clsx from "clsx"
 import isBinaryPath from "is-binary-path"
 import type { ChangeEvent } from "react"
@@ -27,6 +28,42 @@ export async function loader({ params, request }: LoaderArgs) {
   const repo = project.repo
 
   return json({ tree, branch, repo })
+}
+
+export async function action({ params, request }: ActionArgs) {
+  const { token } = await requireUserSession(request)
+  const project = await getProject(Number(params.project))
+
+  async function githubUploadHandler({ name, contentType, data, filename }: UploadHandlerPart) {
+    if (name !== 'file' || !filename) {
+      return
+    }
+
+    const file = await uploadImage(token, {
+      repo: project.repo,
+      branch: project.branch,
+      folder,
+      file: {
+        contentType,
+        data,
+        filename,
+      }
+    })
+    return file.content.path
+  }
+
+  const conf = await getProjectConfig(token, project)
+  const folder = conf.mediaFolder === '/' ? '' : conf.mediaFolder || ''
+
+  const uploadHandler = unstable_composeUploadHandlers(
+    githubUploadHandler,
+    unstable_createMemoryUploadHandler(),
+  )
+
+  const formData = await unstable_parseMultipartFormData(request, uploadHandler)
+  const files = formData.getAll('file') as string[]
+  const cookie = await setFlashMessage(request, `Pushed commit "upload image ${files} to ${folder || 'root folder'}" successfully`)
+  return json({ ok: true }, { headers: { 'Set-Cookie': cookie }})
 }
 
 type ModalData = {
@@ -75,7 +112,6 @@ export default function Media() {
           modalData={modalData}
           onClose={closeModal}
           folders={folders}
-          redirect={false}
         />
       )}
       <header className="mb-8">
@@ -154,8 +190,6 @@ type FilePreview = {
 
 function ImageUpload({ onChange }: { onChange: (previews: FilePreview[]) => void }) {
   const inputRef = useRef<HTMLInputElement>(null)
-  const { project } = useParams()
-  const actionURL = `/api/files/${project}`
   const revalidator = useRevalidator()
   const fetcher = useFetcher()
 
@@ -185,7 +219,7 @@ function ImageUpload({ onChange }: { onChange: (previews: FilePreview[]) => void
   }
 
   return (
-    <fetcher.Form action={actionURL} method="post" encType="multipart/form-data">
+    <fetcher.Form method="post" encType="multipart/form-data">
       <input
         ref={inputRef}
         onChange={handleFileChange}

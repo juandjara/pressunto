@@ -1,50 +1,16 @@
 import { deleteFile, renameFile } from "@/lib/github"
-import { getBasename, getDirname } from "@/lib/pathUtils"
+import { folderFromCollection, getBasename, getDirname } from "@/lib/pathUtils"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
-import { uploadImage } from "@/lib/uploadImage"
-import type { ActionArgs, UploadHandlerPart } from "@remix-run/node"
-import { json, redirect, unstable_composeUploadHandlers, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node"
+import type { ActionArgs } from "@remix-run/node"
+import { redirect } from "@remix-run/node"
 
 export async function action({ params, request }: ActionArgs) {
   const { token } = await requireUserSession(request)
   const project = await getProject(Number(params.project))
-  const conf = await getProjectConfig(token, project)
-  const folder = conf.mediaFolder === '/' ? '' : conf.mediaFolder || ''
-  const hasRedirect = !!new URL(request.url).searchParams.get('redirect')
-
-  // differiantiate between "file upload" and "file edit / delete" using http method to not affect the reading of form data
-
-  // upload file
-  if (request.method.toLowerCase() === 'post') {
-    async function githubUploadHandler({ name, contentType, data, filename }: UploadHandlerPart) {
-      if (name !== 'file' || !filename) {
-        return
-      }
-
-      const file = await uploadImage(token, {
-        repo: project.repo,
-        branch: project.branch,
-        folder,
-        file: {
-          contentType,
-          data,
-          filename,
-        }
-      })
-      return file.content.path
-    }
-  
-    const uploadHandler = unstable_composeUploadHandlers(
-      githubUploadHandler,
-      unstable_createMemoryUploadHandler(),
-    )
-  
-    const formData = await unstable_parseMultipartFormData(request, uploadHandler)
-    const files = formData.getAll('file') as string[]
-    const cookie = await setFlashMessage(request, `Pushed commit "upload image ${files} to ${folder || 'root folder'}" successfully`)
-    return json({ ok: true }, { headers: { 'Set-Cookie': cookie }})
-  }
+  const redirectTarget = new URL(request.url).searchParams.get('redirectTarget')
+  const referer = request.headers.get('referer')
+  const refererPath = referer ? new URL(referer).pathname : `/p/${project.id}`
 
   // rename file or move to other folder
   if (request.method.toLowerCase() === 'put') {
@@ -65,7 +31,7 @@ export async function action({ params, request }: ActionArgs) {
 
     if (path === newPath) {
       const cookie = await setFlashMessage(request, `Not moving from ${path} to ${newPath} because it's the same path`)
-      return json({ ok: true }, { status: 204, headers: { 'Set-Cookie': cookie }})
+      return redirect(refererPath, { headers: { 'Set-Cookie': cookie }})
     }
 
     const message = `Move file ${path} to ${newPath}`
@@ -79,7 +45,16 @@ export async function action({ params, request }: ActionArgs) {
     })
 
     const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
-    return json({ ok: true }, { headers: { 'Set-Cookie': cookie }})
+    if (redirectTarget === 'source') {
+      return redirect(`/p/${project.id}/source/${newPath}`, { headers: { 'Set-Cookie': cookie }})
+    }
+
+    if (redirectTarget === 'post') {
+      const conf = await getProjectConfig(token, project)
+      const collection = conf.collections.find(c => folderFromCollection(c) === getDirname(newPath))
+      const returnPath = collection ? `/p/${project.id}/${collection.id}/${getBasename(newPath)}` : `/p/${project.id}/source/${newPath}`
+      return redirect(returnPath, { headers: { 'Set-Cookie': cookie }})
+    }
   }
 
   // delete file
@@ -96,9 +71,7 @@ export async function action({ params, request }: ActionArgs) {
     })
 
     const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
-    if (hasRedirect) {
-      return redirect(`${request.url}/..`, { headers: { 'Set-Cookie': cookie }})
-    }
-    return json({ ok: true }, { headers: { 'Set-Cookie': cookie }})
+    const returnPath = refererPath === `/p/${project.id}/media` ? refererPath : `${refererPath}/..`
+    return redirect(returnPath, { headers: { 'Set-Cookie': cookie }})
   }
 }

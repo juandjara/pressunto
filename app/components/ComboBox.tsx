@@ -15,6 +15,7 @@ export type ComboBoxProps<T> = {
   labelKey: keyof T
   valueKey: keyof T
   defaultValue?: string
+  icon?: React.ReactNode
 }
 
 const optionsWrapperCN = [
@@ -34,12 +35,14 @@ export default function ComboBox<T>({
   onSelect,
   labelKey,
   valueKey,
-  defaultValue
+  defaultValue,
+  icon
 }: ComboBoxProps<T>) {
   return (
     <Combobox name={name} defaultValue={defaultValue} onChange={onSelect as any}>
       <div className="relative">
-        <div className={`${inputCN} ${focusWithinCN}`}>
+        <div className={`flex pl-2 items-center ${inputCN} ${focusWithinCN}`}>
+          {icon}
           <Combobox.Input
             ref={inputRef}
             className="w-full bg-transparent border-none pr-10 focus:ring-0"

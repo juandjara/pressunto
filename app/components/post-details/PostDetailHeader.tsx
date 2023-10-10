@@ -1,11 +1,11 @@
 import type { CollectionFile } from "@/lib/projects.server"
 import { buttonCN, iconCN, inputCN } from "@/lib/styles"
 import { useNavigate, useParams, useNavigation } from "@remix-run/react"
-import { ArrowLeftIcon, ArrowUpTrayIcon, ArrowUturnLeftIcon, DocumentIcon, FolderOpenIcon, TrashIcon } from "@heroicons/react/24/outline"
-import { EllipsisVerticalIcon } from "@heroicons/react/24/solid"
+import { ArrowLeftIcon, ArrowUpTrayIcon, ArrowUturnLeftIcon, DocumentIcon } from "@heroicons/react/24/outline"
+import { EllipsisVerticalIcon, FolderOpenIcon, TrashIcon } from "@heroicons/react/24/solid"
 import { Menu, Transition } from "@headlessui/react"
 import clsx from "clsx"
-import { getBasename } from "@/lib/pathUtils"
+import { folderFromCollection, getBasename } from "@/lib/pathUtils"
 import type { FileModalData } from "../file-actions/FileActionsModal"
 import type { TreeItem } from "@/lib/github"
 import { FileMode } from "@/lib/github"
@@ -32,9 +32,9 @@ export default function PostDetailsHeader({
   const folders = conf.collections.map((c) => {
     return {
       mode: FileMode.TREE,
-      path: c.route,
+      path: folderFromCollection(c),
       sha: c.id,
-      type: 'tree' as const
+      type: 'tree' as const,
     } as TreeItem
   })
 
@@ -53,7 +53,12 @@ export default function PostDetailsHeader({
   return (
     <div className="mb-2 flex items-center gap-2">
       {modalData && (
-        <FileActionsModal folders={folders} modalData={modalData} onClose={() => setModalData(null)} />
+        <FileActionsModal
+          folders={folders}
+          modalData={modalData}
+          onClose={() => setModalData(null)}
+          redirectTarget="post"
+        />
       )}
       <button
         onClick={() => navigate(backLink)}
@@ -78,8 +83,8 @@ export default function PostDetailsHeader({
         type='submit'
         name='_op'
         value='save'
-        disabled={!isDraft || busy}
-        className={`disabled:opacity-75 ${buttonCN.normal} ${buttonCN.slate} ${buttonCN.iconLeft}`}
+        aria-disabled={!isDraft || busy}
+        className={`aria-disabled:opacity-75 ${buttonCN.normal} ${buttonCN.slate} ${buttonCN.iconLeft}`}
       >
         <ArrowUpTrayIcon className="w-6 h-6" />
         <p className="hidden md:block">{busy ? 'Publishing...' : 'Publish'}</p>
