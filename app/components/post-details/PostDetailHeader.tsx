@@ -1,5 +1,5 @@
 import type { CollectionFile } from "@/lib/projects.server"
-import { buttonCN, iconCN, inputCN } from "@/lib/styles"
+import { borderColor, buttonCN, iconCN } from "@/lib/styles"
 import { useNavigate, useParams, useNavigation } from "@remix-run/react"
 import { ArrowLeftIcon, ArrowUpTrayIcon, ArrowUturnLeftIcon, DocumentIcon } from "@heroicons/react/24/outline"
 import { EllipsisVerticalIcon, FolderOpenIcon, TrashIcon } from "@heroicons/react/24/solid"
@@ -68,21 +68,12 @@ export default function PostDetailsHeader({
         className={`${buttonCN.normal} ${buttonCN.icon} ${buttonCN.cancel}`}>
         <ArrowLeftIcon className='w-5 h-5' />
       </button>
-      <div className="relative flex-grow">
-        <DocumentIcon className={clsx(iconCN.small, 'absolute top-[11px] left-2')} />
-        <input
-          type="text"
-          placeholder="file name"
-          className={`pl-9 ${inputCN}`}
-          name="name"
-          defaultValue={isNew ? '' : getBasename(file.path)}
-          readOnly
-        />
+      <div className={clsx('flex-grow flex items-center gap-3 border-b-2 px-2 mr-1', borderColor)}>
+        <DocumentIcon className={iconCN.small} />
+        <p className="text-slate-600 dark:text-slate-200 text-lg py-2">{file.title || getBasename(file.path)}</p>
       </div>
       <button
         type='submit'
-        name='_op'
-        value='save'
         aria-disabled={!isDraft || busy}
         className={`aria-disabled:opacity-75 ${buttonCN.normal} ${buttonCN.slate} ${buttonCN.iconLeft}`}
       >
