@@ -7,6 +7,7 @@ import MarkdownPreview from "./markdown-editor/MarkdownPreview"
 import clsx from "clsx"
 import { ArrowLeftIcon, DocumentMagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import type { Permissions } from "@/lib/github"
+import { ArrowsPointingOutIcon, ArrowsPointingInIcon } from '@heroicons/react/24/outline'
 
 type LoaderData = {
   file: CollectionFile,
@@ -14,7 +15,15 @@ type LoaderData = {
   permissions: Permissions
 }
 
-export default function PostEditor({ onDraft }: { onDraft: () => void }) {
+export default function PostEditor({
+  onDraft,
+  onToggle,
+  expanded
+}: {
+  onDraft: () => void;
+  onToggle: () => void
+  expanded: boolean
+}) {
   const { file } = useLoaderData<LoaderData>()
   const [tempContent, setTempContent] = useState('')
   const [preview, setPreview] = useState(false)
@@ -25,9 +34,11 @@ export default function PostEditor({ onDraft }: { onDraft: () => void }) {
     }
   }, [file])
 
+  const ExpandIcon = expanded ? ArrowsPointingInIcon : ArrowsPointingOutIcon
+
   return (
     <div
-      className="-mx-2 md:mx-0 pt-1 basis-[75ch]"
+      className={clsx('-mx-2 md:mx-0 pt-1', { 'basis-[75ch]': !expanded, 'w-full': expanded })}
       onBlur={(ev: React.FocusEvent<HTMLDivElement>) => {
         const isEditor = ev.target.getAttribute("contenteditable") === 'true'
         if (isEditor) {
@@ -51,7 +62,7 @@ export default function PostEditor({ onDraft }: { onDraft: () => void }) {
         </>
       ) : (
         <>
-          <div className="flex items-center mb-4 md:pr-0 pr-2">
+          <div className="flex items-center mb-4 md:pr-0 pr-2 gap-2">
             <p className="font-medium pl-2 text-xl text-slate-600 dark:text-slate-200 flex-grow">
               Editor
             </p>
@@ -62,6 +73,15 @@ export default function PostEditor({ onDraft }: { onDraft: () => void }) {
             >
               <DocumentMagnifyingGlassIcon className="w-6 h-6" />
               <p>Preview</p>
+            </button>
+            <button
+              type="button"
+              onClick={onToggle}
+              title={expanded ? 'Collapse post editor' : 'Expand post editor'}
+              aria-label={expanded ? 'Collapse post editor' : 'Expand post editor'}
+              className={clsx('hidden md:flex', buttonCN.icon, buttonCN.normal, buttonCN.slate)}
+            >
+              <ExpandIcon className='h-6 w-6' />
             </button>
           </div>
           <MarkdownEditor

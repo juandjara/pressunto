@@ -129,6 +129,7 @@ export default function PostDetails() {
   const { file, permissions } = useLoaderData<LoaderData>()
   const project = useProject()
   const [isDraft, setIsDraft] = useState(false)
+  const [expanded, setExpanded] = useState(false)
 
   function saveDraft() {
     setIsDraft(true)
@@ -163,8 +164,14 @@ export default function PostDetails() {
         </div>
       </header>
       <div className="lg:flex flex-wrap items-stretch gap-4 mb-4">
-        <PostEditor onDraft={saveDraft} />
-        <FrontmatterEditor onDraft={saveDraft} />
+        <PostEditor
+          onDraft={saveDraft}
+          onToggle={() => setExpanded(!expanded)}
+          expanded={expanded}
+        />
+        {!expanded && (
+          <FrontmatterEditor onDraft={saveDraft} />
+        )}
       </div>
       <input type='hidden' name='sha' value={file.id} />
       <input type='hidden' name='path' value={file.path} />
