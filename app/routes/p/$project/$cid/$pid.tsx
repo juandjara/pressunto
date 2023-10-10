@@ -142,14 +142,25 @@ export default function PostDetails() {
     )
   }
 
+  const noTitle = file.title === getBasename(file.path)
+
   return (
     <Form method='post' className="py-4 px-2 md:px-4 mb-8">
       <header>
-        <PostDetailsHeader file={file} isDraft={isDraft} />
-        <p className="mb-6 ml-1 flex items-center justify-end gap-2 text-sm text-slate-500 dark:text-slate-300">
-          <span className={`${isDraft ? 'bg-yellow-600' : 'bg-green-600'} w-2 h-2 mt-1 rounded inline-block`}></span>
-          <span>{isDraft ? 'Unsaved changes' : 'Published'}</span>
-        </p>
+        <div className="group">
+          <PostDetailsHeader file={file} isDraft={isDraft} />
+          <div className="flex items-center justify-between mb-6 gap-4">
+            {noTitle && (
+              <p className="md:pl-11 text-xs md:opacity-0 group-hover:opacity-100 transition-opacity">
+                You can change the post title by adding a <code>title</code> field in the fields section
+              </p>
+            )}
+            <p className="flex-grow flex items-center justify-end gap-2 text-sm text-slate-500 dark:text-slate-300">
+              <span className={`${isDraft ? 'bg-yellow-600' : 'bg-green-600'} w-2 h-2 mt-1 rounded inline-block`}></span>
+              <span>{isDraft ? 'Unsaved changes' : 'Published'}</span>
+            </p>
+          </div>
+        </div>
       </header>
       <div className="lg:flex flex-wrap items-stretch gap-4 mb-4">
         <PostEditor onDraft={saveDraft} />
