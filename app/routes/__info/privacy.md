@@ -2,10 +2,6 @@
 meta: {"title":"Privacy | Pressunto"}
 ---
 
----
-meta: {"title":"Privacy | Pressunto"}
----
-
 ## Privacy
 
 This page describes what data is read and saved in the application, how is it used and how to delete it if necessary.
