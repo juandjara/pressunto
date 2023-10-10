@@ -1,5 +1,5 @@
 import type { Permissions} from "@/lib/github"
-import { deleteFile, getFileContent, getRepoDetails, saveFile } from "@/lib/github"
+import { getFileContent, getRepoDetails, saveFile } from "@/lib/github"
 import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
 import { processFileContent } from "@/lib/projects.server"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
@@ -73,7 +73,6 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 export async function action({ request, params }: ActionArgs) {
   const { token } = await requireUserSession(request)
   const formData = await request.formData()
-  const op = formData.get('_op')
   const body = formData.get('markdown') as string
   const sha = formData.get('sha') as string
   const path = formData.get('path') as string
@@ -99,37 +98,23 @@ export async function action({ request, params }: ActionArgs) {
 
   const isNew = !sha
 
-  const isDelete = op === 'delete'
   const slug = slugify(formData.get('meta__title') as string || '')
   const fullPath = isNew ? `${path}/${slug}.md` : path
 
-  const message = op === 'delete' 
-  ? `Delete file ${fullPath}` 
-  : isNew
+  const message = isNew
     ? `Create file ${fullPath}`
     : `Update file ${fullPath}`
 
+  await saveFile(token, {
+    branch,
+    repo,
+    sha,
+    path: fullPath,
+    message,
+    content
+  })
 
-  if (isDelete) {
-    await deleteFile(token, {
-      branch,
-      repo,
-      path: fullPath,
-      message,
-    })
-  } else {
-    await saveFile(token, {
-      branch,
-      repo,
-      sha,
-      path: fullPath,
-      message,
-      content
-    })
-  }
-
-  const returnPath = isDelete ? '' : getBasename(fullPath)
-  const redirectPath = `/p/${params.project}/${params.cid}/${returnPath}`
+  const redirectPath = `/p/${params.project}/${params.cid}/${getBasename(fullPath)}`
 
   const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
 
