@@ -15,13 +15,13 @@ import { syntaxHighlighting, HighlightStyle, defaultHighlightStyle, bracketMatch
 import { tags } from "@lezer/highlight"
 import { searchKeymap } from '@codemirror/search'
 import { historyKeymap, history } from '@codemirror/commands'
-import { basicDark } from 'cm6-theme-basic-dark'
 import { boldBinding } from "./bold"
 import { italicBinding } from "./italic"
 import { customTheme } from "./customTheme"
-import { baseTheme } from "./baseTheme"
 import { imageFormat, insertImage } from "./imageFormat"
-import { useParams } from "@remix-run/react"
+import { useMatches, useParams } from "@remix-run/react"
+import { basicDark } from 'cm6-theme-basic-dark'
+import { basicLight } from 'cm6-theme-basic-light'
 
 type useCodeMirrorProps = {
   initialValue: string
@@ -29,7 +29,11 @@ type useCodeMirrorProps = {
 }
 
 const markdownHighlighting = HighlightStyle.define([
-  { tag: tags.heading1, fontSize: "1.6em", fontWeight: "bold" },
+  {
+    tag: tags.heading1,
+    fontSize: "1.6em",
+    fontWeight: "bold"
+  },
   {
     tag: tags.heading2,
     fontSize: "1.4em",
@@ -43,11 +47,21 @@ const markdownHighlighting = HighlightStyle.define([
 ])
 
 export const EditableComparment = new Compartment()
+export const ThemeCompartment = new Compartment()
+
+const themes = {
+  light: basicLight,
+  dark: basicDark
+}
+
+type ThemeKey = 'light' | 'dark'
 
 export default function useCodeMirror(
   textarea: MutableRefObject<HTMLTextAreaElement | null>,
   { initialValue, setValue }: useCodeMirrorProps
 ) {
+  const m = useMatches()
+  const theme = m[0].data.theme as ThemeKey
   const { project } = useParams()
   const ref = useRef(null)
   const [view, setView] = useState<EditorView>()
@@ -56,6 +70,14 @@ export default function useCodeMirror(
     isBold: false,
     isItalic: false
   })
+
+  useEffect(() => {
+    if (view) {
+      view.dispatch({
+        effects: ThemeCompartment.reconfigure(themes[theme] || themes.light)
+      })
+    }
+  }, [theme, view])
 
   useEffect(() => {
     if (!ref.current) {
@@ -79,18 +101,17 @@ export default function useCodeMirror(
         markdown({
           base: markdownLanguage, // Support GFM
         }),
+        customTheme,
+        ThemeCompartment.of(themes[theme] || themes.light),
         syntaxHighlighting(markdownHighlighting),
         syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-        customTheme,
-        baseTheme,
-        basicDark,
         imageFormat(),
         EditorView.lineWrapping,
         EditorView.domEventHandlers({
           drop: (ev, view) => {
             const file = ev.dataTransfer?.files[0]
             if (file) {
-              insertImage(view, file, project!)
+              insertImage(view, file, project as string)
             }
           },
         }),
@@ -135,6 +156,7 @@ export default function useCodeMirror(
     const view = new EditorView({ state, parent: ref.current })
     setView(view)
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const css = (view as any).styleModules.map((t: any) => t.getRules()).reverse().join('\n')
 
     const existingHeadEl = document.head.querySelector('style')
@@ -148,7 +170,8 @@ export default function useCodeMirror(
     return () => {
       view.destroy()
     }
-  }, [ref, textarea])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return [ref, view, flags] as const
 }

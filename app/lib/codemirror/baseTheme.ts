@@ -50,8 +50,8 @@ export const baseTheme = EditorView.baseTheme({
       overflowWrap: "anywhere",
       flexShrink: 1
   },
-  "&light .cm-content": { caretColor: "black" },
-  "&dark .cm-content": { caretColor: "white" },
+  ".light .cm-content": { caretColor: "black" },
+  ".dark .cm-content": { caretColor: "white" },
   ".cm-line": {
       display: "block",
       padding: "0 2px 0 4px"
@@ -63,16 +63,16 @@ export const baseTheme = EditorView.baseTheme({
   ".cm-selectionBackground": {
       position: "absolute",
   },
-  "&light .cm-selectionBackground": {
+  ".light .cm-selectionBackground": {
       background: "#d9d9d9"
   },
-  "&dark .cm-selectionBackground": {
+  ".dark .cm-selectionBackground": {
       background: "#222"
   },
-  "&light.cm-focused .cm-selectionBackground": {
+  ".light.cm-focused .cm-selectionBackground": {
       background: "#d7d4f0"
   },
-  "&dark.cm-focused .cm-selectionBackground": {
+  ".dark.cm-focused .cm-selectionBackground": {
       background: "#233"
   },
   ".cm-cursorLayer": {
@@ -97,16 +97,16 @@ export const baseTheme = EditorView.baseTheme({
   ".cm-cursor": {
       display: "none"
   },
-  "&dark .cm-cursor": {
+  ".dark .cm-cursor": {
       borderLeftColor: "#444"
   },
   "&.cm-focused .cm-cursor": {
       display: "block"
   },
-  "&light .cm-activeLine": { backgroundColor: "#cceeff44" },
-  "&dark .cm-activeLine": { backgroundColor: "#99eeff33" },
-  "&light .cm-specialChar": { color: "red" },
-  "&dark .cm-specialChar": { color: "#f78" },
+  ".light .cm-activeLine": { backgroundColor: "#cceeff44" },
+  ".dark .cm-activeLine": { backgroundColor: "#99eeff33" },
+  ".light .cm-specialChar": { color: "red" },
+  ".dark .cm-specialChar": { color: "#f78" },
   ".cm-gutters": {
       flexShrink: 0,
       display: "flex",
@@ -115,12 +115,12 @@ export const baseTheme = EditorView.baseTheme({
       left: 0,
       zIndex: 200
   },
-  "&light .cm-gutters": {
+  ".light .cm-gutters": {
       backgroundColor: "#f5f5f5",
       color: "#6c6c6c",
       borderRight: "1px solid #ddd"
   },
-  "&dark .cm-gutters": {
+  ".dark .cm-gutters": {
       backgroundColor: "#333338",
       color: "#ccc"
   },
@@ -141,10 +141,10 @@ export const baseTheme = EditorView.baseTheme({
       textAlign: "right",
       whiteSpace: "nowrap"
   },
-  "&light .cm-activeLineGutter": {
+  ".light .cm-activeLineGutter": {
       backgroundColor: "#e2f2ff"
   },
-  "&dark .cm-activeLineGutter": {
+  ".dark .cm-activeLineGutter": {
       backgroundColor: "#222227"
   },
   ".cm-panels": {
@@ -153,17 +153,17 @@ export const baseTheme = EditorView.baseTheme({
       left: 0,
       right: 0
   },
-  "&light .cm-panels": {
+  ".light .cm-panels": {
       backgroundColor: "#f5f5f5",
       color: "black"
   },
-  "&light .cm-panels-top": {
+  ".light .cm-panels-top": {
       borderBottom: "1px solid #ddd"
   },
-  "&light .cm-panels-bottom": {
+  ".light .cm-panels-bottom": {
       borderTop: "1px solid #ddd"
   },
-  "&dark .cm-panels": {
+  ".dark .cm-panels": {
       backgroundColor: "#333338",
       color: "white"
   },
@@ -190,14 +190,14 @@ export const baseTheme = EditorView.baseTheme({
       padding: ".2em 1em",
       borderRadius: "1px"
   },
-  "&light .cm-button": {
+  ".light .cm-button": {
       backgroundImage: "linear-gradient(#eff1f5, #d9d9df)",
       border: "1px solid #888",
       "&:active": {
           backgroundImage: "linear-gradient(#b4b4b4, #d0d3d6)"
       }
   },
-  "&dark .cm-button": {
+  ".dark .cm-button": {
       backgroundImage: "linear-gradient(#393939, #111)",
       border: "1px solid #888",
       "&:active": {
@@ -211,10 +211,10 @@ export const baseTheme = EditorView.baseTheme({
       border: "1px solid silver",
       padding: ".2em .5em"
   },
-  "&light .cm-textfield": {
+  ".light .cm-textfield": {
       backgroundColor: "white"
   },
-  "&dark .cm-textfield": {
+  ".dark .cm-textfield": {
       border: "1px solid #555",
       backgroundColor: "inherit"
   }

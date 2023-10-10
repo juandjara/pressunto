@@ -14,7 +14,7 @@ export default function MarkdownEditor({ name, initialValue = '', onChange }: Ma
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [ref, view, flags] = useCodeMirror(textareaRef, {
     initialValue,
-    setValue: onChange
+    setValue: onChange,
   })
 
   return (
