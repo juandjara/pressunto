@@ -2,6 +2,10 @@
 meta: {"title":"Privacy | Pressunto"}
 ---
 
+---
+meta: {"title":"Privacy | Pressunto"}
+---
+
 ## Privacy
 
 This page describes what data is read and saved in the application, how is it used and how to delete it if necessary.
@@ -14,20 +18,17 @@ Your login data will be used only to read the user name and profile picture for 
 
 ### Cookie data
 
-When a login action is performed successfully, an access token is generated and the user name and email are fetched from the GitHub API. This data is stored inside a cookie in the cookie storage of the user's browser. This cookie is valid for 7 days, and can be revoked from github at any time using GitHub [applicattions settings page](https://github.com/settings/applications/), revoking the access from the pressunto app. Also, when a user logs out of the application, this cookie is deleted from the user's browser.
+When a login action is performed successfully, an access token is generated and the user name and email are fetched from the GitHub API. This data is stored inside a cookie in the cookie storage of the user's browser. This cookie is valid for 7 days, and can be revoked from github at any time using GitHub [applicattions settings page](https://github.com/settings/applications/), revoking the access from the `pressunto` app. Also, when a user logs out of the application, this cookie is deleted from the user's browser.
 
 
 ### Data saved in DB
 
-When you create a project using the [New Project](/projects/new) page, two database operations are peformed. 
-A record is created for the new project storing the selected GitHub repo, GitHub branch and project title. 
-The record which stores the relation between an user and their list of projects is updated. 
-This information is saved in a remote Redis database using the DBaaS [Upstash](https://upstash.com) free tier.
+When you create a project using the [New Project](/projects/new) page, this information is saved in a remote Redis database provided by the platform [Upstash](https://upstash.com).
 
 
 ### Configuration file
 
-Also, when you create a new project, apart from writing the DB, a configuration file called `pressunto.config.json` is commited and pushed to the root of selected GitHub repository. Initially, this file has the following content:
+When you create a new project, apart from updating records in the DB, a configuration file with the name `pressunto.config.json` is commited and pushed to the selected branch of the selected GitHub repository, at the root folder, with the following content:
 
 ```json
 { "collections": [], "templates": [] }
