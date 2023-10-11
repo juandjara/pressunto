@@ -146,18 +146,12 @@ type TreeResponse = {
   truncated: boolean
 }
 
-export async function getRepoFiles(token: string, repo: string, branch?: string) {
-  if (!branch) {
-    const details = await getRepoDetails(token, repo)
-    branch = details.default_branch
-  }
-  
+export async function getRepoFiles(token: string, repo: string, branch: string) {
   const { data: repoDetails } = await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch}`)
 
   const treeSha = repoDetails.object.sha
   const res = await callGithubAPI(token, `/repos/${repo}/git/trees/${treeSha}?recursive=true`)
   const data = res.data as TreeResponse
-
 
   data.tree.sort((a, b) => {
     if (a.type === 'blob' && b.type === 'tree') return 1
@@ -174,17 +168,12 @@ type GetContentParams = {
   repo: string
   file: string
   isNew?: boolean
-  branch?: string
+  branch: string
 }
 
 export async function getFileContent(token: string, { repo, file, isNew = false, branch }: GetContentParams) {
   if (isNew) {
     return null
-  }
-
-  if (!branch) {
-    const details = await getRepoDetails(token, repo)
-    branch = details.default_branch
   }
 
   const fileURL = `/repos/${repo}/contents/${file}?ref=${branch}`

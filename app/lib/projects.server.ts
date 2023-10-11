@@ -91,7 +91,7 @@ export const CONFIG_FILE_TEMPLATE = `{
 `
 
 export async function createConfigFile(token: string, repo: string, branch: string) {
-  const repoTree = await getRepoFiles(token, repo)
+  const repoTree = await getRepoFiles(token, repo, branch)
   const configFile = repoTree.find((f) => f.path === CONFIG_FILE_NAME)
   if (configFile) {
     return
@@ -99,7 +99,7 @@ export async function createConfigFile(token: string, repo: string, branch: stri
 
   await saveFile(token, {
     repo,
-    branch: branch || 'master',
+    branch,
     path: CONFIG_FILE_NAME,
     content: CONFIG_FILE_TEMPLATE,
     message: '[skip ci] Create config file for Pressunto',
@@ -124,9 +124,9 @@ export async function updateConfigFile(token: string, project: Project, config: 
 
 export async function deleteConfigFile(token: string, { repo, branch }: Project) {
   const file = await getFileContent(token, {
-    repo,
     file: CONFIG_FILE_NAME,
-    branch
+    repo,
+    branch,
   })
 
   if (file) {
@@ -170,7 +170,7 @@ export function processFileContent(fileContent: Pick<ParsedFile, 'content' | 'sh
 }
 
 export async function getCollectionFiles(token: string, project: Project, collection: ProjectCollection) {
-  const tree = await getRepoFiles(token, project.repo, project.branch || 'master')
+  const tree = await getRepoFiles(token, project.repo, project.branch)
   const collectionTree = tree.filter((f) => {
     const inCollection = getDirname(f.path) === collection.route.replace(/^\//, '')
     return inCollection && isMarkdown(f.path)
@@ -179,9 +179,9 @@ export async function getCollectionFiles(token: string, project: Project, collec
   const parsedFiles = []
   const contents = await Promise.all(
     collectionTree.map((f) => getFileContent(token, {
+      file: f.path,
       repo: project.repo,
       branch: project.branch,
-      file: f.path
     }))
   )
 

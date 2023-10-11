@@ -51,9 +51,9 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
   const [file, details] = await Promise.all([
     isNew ? Promise.resolve(blankFile) : getFileContent(token, {
+      file: `${folder}/${filename}`,
       repo: project.repo,
       branch: project.branch,
-      file: `${folder}/${filename}`
     }),
     getRepoDetails(token, project.repo)
   ])
