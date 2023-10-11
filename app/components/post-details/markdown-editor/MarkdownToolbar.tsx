@@ -11,13 +11,8 @@ import type { EditorView } from "@codemirror/view"
 import { Menu, Transition } from "@headlessui/react"
 import { CodeBracketIcon, LinkIcon, ListBulletIcon, PhotoIcon } from "@heroicons/react/20/solid"
 import { useParams } from "@remix-run/react"
+import clsx from "clsx"
 import { useRef } from "react"
-
-const headingButtonCN = (flag: boolean) => [
-  `p-1 w-8 h-8`,
-  `text-slate-100 ${flag ? 'bg-slate-900' : 'bg-slate-600 hover:bg-slate-900'}`,
-  buttonCN.common
-].join(' ')
 
 function HeadingMenu({ active, view }: { active: boolean; view: EditorView }) {
   const toggleRef = useRef<HTMLButtonElement>(null)
@@ -28,7 +23,7 @@ function HeadingMenu({ active, view }: { active: boolean; view: EditorView }) {
           <Menu.Button
             ref={toggleRef}
             title="Open heading menu"
-            className={headingButtonCN(active)}>
+            className={iconButtonCN(active, true)}>
             <strong>H</strong>
           </Menu.Button>
           <Transition
@@ -50,7 +45,7 @@ function HeadingMenu({ active, view }: { active: boolean; view: EditorView }) {
                   aria-label={`Heading ${n}`}
                   type="button"
                   onClick={() => insertHeading(n, view)}
-                  className={headingButtonCN(active)}>
+                  className={iconButtonCN(active, true)}>
                   H<small><strong>{n}</strong></small>
                 </button>
               ))}
@@ -62,11 +57,14 @@ function HeadingMenu({ active, view }: { active: boolean; view: EditorView }) {
   )
 }
 
-const iconButtonCN = (flag?: boolean) => [
-  `p-1 w-8 h-8 flex justify-center items-center`,
-  `font-mono text-slate-100 ${flag ? 'bg-slate-900' : 'bg-slate-600 hover:bg-slate-900'}`,
-  buttonCN.common
-].join(' ')
+const iconButtonCN = (flag?: boolean, heading = false) => clsx(
+  'p-1 w-8 h-8', heading ? '' : 'flex justify-center items-center',
+  'text-slate-100 dark:text-slate-700', heading ? '' : 'font-mono',
+  buttonCN.common,
+  flag
+    ? 'bg-slate-900 dark:bg-white'
+    : 'bg-slate-600 dark:bg-slate-200 hover:bg-slate-900 dark:hover:bg-white'
+)
 
 type MarkdownToolbarProps = {
   view?: EditorView
@@ -144,7 +142,7 @@ export default function MarkdownToolbar({ view, flags }: MarkdownToolbarProps) {
           type='file'
           accept='image/*'
           className='hidden'
-          onChange={ev => ev.target.files && insertImage(view, ev.target.files[0], project!)}
+          onChange={ev => ev.target.files && insertImage(view, ev.target.files[0], project as string)}
         />
         <button
           title="Image"
