@@ -8,7 +8,6 @@ import type { ActionArgs, LoaderFunction, MetaFunction} from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import { Form, useLoaderData } from "@remix-run/react"
-import { useProject } from "@/lib/useProjectConfig"
 import { folderFromCollection, getBasename } from "@/lib/pathUtils"
 import slugify from "@/lib/slugify"
 import FrontmatterEditor from "@/components/post-details/FrontmatterEditor"
@@ -74,7 +73,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     permissions
   }, {
     headers: {
-      'Cache-Control': 'max-age=60, must-revalidate',
+      'Cache-Control': 'private, max-age=0, must-revalidate',
       'Vary': 'Cookie',
       'Etag': etag,
     }
@@ -83,12 +82,11 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
 export async function action({ request, params }: ActionArgs) {
   const { token } = await requireUserSession(request)
+  const { branch, repo } = await getProject(Number(params.project))
   const formData = await request.formData()
   const body = formData.get('markdown') as string
   const sha = formData.get('sha') as string
   const path = formData.get('path') as string
-  const branch = formData.get('branch') as string
-  const repo = formData.get('repo') as string
 
   if (!body) {
     throw new Response(`"markdown" param is required in form data`, { status: 400, statusText: 'Bad Request' })
@@ -138,7 +136,6 @@ export async function action({ request, params }: ActionArgs) {
 
 export default function PostDetails() {
   const { file, permissions } = useLoaderData<LoaderData>()
-  const project = useProject()
   const [isDraft, setIsDraft] = useState(false)
   const [expanded, setExpanded] = useState(false)
 
@@ -186,8 +183,6 @@ export default function PostDetails() {
       </div>
       <input type='hidden' name='sha' value={file.id} />
       <input type='hidden' name='path' value={file.path} />
-      <input type='hidden' name='branch' value={project.branch} />
-      <input type='hidden' name='repo' value={project.repo} />
     </Form>
   )
 }
