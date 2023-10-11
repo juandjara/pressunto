@@ -2,6 +2,7 @@ import type { Permissions } from "@/lib/github"
 import { getBasename } from "@/lib/pathUtils"
 import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
 import { buttonCN, inputCN, labelCN } from "@/lib/styles"
+import useProjectConfig from "@/lib/useProjectConfig"
 import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
 import { Link, useLoaderData, useParams } from "@remix-run/react"
 import { useState } from "react"
@@ -13,8 +14,9 @@ type LoaderData = {
 }
 
 export default function FrontmatterEditor({ onDraft }: { onDraft: () => void }) {
+  const { file } = useLoaderData<LoaderData>()
   const { cid, project } = useParams()
-  const { config, file } = useLoaderData<LoaderData>()
+  const config = useProjectConfig()
   const collection = config.collections.find((c) => c.id === cid)
   const template = collection && config.templates.find((t) => t.id === collection.template)
   const backLink = `/p/${project}/${cid}/${getBasename(file.path)}`

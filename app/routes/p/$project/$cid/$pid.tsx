@@ -1,6 +1,6 @@
 import type { Permissions} from "@/lib/github"
 import { getFileContent, getRepoDetails, saveFile } from "@/lib/github"
-import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
+import type { CollectionFile } from "@/lib/projects.server"
 import { processFileContent } from "@/lib/projects.server"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
@@ -19,7 +19,6 @@ import PostDetailsHeader from "@/components/post-details/PostDetailHeader"
 
 type LoaderData = {
   file: CollectionFile,
-  config: ProjectConfig,
   permissions: Permissions
 }
 
@@ -63,10 +62,22 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     throw new Response(`File ${filename} not found in folder ${folder}`, { status: 404 })
   }
 
+  const permissions = details.permissions
+  const etag = `"${file.sha}-${permissions.push}"`
+
+  if (request.headers.get('If-None-Match') === etag) {
+    return new Response(null, { status: 304 })
+  }
+
   return json<LoaderData>({
-    config,
     file: processFileContent(file || blankFile),
-    permissions: details.permissions
+    permissions
+  }, {
+    headers: {
+      'Cache-Control': 'max-age=60, must-revalidate',
+      'Vary': 'Cookie',
+      'Etag': etag,
+    }
   })
 }
 
