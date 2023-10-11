@@ -147,9 +147,8 @@ type TreeResponse = {
 }
 
 export async function getRepoFiles(token: string, repo: string, branch: string) {
-  const { data: repoDetails } = await callGithubAPI(token, `/repos/${repo}/git/refs/heads/${branch}`)
-
-  const treeSha = repoDetails.object.sha
+  const branchData = await getBranch(token, repo, branch)
+  const treeSha = branchData.object.sha
   const res = await callGithubAPI(token, `/repos/${repo}/git/trees/${treeSha}?recursive=true`)
   const data = res.data as TreeResponse
 
