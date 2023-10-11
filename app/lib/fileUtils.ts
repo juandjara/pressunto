@@ -11,6 +11,7 @@ type GithubFile = {
   download_url: string
   html_url: string
   encoding: 'base64' | 'none'
+  etag?: string
 }
 
 export function parseGithubFile(file: GithubFile) {
@@ -33,7 +34,8 @@ export function parseGithubFile(file: GithubFile) {
     mimeType,
     isBinary,
     isMarkdown: isMarkdown(filename),
-    content
+    content,
+    etag: file.etag
   }
 }
 
