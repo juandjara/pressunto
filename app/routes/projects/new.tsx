@@ -1,7 +1,7 @@
 import { Form, Link, useActionData, useFetcher, useLoaderData, useNavigation, useSearchParams } from "@remix-run/react"
 import { buttonCN, inputCN, labelCN } from '@/lib/styles'
 import ComboBox from "@/components/ComboBox"
-import { getOrgs } from "@/lib/github"
+import { getOrgs, validateBranch } from "@/lib/github"
 import { useEffect, useMemo, useRef, useState } from "react"
 import debounce from 'debounce'
 import type { ActionFunction, LoaderArgs} from "@remix-run/node"
@@ -18,7 +18,7 @@ export const meta = {
   title: metaTitle('New Project')
 }
 
-type ActionData = undefined | { errors: { repo: string } }
+type ActionData = undefined | { errors: { org: string; repo: string; branch: string } }
 
 export const action: ActionFunction = async ({ request }) => {
   const { user, token } = await requireUserSession(request)
@@ -28,8 +28,22 @@ export const action: ActionFunction = async ({ request }) => {
   const repo = formData.get('repo') as string
   const branch = formData.get('branch') as string
 
+  const errors = []
+
+  if (!org) {
+    errors.push(['org', 'This field is required'])
+  }
   if (!repo) {
-    return json({ errors: { repo: 'This field is required' } })
+    errors.push(['repo', 'This field is required'])
+  }
+
+  const branchIsValid = await validateBranch(token, repo, branch)
+  if (!branchIsValid) {
+    errors.push(['branch', `Branch "${branch}" does not exist`])
+  }
+
+  if (errors.length) {
+    return json({ errors: Object.fromEntries(errors) })
   }
 
   const existingProject = await getIdForRepo(`${org}/${repo}`)
@@ -64,7 +78,7 @@ export default function NewProject() {
   const busy = navigation.state !== 'idle'
   const actionData = useActionData<ActionData>()
   const errors = actionData?.errors
-  const selectRef = useRef<HTMLInputElement>(null)
+  const repoSelectRef = useRef<HTMLInputElement>(null)
   const orgSelectRef = useRef<HTMLSelectElement>(null)
   const [selectedRepo, setSelectedRepo] = useState<RepoItem>()
 
@@ -82,9 +96,17 @@ export default function NewProject() {
     [fetcher]
   )
 
+  // fetch repos on mount for default org
   useEffect(() => {
-    if (errors && selectRef.current) {
-      selectRef.current.focus()
+    if (!fetcher.data && fetcher.state === 'idle') {
+      const org = orgSelectRef.current?.value
+      fetcher.load(`/api/search-repo?q=&org=${org}`)
+    }
+  }, [fetcher])
+
+  useEffect(() => {
+    if (errors?.repo && repoSelectRef.current) {
+      repoSelectRef.current.focus()
     }
   }, [errors])
 
@@ -94,7 +116,7 @@ export default function NewProject() {
   }
 
   return (
-    <div className="px-3 py-8 max-w-screen-md">
+    <div className="px-3 pt-8 pb-4 max-w-screen-md">
       <header className="mb-8">
         <h2 className="font-medium text-4xl mb-3">New project</h2>
         <p>This will create a <InlineCode>pressunto.config.json</InlineCode> in the root of your repository</p>
@@ -112,7 +134,7 @@ export default function NewProject() {
               </select>
               <div className="flex-grow">
                 <ComboBox<RepoItem>
-                  inputRef={selectRef}
+                  inputRef={repoSelectRef}
                   name='repo'
                   loading={fetcher.state === 'loading'}
                   options={(fetcher.data || [])}
@@ -125,7 +147,9 @@ export default function NewProject() {
               </div>
             </div>
             <div className="mt-2 flex items-end justify-between">
-              <p className="text-xs mb-1">This search field will only list the repositories where you can push code </p>
+              <p className="text-xs mb-1">
+                This search field will only list the repositories where you can push code
+              </p>
               {errors?.repo ? (
                 <p className="text-sm mb-1 text-red-600 dark:text-red-400">{errors.repo}</p>
               ) : null}
@@ -139,8 +163,16 @@ export default function NewProject() {
               className={inputCN}
               name='branch'
               type='text'
+              required
             />
-            <p className="text-xs mb-1 mt-2">The main branch that will be used to fetch and update content</p>
+            <div className="mt-2 flex items-end justify-between">
+              <p className="text-xs mb-1">
+                The main branch that will be used to fetch and update content
+              </p>
+              {errors?.branch ? (
+                <p className="text-sm mb-1 text-red-600 dark:text-red-400">{errors.branch}</p>
+              ) : null}
+            </div>
           </div>
           <div>
             <label className={labelCN} htmlFor="title">Project Title</label>
@@ -150,10 +182,11 @@ export default function NewProject() {
               className={inputCN}
               name='title'
               type='text'
+              required
             />
           </div>
         </fieldset>
-        <div className="space-x-3 mt-8">
+        <div className="space-x-3 mt-12">
           <button
             type="submit"
             disabled={busy}

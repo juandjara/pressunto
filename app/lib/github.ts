@@ -104,6 +104,19 @@ export async function getOrgs(token: string) {
   return data.map((o) => o.login)
 }
 
+export async function validateBranch(token: string, repo: string, branch: string) {
+  if (!branch) return false
+  try {
+    await callGithubAPI(token, `/repos/${repo}/branches/${branch}`)
+    return true
+  } catch (err) {
+    if ((err as Response).status === 404) {
+      return false
+    }
+    throw err
+  }
+}
+
 export type Permissions = {
   admin: boolean
   push: boolean
