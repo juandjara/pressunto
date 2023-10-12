@@ -66,7 +66,7 @@ export default function FrontmatterEditor({ onDraft }: { onDraft: () => void }) 
   }
 
   return (
-    <div className="flex-grow flex-shrink-0">
+    <div className="flex-grow flex-shrink-0 basis-[300px]">
       <div className="flex items-center mt-2">
         <p className="text-slate-600 dark:text-slate-200 text-sm font-semibold flex-grow">Fields</p>
         <button

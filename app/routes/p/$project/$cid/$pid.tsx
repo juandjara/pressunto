@@ -131,12 +131,13 @@ export default function PostDetails() {
   const { file } = useLoaderData<LoaderData>()
   const [isDraft, setIsDraft] = useState(false)
   const [expanded, setExpanded] = useState(false)
+  const isNew = !file.id
 
   function saveDraft() {
     setIsDraft(true)
   }
 
-  const noTitle = file.title === getBasename(file.path)
+  const noTitle = isNew || file.title === getBasename(file.path)
 
   return (
     <Form method='post' className="py-4 px-2 md:px-4 mb-8">
@@ -149,14 +150,16 @@ export default function PostDetails() {
                 You can change the post title by adding a <code>title</code> field in the fields section
               </p>
             )}
-            <p className="flex-grow flex items-center justify-end gap-2 text-sm text-slate-500 dark:text-slate-300">
-              <span className={`${isDraft ? 'bg-yellow-600' : 'bg-green-600'} w-2 h-2 mt-1 rounded inline-block`}></span>
-              <span>{isDraft ? 'Unsaved changes' : 'Published'}</span>
-            </p>
+            {!isNew && (
+              <p className="flex-grow flex items-center justify-end gap-2 text-sm text-slate-500 dark:text-slate-300">
+                <span className={`${isDraft ? 'bg-yellow-600' : 'bg-green-600'} w-2 h-2 mt-1 rounded inline-block`}></span>
+                <span>{isDraft ? 'Unsaved changes' : 'Published'}</span>
+              </p>
+            )}
           </div>
         </div>
       </header>
-      <div className="lg:flex flex-wrap items-stretch gap-4 mb-4">
+      <div className="lg:flex items-stretch gap-4 mb-4">
         <PostEditor
           onDraft={saveDraft}
           onToggle={() => setExpanded(!expanded)}

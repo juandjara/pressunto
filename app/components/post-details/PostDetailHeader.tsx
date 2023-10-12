@@ -24,11 +24,11 @@ export default function PostDetailsHeader({
   const transition = useNavigation()
   const busy = transition.state === 'submitting'
   const navigate = useNavigate()
-  const { project, cid, pid } = useParams()
-  const conf = useProjectConfig()
+  const { project, cid } = useParams()
   const backLink = `/p/${project}/${cid}`
-  const isNew = pid === 'new'
+  const isNew = !file.id
   const [modalData, setModalData] = useState<FileModalData | null>(null)
+  const conf = useProjectConfig()
   const folders = conf.collections.map((c) => {
     return {
       mode: FileMode.TREE,
@@ -68,9 +68,11 @@ export default function PostDetailsHeader({
         className={`${buttonCN.normal} ${buttonCN.icon} ${buttonCN.cancel}`}>
         <ArrowLeftIcon className='w-5 h-5' />
       </button>
-      <div className={clsx('flex-grow flex items-center gap-3 border-b-2 px-2 mr-1', borderColor)}>
+      <div className={clsx('flex-grow flex items-center gap-3 border-b-2 p-2 mr-1', borderColor)}>
         <DocumentIcon className={iconCN.small} />
-        <p className="text-slate-600 dark:text-slate-200 text-lg py-2">{file.title}</p>
+        <p className="text-slate-600 dark:text-slate-200 text-lg">
+          {file.title || 'New post'}
+        </p>
       </div>
       <button
         type='submit'
