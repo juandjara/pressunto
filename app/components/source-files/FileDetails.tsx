@@ -75,7 +75,7 @@ function FileContents({ file }: { file?: ParsedFile }) {
 
 export default function FileDetails() {
   const project = useProject()
-  const { file, permissions } = useLoaderData<LoaderData>()
+  const { file } = useLoaderData<LoaderData>()
   const path = useParams()['*']
   const transition = useNavigation()
   const busy = transition.state === 'submitting'
@@ -98,43 +98,36 @@ export default function FileDetails() {
       <div className='my-4'>
         <FileContents file={file} />
       </div>
-
-      {permissions.push ? (
-        <div className='flex items-center'>
+      <div className='flex items-center'>
+        <button
+          disabled={busy}
+          type='submit'
+          name='_op'
+          value='save'
+          className={`${buttonCN.normal} ${buttonCN.slate}`}>
+          {busy ? 'Saving...' : 'Save'}
+        </button>
+        <Link to='../source'>
           <button
-            disabled={busy}
-            type='submit'
-            name='_op'
-            value='save'
-            className={`${buttonCN.normal} ${buttonCN.slate}`}>
-            {busy ? 'Saving...' : 'Save'}
+            type='button'
+            className={`ml-2 ${buttonCN.normal} ${buttonCN.cancel}`}>
+            Cancel
           </button>
-          <Link to='../source'>
-            <button
-              type='button'
-              className={`ml-2 ${buttonCN.normal} ${buttonCN.cancel}`}>
-              Cancel
-            </button>
-          </Link>
-          <div className='flex-grow'></div>
-          <button
-            disabled={busy}
-            type='submit'
-            name='_op'
-            value='delete'
-            onClick={handleSubmit}
-            className='disabled:opacity-50 disabled:pointer-events-none py-2 px-4 rounded-md bg-red-50 text-red-700 hover:bg-red-100'>
-            Delete
-          </button>
-          <input type="hidden" name="sha" value={file?.sha} />
-          <input type="hidden" name="repo" value={project.repo} />
-          <input type="hidden" name="branch" value={project.branch} />
-        </div>
-      ) : (
-        <div className="text-right text-red-800 rounded-xl p-3">
-          <p className="text-lg">You don't have permission to push to this repo</p>
-        </div>
-      )}
+        </Link>
+        <div className='flex-grow'></div>
+        <button
+          disabled={busy}
+          type='submit'
+          name='_op'
+          value='delete'
+          onClick={handleSubmit}
+          className='disabled:opacity-50 disabled:pointer-events-none py-2 px-4 rounded-md bg-red-50 text-red-700 hover:bg-red-100'>
+          Delete
+        </button>
+        <input type="hidden" name="sha" value={file?.sha} />
+        <input type="hidden" name="repo" value={project.repo} />
+        <input type="hidden" name="branch" value={project.branch} />
+      </div>
     </Form>
   )
 }

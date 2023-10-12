@@ -1,5 +1,5 @@
 import FileDetails from "@/components/source-files/FileDetails"
-import { deleteFile, getFileContent, getRepoDetails, saveFile } from "@/lib/github"
+import { deleteFile, getFileContent, saveFile } from "@/lib/github"
 import { getBasename } from "@/lib/pathUtils"
 import { getProject } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
@@ -10,22 +10,20 @@ import { useLoaderData } from "@remix-run/react"
 
 export async function loader({ request, params }: LoaderArgs) {
   const { token } = await requireUserSession(request)
-  const file = params['*'] || ''
-  const isNew = getBasename(file) === 'new'
+  const filename = params['*'] || ''
+  const isNew = getBasename(filename) === 'new'
+  if (isNew) {
+    return json({ file: null })
+  }
+
   const project = await getProject(Number(params.project))
+  const file = await getFileContent(token, {
+    file: filename,
+    repo: project.repo,
+    branch: project.branch,
+  })
 
-  const [details, content] = await Promise.all([
-    getRepoDetails(token, project.repo),
-    isNew
-      ? Promise.resolve(null)
-      : getFileContent(token, {
-          file,
-          repo: project.repo,
-          branch: project.branch,
-        })
-  ])
-
-  return json({ file: content, permissions: details.permissions })
+  return json({ file })
 }
 
 export async function action({ request, params }: ActionArgs) {
