@@ -1,17 +1,18 @@
 import { ComboBoxLocal } from "@/components/ComboBoxLocal"
 import type { TreeItem} from "@/lib/github"
-import { FileMode, getRepoFiles } from "@/lib/github"
+import { FileMode } from "@/lib/github"
 import metaTitle from "@/lib/metaTitle"
 import { getProject, getProjectConfig, updateConfigFile } from "@/lib/projects.server"
 import { deleteConfigFile, deleteProject, updateProject } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { buttonCN, checkboxCN, iconCN, inputCN, labelCN } from "@/lib/styles"
-import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
+import useProjectConfig, { useProject, useRepoTree } from "@/lib/useProjectConfig"
 import { DocumentDuplicateIcon, ListBulletIcon, PlusIcon } from "@heroicons/react/20/solid"
-import type { ActionFunction, LoaderArgs} from "@remix-run/node"
-import { json, redirect } from "@remix-run/node"
-import { Form, Link, Outlet, useLoaderData, useTransition } from "@remix-run/react"
+import type { ActionFunction } from "@remix-run/node"
+import { redirect } from "@remix-run/node"
+import { Form, Link, Outlet, useNavigation } from "@remix-run/react"
 import clsx from "clsx"
+import { useMemo } from "react"
 
 export const meta = {
   title: metaTitle('Settings')
@@ -64,26 +65,22 @@ export const action: ActionFunction = async ({ request, params }) => {
   return redirect(isDelete ? '/' : `/p/${project.id}/settings`, { headers })
 }
 
-export async function loader({ params, request }: LoaderArgs) {
-  const { token } = await requireUserSession(request)
-  const project = await getProject(Number(params.project))
-  const tree = await getRepoFiles(token, project.repo, project.branch)
-  tree.unshift({
-    path: '/',
-    type: 'tree' as const,
-    mode: FileMode.TREE,
-    sha: '',
-    url: '',
-  })
-
-  return json({ tree: tree.filter((t) => t.type === 'tree') })
-}
-
 const listCN = 'flex items-center gap-2 p-2 pr-1 rounded-md bg-slate-100 dark:bg-slate-700'
 
 export default function ProjectSettings() {
-  const { tree } = useLoaderData<typeof loader>()
   const config = useProjectConfig()
+  const tree = useRepoTree()
+  const folders = useMemo(() => {
+    const folders = tree.filter((t) => t.type === 'tree')
+    folders.unshift({
+      path: '/',
+      type: 'tree' as const,
+      mode: FileMode.TREE,
+      sha: '',
+      url: '',
+    })
+    return folders
+  }, [tree])
 
   return (
     <div className="p-4">
@@ -175,17 +172,17 @@ export default function ProjectSettings() {
             </ul>
           </div>
         </section>
-        <EditProject tree={tree} />
+        <EditProject folders={folders} />
         <DangerZone />
       </main>
     </div>
   )
 }
 
-function EditProject({ tree }: { tree: TreeItem[] }) {
+function EditProject({ folders }: { folders: TreeItem[] }) {
   const project = useProject()
   const config = useProjectConfig()
-  const transition = useTransition()
+  const transition = useNavigation()
   const busy = transition.state === 'submitting'
 
   return (
@@ -204,7 +201,7 @@ function EditProject({ tree }: { tree: TreeItem[] }) {
           <label htmlFor="mediaFolder" className={labelCN}>Media folder</label>
           <ComboBoxLocal<TreeItem>
             name='mediaFolder'
-            options={tree}
+            options={folders}
             labelKey='path'
             valueKey='path'
             defaultValue={config.mediaFolder || '/'}
@@ -229,7 +226,7 @@ function EditProject({ tree }: { tree: TreeItem[] }) {
 
 function DangerZone() {
   const project = useProject()
-  const transition = useTransition()
+  const transition = useNavigation()
   const busy = transition.state === 'submitting'
 
   function handleSubmit(ev: React.MouseEvent) {

@@ -1,5 +1,7 @@
 import { HEADER_HEIGHT } from "@/components/Header"
 import ProjectSidebar from "@/components/ProjectSidebar"
+import type { TreeItem} from "@/lib/github"
+import { getRepoFiles } from "@/lib/github"
 import metaTitle from "@/lib/metaTitle"
 import type { Project, ProjectConfig } from "@/lib/projects.server"
 import { getProjectConfig } from "@/lib/projects.server"
@@ -12,18 +14,19 @@ import { Outlet } from "@remix-run/react"
 type LoaderData = {
   project: Project,
   config: ProjectConfig
+  tree: TreeItem[]
 }
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   const { token } = await requireUserSession(request)
   const project = await getProject(Number(params.project))
-  const config = await getProjectConfig(token, project)
 
-  return json<LoaderData>({ project, config }, {
-    headers: new Headers({
-      'cache-control': 'max-age=60'
-    })
-  })
+  const [config, tree] = await Promise.all([
+    getProjectConfig(token, project),
+    getRepoFiles(token, project.repo, project.branch)
+  ])
+
+  return json<LoaderData>({ project, config, tree })
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data, params, location }) => {

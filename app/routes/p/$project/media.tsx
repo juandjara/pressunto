@@ -1,30 +1,23 @@
 import Spinner from "@/components/Spinner"
 import FileActionsMenu from "@/components/file-actions/FileActionsMenu"
+import type { FileModalData } from "@/components/file-actions/FileActionsModal"
 import FileActionsModal from "@/components/file-actions/FileActionsModal"
 import type { TreeItem } from "@/lib/github"
-import { FileMode, getRepoFiles } from "@/lib/github"
+import { FileMode } from "@/lib/github"
 import { getBasename } from "@/lib/pathUtils"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { borderColor, buttonCN, iconCN } from "@/lib/styles"
 import { uploadImage } from "@/lib/uploadImage"
-import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
+import useProjectConfig, { useProject, useRepoTree } from "@/lib/useProjectConfig"
 import { CloudArrowUpIcon, PhotoIcon } from "@heroicons/react/20/solid"
-import type { ActionArgs, LoaderArgs, UploadHandlerPart } from "@remix-run/node"
+import type { ActionArgs, UploadHandlerPart } from "@remix-run/node"
 import { json, unstable_composeUploadHandlers, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node"
-import { Link, Outlet, useActionData, useFetcher, useLoaderData, useRevalidator } from "@remix-run/react"
+import { Link, Outlet, useActionData, useFetcher, useRevalidator } from "@remix-run/react"
 import clsx from "clsx"
 import isBinaryPath from "is-binary-path"
 import type { ChangeEvent } from "react"
 import { useEffect, useRef, useState } from "react"
-
-export async function loader({ params, request }: LoaderArgs) {
-  const { token } = await requireUserSession(request)
-  const project = await getProject(Number(params.project))
-  const tree = await getRepoFiles(token, project.repo, project.branch)
-
-  return json({ tree })
-}
 
 export async function action({ params, request }: ActionArgs) {
   const { token } = await requireUserSession(request)
@@ -62,16 +55,11 @@ export async function action({ params, request }: ActionArgs) {
   return json({ ok: true }, { headers: { 'Set-Cookie': cookie }})
 }
 
-type ModalData = {
-  operation: 'move' | 'rename' | 'delete'
-  file: TreeItem
-}
-
 export default function Media() {
   const conf = useProjectConfig()
   const mediaFolder = conf.mediaFolder === '/' ? '' : conf.mediaFolder
   const { branch, repo } = useProject()
-  const { tree } = useLoaderData<typeof loader>()
+  const tree = useRepoTree()
   const folders = tree.filter(t => t.type === 'tree')
 
   const images = tree.filter(t => isBinaryPath(t.path))
@@ -88,7 +76,7 @@ export default function Media() {
     }))
 
   const allImages = [...notExistingPreviews, ...images]
-  const [modalData, setModalData] = useState<ModalData | null>(null)
+  const [modalData, setModalData] = useState<FileModalData | null>(null)
 
   const data = useActionData()
 
@@ -145,7 +133,7 @@ function ImageCard({
 }: {
   baseURL: string
   file: TreeItem
-  setModalData: (data: ModalData) => void
+  setModalData: (data: FileModalData) => void
 }) {
   return (
     <li

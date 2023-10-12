@@ -1,26 +1,8 @@
 import FileTree from "@/components/source-files/FileTree"
-import type { TreeItem } from "@/lib/github"
-import { getRepoFiles } from "@/lib/github"
-import { getProject } from "@/lib/projects.server"
-import { requireUserSession } from "@/lib/session.server"
-import type { LoaderFunction } from "@remix-run/node"
-import { json } from "@remix-run/node"
-import { useLoaderData } from "@remix-run/react"
-
-type LoaderData = {
-  tree: TreeItem[]
-}
-
-export const loader: LoaderFunction = async ({ params, request }) => {
-  const { token } = await requireUserSession(request)
-  const project = await getProject(Number(params.project))
-  const tree = await getRepoFiles(token, project.repo, project.branch)
-
-  return json<LoaderData>({ tree })
-}
+import { useRepoTree } from "@/lib/useProjectConfig"
 
 export default function ProjectSource() {
-  const { tree } = useLoaderData<LoaderData>()
+  const tree = useRepoTree()
   return (
     <div className="p-4">
       <h2 className="font-medium text-4xl text-slate-500 dark:text-slate-300 mt-4 mb-2">
