@@ -7,7 +7,7 @@ import { deleteConfigFile, deleteProject, updateProject } from "@/lib/projects.s
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { buttonCN, checkboxCN, iconCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig, { useProject, useRepoTree } from "@/lib/useProjectConfig"
-import { DocumentDuplicateIcon, ListBulletIcon, PlusIcon } from "@heroicons/react/20/solid"
+import { DocumentDuplicateIcon, ListBulletIcon, PlusIcon, FolderOpenIcon } from "@heroicons/react/20/solid"
 import type { ActionFunction } from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { Form, Link, Outlet, useNavigation } from "@remix-run/react"
@@ -120,7 +120,7 @@ export default function ProjectSettings() {
           </details>
           <div className="pb-6 pt-1">
             {config.collections.length === 0 && (
-              <p>You don't have any saved collection.</p>
+              <p>You don't have any saved collection in this project.</p>
             )}
             <ul className="space-y-4 mt-2">
               {config.collections.map((c) => (
@@ -160,7 +160,7 @@ export default function ProjectSettings() {
           </details>
           <div className="pb-6 pt-1">
             {config.templates.length === 0 && (
-              <p>You don't have any saved template.</p>
+              <p>You don't have any saved template in this project.</p>
             )}
             <ul className="space-y-4 mt-2">
               {config.templates.map((t) => (
@@ -205,6 +205,7 @@ function EditProject({ folders }: { folders: TreeItem[] }) {
             labelKey='path'
             valueKey='path'
             defaultValue={config.mediaFolder || '/'}
+            icon={<FolderOpenIcon className="w-5 h-5" />}
           />
           <p className="text-slate-400 text-sm mt-1">
             This is the folder where your media files (images and other binary files) will be stored.

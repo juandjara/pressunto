@@ -17,7 +17,7 @@ export default function Collections() {
       </h2>
       {collections.length === 0 && (
         <p className="dark:text-stone-200">
-          You don't have any saved collection.
+          You don't have any saved collection in this project.
         </p>
       )}
       <ul className="space-y-4 mt-4">
