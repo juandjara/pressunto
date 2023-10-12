@@ -30,7 +30,7 @@ When you create a new project, apart from updating records in the DB, a configur
 { "collections": [], "templates": [] }
 ```
 
-This file is updated with a new commit and push with every action performed in the [Settings](settings) page when updating collections or templates.
+This file stores the configureation for **collections** and **templates**, the data that *Press*unto usees for organizing your content.
 
 
 ### Deleting your data
