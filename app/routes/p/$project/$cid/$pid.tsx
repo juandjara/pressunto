@@ -1,5 +1,4 @@
-import type { Permissions} from "@/lib/github"
-import { getFileContent, getRepoDetails, saveFile } from "@/lib/github"
+import { getFileContent, saveFile } from "@/lib/github"
 import type { CollectionFile } from "@/lib/projects.server"
 import { processFileContent } from "@/lib/projects.server"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
@@ -18,7 +17,6 @@ import PostDetailsHeader from "@/components/post-details/PostDetailHeader"
 
 type LoaderData = {
   file: CollectionFile,
-  permissions: Permissions
 }
 
 export const meta: MetaFunction = ({ data }) => {
@@ -42,35 +40,32 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const folder = folderFromCollection(collection)
   const isNew = filename === 'new'
 
-  const blankFile = {
-    sha: '',
-    path: folder,
-    content: ''
+  if (isNew) {
+    return json<LoaderData>({
+      file: {
+        id: '',
+        path: folder,
+        body: '',
+        title: '',
+        attributes: {},
+      },
+    })
   }
 
-  const [file, details] = await Promise.all([
-    isNew ? Promise.resolve(blankFile) : getFileContent(token, {
-      file: `${folder}/${filename}`,
-      repo: project.repo,
-      branch: project.branch,
-    }),
-    getRepoDetails(token, project.repo)
-  ])
+  const file = await getFileContent(token, {
+    file: `${folder}/${filename}`,
+    repo: project.repo,
+    branch: project.branch,
+  })
 
-  if (!file) {
-    throw new Response(`File ${filename} not found in folder ${folder}`, { status: 404 })
-  }
-
-  const permissions = details.permissions
-  const etag = `"${file.sha}-${permissions.push}"`
+  const etag = `"${file.sha}"`
 
   if (request.headers.get('If-None-Match') === etag) {
     return new Response(null, { status: 304 })
   }
 
   return json<LoaderData>({
-    file: processFileContent(file || blankFile),
-    permissions
+    file: processFileContent(file),
   }, {
     headers: {
       'Cache-Control': 'private, max-age=0, must-revalidate',
@@ -135,20 +130,12 @@ export async function action({ request, params }: ActionArgs) {
 }
 
 export default function PostDetails() {
-  const { file, permissions } = useLoaderData<LoaderData>()
+  const { file } = useLoaderData<LoaderData>()
   const [isDraft, setIsDraft] = useState(false)
   const [expanded, setExpanded] = useState(false)
 
   function saveDraft() {
     setIsDraft(true)
-  }
-
-  if (!permissions.push) {
-    return (
-      <div className="text-right text-red-800 rounded-xl p-3">
-        <p className="text-lg">You don't have permission to push to this repo</p>
-      </div>
-    )
   }
 
   const noTitle = file.title === getBasename(file.path)

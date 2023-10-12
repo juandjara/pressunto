@@ -166,15 +166,10 @@ export type ParsedFile = ReturnType<typeof parseGithubFile>
 type GetContentParams = {
   repo: string
   file: string
-  isNew?: boolean
   branch: string
 }
 
-export async function getFileContent(token: string, { repo, file, isNew = false, branch }: GetContentParams) {
-  if (isNew) {
-    return null
-  }
-
+export async function getFileContent(token: string, { repo, file, branch }: GetContentParams) {
   const fileURL = `/repos/${repo}/contents/${file}?ref=${branch}`
   const { data } = await callGithubAPI(token, fileURL)
 
