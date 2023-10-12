@@ -28,13 +28,12 @@ export async function loader({ request, params }: LoaderArgs) {
 
 export async function action({ request, params }: ActionArgs) {
   const { token } = await requireUserSession(request)
+  const { branch, repo } = await getProject(Number(params.project))
   const formData = await request.formData()
   const op = formData.get('_op')
   const name = formData.get('filename') as string
   const body = formData.get('markdown') as string
   const path = formData.get('path') as string
-  const repo = formData.get('repo') as string
-  const branch = formData.get('branch') as string
   const sha = formData.get('sha') as string | undefined
 
   if (!name) {

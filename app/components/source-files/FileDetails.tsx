@@ -1,10 +1,10 @@
-import {  useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import FileEditor from './FileEditor'
 import type { ParsedFile, Permissions } from '@/lib/github'
 import FileLabel from './FileLabel'
 import { Form, Link, useLoaderData, useNavigation, useParams } from '@remix-run/react'
 import { buttonCN } from '@/lib/styles'
-import { useProject } from '@/lib/useProjectConfig'
+import { getBasename } from '@/lib/pathUtils'
 
 type LoaderData = {
   branch: string
@@ -45,7 +45,7 @@ function FileContents({ file }: { file?: ParsedFile }) {
       <div className='p-3 border border-slate-300 rounded-md'>
         <div>
           <img
-            alt="content from github"
+            alt={`file ${getBasename(file.path)} from github`}
             src={file.download_url}
             className='max-w-full object-contain mx-auto'
           />
@@ -74,7 +74,6 @@ function FileContents({ file }: { file?: ParsedFile }) {
 }
 
 export default function FileDetails() {
-  const project = useProject()
   const { file } = useLoaderData<LoaderData>()
   const path = useParams()['*']
   const transition = useNavigation()
@@ -125,8 +124,6 @@ export default function FileDetails() {
           Delete
         </button>
         <input type="hidden" name="sha" value={file?.sha} />
-        <input type="hidden" name="repo" value={project.repo} />
-        <input type="hidden" name="branch" value={project.branch} />
       </div>
     </Form>
   )
