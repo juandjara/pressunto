@@ -195,7 +195,11 @@ export async function getCollectionFiles(token: string, project: Project, collec
       })
     }
 
-    parsedFiles.push(processFileContent(fileContent))
+    const collectionFile = processFileContent(fileContent)
+    parsedFiles.push({
+      ...collectionFile,
+      body: '', // removing body for collection files to reduce payload size
+    })
   }
 
   parsedFiles.sort((a, b) => a.attributes.order - b.attributes.order)

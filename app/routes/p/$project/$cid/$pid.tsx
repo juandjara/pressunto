@@ -56,21 +56,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     branch: project.branch,
   })
 
-  const etag = `"${file.sha}"`
-
-  if (request.headers.get('If-None-Match') === etag) {
-    return new Response(null, { status: 304 })
-  }
-
-  return json<LoaderData>({
-    file: processFileContent(file),
-  }, {
-    headers: {
-      'Cache-Control': 'private, max-age=0, must-revalidate',
-      'Vary': 'Cookie',
-      'Etag': etag,
-    }
-  })
+  return json<LoaderData>({ file: processFileContent(file) })
 }
 
 export async function action({ request, params }: ActionArgs) {

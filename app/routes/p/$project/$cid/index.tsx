@@ -1,22 +1,22 @@
 import type { CollectionFile, ProjectCollection} from "@/lib/projects.server"
 import { updateCollectionFileOrder , getCollectionFiles , getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
+import type { DragEndEvent, DragStartEvent} from "@dnd-kit/core"
 import { closestCenter, DndContext, DragOverlay, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import type { ActionFunction, LoaderFunction } from "@remix-run/node"
 import { json } from "@remix-run/node"
-import { Form, Link, useLoaderData, useTransition } from "@remix-run/react"
+import { Form, Link, useLoaderData, useNavigation, useParams } from "@remix-run/react"
 import { useState } from "react"
-import { useProject } from "@/lib/useProjectConfig"
 import { ArrowsUpDownIcon, Bars2Icon, PlusIcon } from "@heroicons/react/20/solid"
 import { buttonCN, iconCN } from "@/lib/styles"
 import SortableItem from "@/components/SortableItem"
 import { DocumentIcon } from "@heroicons/react/24/outline"
 import { getBasename } from "@/lib/pathUtils"
+import useProjectConfig from "@/lib/useProjectConfig"
 
 type LoaderData = {
   files: CollectionFile[]
-  collection: ProjectCollection
 }
 
 export const loader: LoaderFunction = async ({ params, request }) => {
@@ -32,14 +32,13 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
   const files = await getCollectionFiles(token, project, collection)
 
-  return json<LoaderData>({ files, collection })
+  return json<LoaderData>({ files })
 }
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, params }) => {
   const { token } = await requireUserSession(request)
+  const { repo, branch } = await getProject(Number(params.project))
   const formData = await request.formData()
-  const repo = formData.get('repo') as string
-  const branch = formData.get('branch') as string
   const collectionRoute = formData.get('collectionRoute') as string
   const files = JSON.parse(formData.get('files') as string) as CollectionFile[]
 
@@ -69,11 +68,19 @@ type DisplayModeProps = {
   onToggleMode: (mode: CollectionDisplay) => void
 }
 
+function useCollection() {
+  const config = useProjectConfig()
+  const collectionId = useParams().cid
+  const collection = config.collections.find((c) => c.id === collectionId)
+  return collection as ProjectCollection
+}
+
 function CollectionLinks({ onToggleMode }: DisplayModeProps) {
-  const { files, collection } = useLoaderData<LoaderData>()
-  const transition = useTransition()
-  const fileList = transition.submission
-    ? JSON.parse(transition.submission.formData.get('files') as string) as CollectionFile[]
+  const collection = useCollection()
+  const { files } = useLoaderData<LoaderData>()
+  const transition = useNavigation()
+  const fileList = transition.formData
+    ? JSON.parse(transition.formData.get('files') as string) as CollectionFile[]
     : files
 
   return (
@@ -111,10 +118,10 @@ function CollectionLinks({ onToggleMode }: DisplayModeProps) {
 }
 
 function CollectionReorder({ onToggleMode }: DisplayModeProps) {
-  const project = useProject()
-  const { collection, files: _files } = useLoaderData<LoaderData>()
+  const collection = useCollection()
+  const { files: _files } = useLoaderData<LoaderData>()
   const [files, setFiles] = useState(_files)
-  const transition = useTransition()
+  const transition = useNavigation()
   const busy = transition.state !== 'idle'
 
   return (
@@ -135,8 +142,6 @@ function CollectionReorder({ onToggleMode }: DisplayModeProps) {
         </button>
       </header>
       <SortableList files={files} setFiles={setFiles} />
-      <input type="hidden" name="repo" value={project.repo} />
-      <input type="hidden" name="branch" value={project.branch} />
       <input type="hidden" name="collectionRoute" value={collection.route} />
       <input type="hidden" name="files" value={JSON.stringify(files)} />
     </Form>
@@ -145,11 +150,11 @@ function CollectionReorder({ onToggleMode }: DisplayModeProps) {
 
 type SortableListProps = {
   files: CollectionFile[]
-  setFiles: (f: CollectionFile[]) => any
+  setFiles: (f: CollectionFile[]) => void
 }
 
 function SortableList({ files, setFiles }: SortableListProps) {
-  const [activeId, setActiveId] = useState(null)
+  const [activeId, setActiveId] = useState<string | number>()
   const activeFile = files.find(f => f.id === activeId)
 
   const sensors = useSensors(
@@ -157,21 +162,20 @@ function SortableList({ files, setFiles }: SortableListProps) {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
-  function handleDragStart(ev: any) {
+  function handleDragStart(ev: DragStartEvent) {
     setActiveId(ev.active.id)
   }
 
-  function handleDragEnd(ev: any) {
-    if (ev.active.id !== ev.over.id) {
+  function handleDragEnd(ev: DragEndEvent) {
+    if (ev.active.id !== ev.over?.id) {
       const oldIndex = files.findIndex(f => f.id === ev.active.id)
-      const newIndex = files.findIndex(f => f.id === ev.over.id)
+      const newIndex = files.findIndex(f => f.id === ev.over?.id)
       const newFiles = arrayMove(files, oldIndex,  newIndex)
       setFiles(newFiles)
     }
 
-    setActiveId(null)
+    setActiveId(undefined)
   }
-
 
   return (
     <ul className="space-y-1">
