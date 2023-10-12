@@ -2,7 +2,7 @@ import {  useEffect, useState } from 'react'
 import FileEditor from './FileEditor'
 import type { ParsedFile, Permissions } from '@/lib/github'
 import FileLabel from './FileLabel'
-import { Form, Link, useLoaderData, useParams, useTransition } from '@remix-run/react'
+import { Form, Link, useLoaderData, useNavigation, useParams } from '@remix-run/react'
 import { buttonCN } from '@/lib/styles'
 import { useProject } from '@/lib/useProjectConfig'
 
@@ -77,7 +77,7 @@ export default function FileDetails() {
   const project = useProject()
   const { file, permissions } = useLoaderData<LoaderData>()
   const path = useParams()['*']
-  const transition = useTransition()
+  const transition = useNavigation()
   const busy = transition.state === 'submitting'
 
   function handleSubmit(ev: React.MouseEvent) {
