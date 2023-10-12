@@ -13,7 +13,7 @@ export default function FlashMessage() {
   }
 
   return (
-    <div className="absolute z-40 top-3 left-12 overflow-hidden" role="alert">
+    <div className="absolute z-40 top-3 left-3 md:left-12 overflow-hidden" role="alert">
       <div className="animate-alert flex items-center gap-4 pl-4 pr-2 py-2 rounded-md bg-slate-100 dark:bg-slate-600">
         <p>{flashMessage}</p>
         <button onClick={() => setOpen(false)} className={`p-1 ${buttonCN.common} ${buttonCN.cancel}`}>
