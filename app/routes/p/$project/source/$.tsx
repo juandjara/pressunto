@@ -4,8 +4,7 @@ import { getBasename } from "@/lib/pathUtils"
 import { getProject } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import type { ActionArgs, LoaderArgs} from "@remix-run/node"
-import { redirect } from "@remix-run/node"
-import { json } from "@remix-run/node"
+import { redirect , json } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
 
 export async function loader({ request, params }: LoaderArgs) {
@@ -22,6 +21,10 @@ export async function loader({ request, params }: LoaderArgs) {
     repo: project.repo,
     branch: project.branch,
   })
+
+  if (file.type === 'dir') {
+    return redirect(`/p/${params.project}/source`)
+  }
 
   return json({ file })
 }

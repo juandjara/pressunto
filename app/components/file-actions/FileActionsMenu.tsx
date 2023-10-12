@@ -1,10 +1,10 @@
 import type { TreeItem } from "@/lib/github"
 import type { FileModalData } from "./FileActionsModal"
-import { useTransition } from "@remix-run/react"
+import { useNavigation } from "@remix-run/react"
 import { Menu, Transition } from "@headlessui/react"
 import clsx from "clsx"
 import { buttonCN } from "@/lib/styles"
-import { EllipsisVerticalIcon, FolderOpenIcon, PencilIcon, TrashIcon } from "@heroicons/react/20/solid"
+import { ArrowTopRightOnSquareIcon, EllipsisVerticalIcon, FolderOpenIcon, PencilIcon, TrashIcon } from "@heroicons/react/20/solid"
 
 export default function FileActionsMenu({
   file,
@@ -12,14 +12,18 @@ export default function FileActionsMenu({
   wrapperCN = 'z-20 absolute top-0 left-0',
   hasGroupTransition = true,
   menuPosition = 'top-full left-0',
+  buttonCN: _buttonCN,
+  externalLink
 }: {
   file: TreeItem;
   setModalData: (data: FileModalData) => void
   wrapperCN?: string
   hasGroupTransition?: boolean
   menuPosition?: string
+  buttonCN?: string
+  externalLink?: string
 }) {
-  const transition = useTransition()
+  const transition = useNavigation()
   const busy = transition.state !== 'idle'
 
   function handleMove() {
@@ -52,6 +56,7 @@ export default function FileActionsMenu({
             aria-label="Open actions menu"
             className={
               clsx(
+                _buttonCN,
                 buttonCN.cancel,
                 'p-2 rounded-md',
                 {
@@ -75,6 +80,18 @@ export default function FileActionsMenu({
               static
               className={`w-72 rounded-md shadow-lg absolute ${menuPosition} ring-1 ring-black ring-opacity-5`}>
               <div className="rounded-md text-left py-2 bg-white dark:bg-slate-600">
+                {externalLink && (
+                  <Menu.Item
+                    as='a'
+                    href={externalLink}
+                    target="_blank"
+                    rel="noreferrer noopener" 
+                    className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
+                  >
+                    <ArrowTopRightOnSquareIcon className="w-5 h-5" />
+                    <span>Open file in GitHub</span>
+                  </Menu.Item>
+                )}
                 <Menu.Item
                   as="button"
                   type="button"

@@ -1,3 +1,4 @@
+import type { GithubFile} from './fileUtils'
 import { b64EncodeUnicode, parseGithubFile } from './fileUtils'
 
 const OAUTH_URL = 'https://github.com/login/oauth'
@@ -171,7 +172,17 @@ type GetContentParams = {
 
 export async function getFileContent(token: string, { repo, file, branch }: GetContentParams) {
   const fileURL = `/repos/${repo}/contents/${file}?ref=${branch}`
-  const { data } = await callGithubAPI(token, fileURL)
+  const { data } = await callGithubAPI(token, fileURL, {
+    headers: {
+      'Accept': 'application/vnd.github.object',
+    }
+  }) as { data: GithubFile }
+
+  console.log(data)
+
+  if (data.type === 'dir') {
+    return data
+  }
 
   /*
     if encoding is none,

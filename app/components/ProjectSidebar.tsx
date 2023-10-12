@@ -1,10 +1,9 @@
 import { borderColor, iconCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
-import { BookOpenIcon, CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, EyeSlashIcon, FolderIcon } from "@heroicons/react/20/solid"
+import { BookOpenIcon, CodeBracketIcon, Cog6ToothIcon, DocumentDuplicateIcon, EyeSlashIcon, FolderIcon , PhotoIcon } from "@heroicons/react/20/solid"
 import { NavLink } from "@remix-run/react"
 import { useRef } from "react"
 import { HeaderTitle } from "./Header"
-import { PhotoIcon } from "@heroicons/react/20/solid"
 import clsx from "clsx"
 
 const baseLinkCN = [

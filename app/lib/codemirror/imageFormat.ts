@@ -1,11 +1,9 @@
 // NOTE: adapted from here: https://github.com/voracious/ink-mde/blob/main/src/vendor/extensions/images.ts
 import { syntaxTree } from "@codemirror/language"
 import type { EditorState, Extension, Range } from "@codemirror/state"
-import { EditorSelection } from "@codemirror/state"
-import { RangeSet, StateField } from "@codemirror/state"
+import { EditorSelection , RangeSet, StateField } from "@codemirror/state"
 import type { DecorationSet} from "@codemirror/view"
-import { EditorView, WidgetType } from "@codemirror/view"
-import { Decoration } from "@codemirror/view"
+import { EditorView, WidgetType , Decoration } from "@codemirror/view"
 import { EditableComparment } from "./useCodeMirror"
 import { uploadImage } from "@/lib/uploadImage"
 

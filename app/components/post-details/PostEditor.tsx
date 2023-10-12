@@ -5,9 +5,8 @@ import { useEffect, useState } from "react"
 import MarkdownEditor from "./markdown-editor/MarkdownEditor"
 import MarkdownPreview from "./markdown-editor/MarkdownPreview"
 import clsx from "clsx"
-import { ArrowLeftIcon, DocumentMagnifyingGlassIcon } from "@heroicons/react/24/outline"
+import { ArrowLeftIcon, DocumentMagnifyingGlassIcon , ArrowsPointingOutIcon, ArrowsPointingInIcon } from "@heroicons/react/24/outline"
 import type { Permissions } from "@/lib/github"
-import { ArrowsPointingOutIcon, ArrowsPointingInIcon } from '@heroicons/react/24/outline'
 
 type LoaderData = {
   file: CollectionFile,

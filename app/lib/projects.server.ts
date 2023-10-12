@@ -153,7 +153,7 @@ export type CollectionFile = {
   id: string
   title: string
   path: string
-  attributes: Record<string, any>
+  attributes: Record<string, string | number>
   body: string
 }
 

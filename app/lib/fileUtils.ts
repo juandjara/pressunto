@@ -2,10 +2,10 @@ import { getBasename, getExtension, isMarkdown } from "./pathUtils"
 import * as mime from 'mime'
 import isbinary from 'is-binary-path'
 
-type GithubFile = {
+export type GithubFile = {
   content: string
   size: number
-  type: string
+  type: 'dir' | 'file'
   sha: string
   path: string
   download_url: string

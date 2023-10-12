@@ -1,6 +1,5 @@
 import { buttonCN } from "@/lib/styles"
-import { SunIcon } from "@heroicons/react/24/outline"
-import { MoonIcon } from "@heroicons/react/24/outline"
+import { SunIcon , MoonIcon } from "@heroicons/react/24/outline"
 import { useFetcher, useMatches } from "@remix-run/react"
 
 export default function DarkModeToggler() {

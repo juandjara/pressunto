@@ -5,7 +5,7 @@ import { ArrowLeftIcon, ArrowUpTrayIcon, ArrowUturnLeftIcon, DocumentIcon } from
 import { EllipsisVerticalIcon, FolderOpenIcon, TrashIcon } from "@heroicons/react/24/solid"
 import { Menu, Transition } from "@headlessui/react"
 import clsx from "clsx"
-import { folderFromCollection, getBasename } from "@/lib/pathUtils"
+import { folderFromCollection } from "@/lib/pathUtils"
 import type { FileModalData } from "../file-actions/FileActionsModal"
 import type { TreeItem } from "@/lib/github"
 import { FileMode } from "@/lib/github"

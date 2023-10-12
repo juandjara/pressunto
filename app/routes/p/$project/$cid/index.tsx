@@ -1,7 +1,5 @@
 import type { CollectionFile, ProjectCollection} from "@/lib/projects.server"
-import { updateCollectionFileOrder } from "@/lib/projects.server"
-import { getCollectionFiles } from "@/lib/projects.server"
-import { getProject, getProjectConfig } from "@/lib/projects.server"
+import { updateCollectionFileOrder , getCollectionFiles , getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession } from "@/lib/session.server"
 import { closestCenter, DndContext, DragOverlay, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
