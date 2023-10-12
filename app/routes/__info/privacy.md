@@ -30,11 +30,11 @@ When you create a new project, apart from updating records in the DB, a configur
 { "collections": [], "templates": [] }
 ```
 
-This file is updated with a new commit and push with every action performed in the [Settings](settings) page when updating collections or templates.
+This file stores the configureation for **collections** and **templates**, the data that *Press*unto usees for organizing your content.
 
 
 ### Deleting your data
 
-Using the **danger zone** section of the [Settings](settings) page, the stored information about a project can be deleted from the DB. All the records created or updated in the project creation phase will be reverted. The saved configuration file `pressunto.config.json` stored in the repository at the project creation time can also be deleted, leaving no trace of Pressunto in your repository as if it had never existed.
+Using the **danger zone** section of the [Settings](settings) page, all the stored information about a project can be deleted from the DB. All the records created or updated in the project creation phase will be reverted. The saved configuration file `pressunto.config.json` stored in the repository at the project creation time can also be deleted, leaving no trace of Pressunto in your repository as if it had never existed.
 
 If you have any other request about your data being deleted you can send me an email at juanorigami (at) gmail.com
