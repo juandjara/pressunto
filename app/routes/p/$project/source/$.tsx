@@ -1,5 +1,5 @@
 import FileDetails from "@/components/source-files/FileDetails"
-import { deleteFile, getFileContent, saveFile } from "@/lib/github"
+import { getFileContent, saveFile } from "@/lib/github"
 import { getBasename } from "@/lib/pathUtils"
 import { getProject } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
@@ -33,7 +33,6 @@ export async function action({ request, params }: ActionArgs) {
   const { token } = await requireUserSession(request)
   const { branch, repo } = await getProject(Number(params.project))
   const formData = await request.formData()
-  const op = formData.get('_op')
   const name = formData.get('filename') as string
   const body = formData.get('markdown') as string
   const path = formData.get('path') as string
@@ -44,35 +43,21 @@ export async function action({ request, params }: ActionArgs) {
   }
 
   const isNew = !sha
-  const message = op === 'delete' 
-    ? `Delete file ${path + name}`
-    : isNew
-      ? `Create file ${path + name}`
-      : `Update file ${path + name}`
+  const message = isNew
+    ? `Create file ${path + name}`
+    : `Update file ${path + name}`
+  const fullPath = (path || '') + name
 
-  const isDelete = op === 'delete'
+  await saveFile(token, {
+    branch,
+    repo,
+    sha,
+    path: fullPath,
+    message,
+    content: body
+  })
 
-  if (isDelete) {
-    await deleteFile(token, {
-      branch,
-      repo,
-      path: path + name,
-      message,
-    })
-  } else {
-    await saveFile(token, {
-      branch,
-      repo,
-      sha,
-      path: (path || '') + name,
-      message,
-      content: body
-    })
-  }
-
-  const returnPath = isDelete ? '' : path + name
-  const redirectPath = `/p/${params.project}/source/${returnPath}`
-
+  const redirectPath = `/p/${params.project}/source/${fullPath}`
   const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
 
   return redirect(redirectPath, {
