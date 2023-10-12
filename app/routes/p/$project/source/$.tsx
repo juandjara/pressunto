@@ -48,14 +48,26 @@ export async function action({ request, params }: ActionArgs) {
     : `Update file ${path + name}`
   const fullPath = (path || '') + name
 
-  await saveFile(token, {
-    branch,
-    repo,
-    sha,
-    path: fullPath,
-    message,
-    content: body
-  })
+  try {
+    await saveFile(token, {
+      branch,
+      repo,
+      sha,
+      path: fullPath,
+      message,
+      content: body
+    })
+  } catch (err) {
+    if ((err as Response).status === 409) {
+      const cookie = await setFlashMessage(request, `Conflict: File ${getBasename(fullPath)} has been updated by someone else. Please refresh the page to get the latest version.`)
+      return redirect(request.url, {
+        headers: {
+          'Set-Cookie': cookie
+        }
+      })
+    }
+    throw err
+  }
 
   const redirectPath = `/p/${params.project}/source/${fullPath}`
   const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
