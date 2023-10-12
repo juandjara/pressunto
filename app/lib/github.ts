@@ -178,8 +178,6 @@ export async function getFileContent(token: string, { repo, file, branch }: GetC
     }
   }) as { data: GithubFile }
 
-  console.log(data)
-
   if (data.type === 'dir') {
     return data
   }

@@ -23,7 +23,7 @@ export async function loader({ request, params }: LoaderArgs) {
   })
 
   if (file.type === 'dir') {
-    return redirect(`/p/${params.project}/source`)
+    return redirect(`/p/${params.project}/source?open=${filename}`)
   }
 
   return json({ file })

@@ -99,10 +99,10 @@ export default function FileDetails() {
           redirectTarget="source"
         />
       )}
-      <div className='relative flex items-center justify-start gap-2'>
+      <header className='relative flex items-center justify-start gap-2'>
         <Link
           className={clsx(buttonCN.cancel, buttonCN.small, buttonCN.iconSmall)}
-          to='./'
+          to={`./?open=${folder}`}
           title='Back to file tree'>
           <BackIcon />
         </Link>
@@ -129,7 +129,7 @@ export default function FileDetails() {
           menuPosition='top-full right-0 mt-2'
           externalLink={file.html_url}
         />
-      </div>
+      </header>
       <div className='my-4'>
         <input type="hidden" name="sha" value={file?.sha} />
         <FileContents file={file} />
@@ -141,7 +141,7 @@ export default function FileDetails() {
           className={`${buttonCN.normal} ${buttonCN.slate}`}>
           {busy ? 'Saving...' : 'Save'}
         </button>
-        <Link to='./'>
+        <Link to={`./?open=${folder}`}>
           <button
             type='button'
             className={`ml-2 ${buttonCN.normal} ${buttonCN.cancel}`}>
