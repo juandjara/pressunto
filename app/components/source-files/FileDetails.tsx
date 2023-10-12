@@ -134,21 +134,23 @@ export default function FileDetails() {
         <input type="hidden" name="sha" value={file?.sha} />
         <FileContents file={file} />
       </div>
-      <footer className='flex items-center'>
-        <button
-          disabled={busy}
-          type='submit'
-          className={`${buttonCN.normal} ${buttonCN.slate}`}>
-          {busy ? 'Saving...' : 'Save'}
-        </button>
-        <Link to={`./?open=${folder}`}>
+      {!file.isBinary && (
+        <footer className='flex items-center'>
           <button
-            type='button'
-            className={`ml-2 ${buttonCN.normal} ${buttonCN.cancel}`}>
-            Cancel
+            disabled={busy}
+            type='submit'
+            className={`${buttonCN.normal} ${buttonCN.slate}`}>
+            {busy ? 'Saving...' : 'Save'}
           </button>
-        </Link>
-      </footer>
+          <Link to={`./?open=${folder}`}>
+            <button
+              type='button'
+              className={`ml-2 ${buttonCN.normal} ${buttonCN.cancel}`}>
+              Cancel
+            </button>
+          </Link>
+        </footer>
+      )}
     </Form>
   )
 }
