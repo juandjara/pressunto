@@ -33,20 +33,16 @@ export async function action({ request, params }: ActionArgs) {
   const { token } = await requireUserSession(request)
   const { branch, repo } = await getProject(Number(params.project))
   const formData = await request.formData()
-  const name = formData.get('filename') as string
-  const body = formData.get('markdown') as string
+  const body = formData.get('body') as string
+  const name = formData.get('name') as string
   const path = formData.get('path') as string
   const sha = formData.get('sha') as string | undefined
 
-  if (!name) {
-    throw new Response(`"filename" param is required in form data`, { status: 400, statusText: 'Bad Request' })
-  }
-
   const isNew = !sha
-  const message = isNew
-    ? `Create file ${path + name}`
-    : `Update file ${path + name}`
   const fullPath = (path || '') + name
+  const message = isNew
+    ? `Create file ${fullPath}`
+    : `Update file ${fullPath}`
 
   try {
     await saveFile(token, {

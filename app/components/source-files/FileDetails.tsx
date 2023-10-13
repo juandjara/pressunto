@@ -5,7 +5,7 @@ import { Form, Link, useLoaderData, useNavigation, useParams } from '@remix-run/
 import { buttonCN } from '@/lib/styles'
 import { getBasename, getDirname } from '@/lib/pathUtils'
 import clsx from 'clsx'
-import { FolderOpenIcon } from '@heroicons/react/20/solid'
+import { DocumentIcon } from '@heroicons/react/24/outline'
 import FileActionsMenu from '../file-actions/FileActionsMenu'
 import type { FileModalData } from '../file-actions/FileActionsModal'
 import FileActionsModal from '../file-actions/FileActionsModal'
@@ -37,7 +37,7 @@ function FileContents({ file }: { file?: ParsedFile }) {
   if (!file || file.isMarkdown) {
     return (
       <FileEditor
-        name="markdown"
+        name="body"
         isMarkdown={file ? file.isMarkdown : true}
         initialValue={tempContent || file?.content || ''}
         onChange={setTempContent}
@@ -70,7 +70,7 @@ function FileContents({ file }: { file?: ParsedFile }) {
 
   return (
     <FileEditor
-      name="markdown"
+      name="body"
       isMarkdown={file?.isMarkdown}
       initialValue={tempContent || file?.content || ''}
       onChange={setTempContent}
@@ -99,6 +99,8 @@ export default function FileDetails() {
           redirectTarget="source"
         />
       )}
+      <input type="hidden" name="sha" value={file?.sha} />
+      <input type="hidden" name="path" value={file?.path} />
       <header className='relative flex items-center justify-start gap-2'>
         <Link
           className={clsx(buttonCN.cancel, buttonCN.small, buttonCN.iconSmall)}
@@ -107,8 +109,8 @@ export default function FileDetails() {
           <BackIcon />
         </Link>
         <div className='bg-white dark:bg-slate-700 text-slate-500 dark:text-slate-200 flex-grow min-w-0 py-1 px-2 rounded-md flex items-center gap-2'>
-          <FolderOpenIcon className="w-5 h-5" />
-            <span className='truncate'>
+          <DocumentIcon className="w-5 h-5" />
+          <span className='truncate'>
             {folder && (
               <span className='text-slate-400 dark:text-slate-500'>{folder}/</span>
             )}
@@ -131,7 +133,6 @@ export default function FileDetails() {
         />
       </header>
       <div className='my-4'>
-        <input type="hidden" name="sha" value={file?.sha} />
         <p className='mb-4'>
           Want to edit this file with the advanced markdown editor?
           Add the file to a <Link className='underline' to={`../settings`}>collection</Link> and edit it there.
