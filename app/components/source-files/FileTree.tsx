@@ -37,7 +37,9 @@ function NewFileItem({ path }: { path: string }) {
 
 function DirItem(f: TreeItem, tree: TreeItem[]) {
   const [params] = useSearchParams()
-  const path = params.get('open')
+  const pathnameFile = useParams()['*']
+  const searchFile = params.get('open')
+  const path = pathnameFile || searchFile
   const isOpen = !!path && path.startsWith(f.path)
 
   return (
