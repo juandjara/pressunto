@@ -63,13 +63,13 @@ export default function ProjectSidebar() {
           </NavLink>
         </li>
         <li>
-          <NavLink to='/doc' className={linkCN}>
+          <NavLink to='/docs' className={linkCN}>
             <BookOpenIcon className={iconCN.big} />
             <span className="text-lg">Documentation</span>
           </NavLink>
         </li>
         <li>
-          <NavLink to='/privacy' className={linkCN}>
+          <NavLink to='/docs/privacy' className={linkCN}>
             <EyeSlashIcon className={iconCN.big} />
             <span className="text-lg">Privacy</span>
           </NavLink>

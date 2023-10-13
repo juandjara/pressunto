@@ -59,9 +59,9 @@ export default function ProjectsList() {
         </button>
       </Link>
       <footer className="-mx-1 mt-8 flex items-center gap-2 text-sm">
-        <Link className="p-2 hover:underline" to='/doc'>Documentation</Link>
+        <Link className="p-2 hover:underline" to='/docs'>Documentation</Link>
         <div className="h-6 border-r border-slate-300"></div>
-        <Link className="p-2 hover:underline" to='/privacy'>Privacy</Link>
+        <Link className="p-2 hover:underline" to='/docs/privacy'>Privacy</Link>
       </footer>
     </div>
   )  

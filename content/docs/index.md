@@ -4,6 +4,8 @@ meta: {"title":"Documentation | Pressunto"}
 
 ## Documentation
 
+[[toc]]
+
 This page describes how to get the most of Pressunto and how different pages work together.
 
 ### Inspiration

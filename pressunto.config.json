@@ -1,9 +1,9 @@
 {
   "collections": [
     {
-      "id": "info-pages",
-      "name": "Info pages",
-      "route": "/app/routes/__info",
+      "id": "docs",
+      "name": "Documentation pages",
+      "route": "/content/docs",
       "template": ""
     }
   ],

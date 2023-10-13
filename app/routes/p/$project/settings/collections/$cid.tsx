@@ -77,6 +77,7 @@ export default function EditCollection() {
   const collection = config.collections.find((c) => c.id === collectionId)
   const project = useProject()
   const tree = useRepoTree()
+  const folders = tree.filter((item) => item.type === 'tree')
   const transition = useNavigation()
   const busy = transition.state === 'submitting'
 
@@ -113,7 +114,7 @@ export default function EditCollection() {
             <label htmlFor="route" className={labelCN}>Folder</label>
             <ComboBoxLocal<TreeItem>
               name='route'
-              options={tree}
+              options={folders}
               labelKey='path'
               valueKey='path'
               defaultValue={collection?.route.replace(/^\//, '')}

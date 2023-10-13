@@ -41,9 +41,9 @@ export default function Index() {
         </p>
       </div>
       <footer className="-mx-2 mt-6 flex items-center gap-2 text-sm">
-        <Link className="p-2 hover:underline" to='/doc'>Documentation</Link>
+        <Link className="p-2 hover:underline" to='/docs'>Documentation</Link>
         <div className="h-6 border-r border-slate-300"></div>
-        <Link className="p-2 hover:underline" to='/privacy'>Privacy</Link>
+        <Link className="p-2 hover:underline" to='/docs/privacy'>Privacy</Link>
       </footer>
     </div>
   )
