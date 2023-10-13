@@ -3,13 +3,13 @@ import FileEditor from './FileEditor'
 import { FileMode, type ParsedFile } from '@/lib/github'
 import { Form, Link, useLoaderData, useNavigation, useParams } from '@remix-run/react'
 import { borderColor, buttonCN, inputCNSmall } from '@/lib/styles'
-import { getBasename, getDirname } from '@/lib/pathUtils'
+import { cleanRoute, getBasename, getDirname } from '@/lib/pathUtils'
 import clsx from 'clsx'
 import { DocumentIcon } from '@heroicons/react/24/outline'
 import FileActionsMenu from '../file-actions/FileActionsMenu'
 import type { FileModalData } from '../file-actions/FileActionsModal'
 import FileActionsModal from '../file-actions/FileActionsModal'
-import { useRepoTree } from '@/lib/useProjectConfig'
+import useProjectConfig, { useRepoTree } from '@/lib/useProjectConfig'
 
 type LoaderData = {
   file: ParsedFile | null
@@ -73,6 +73,31 @@ function FileContents({ file }: { file?: ParsedFile }) {
       initialValue={tempContent || file?.content || ''}
       onChange={setTempContent}
     />
+  )
+}
+
+function MarkdownBanner({ className = '', file }: { className?: string; file?: ParsedFile }) {
+  const config = useProjectConfig()
+  const folder = file && cleanRoute(getDirname(file?.path || ''))
+  const collection = file && config.collections.find((c) => folder === cleanRoute(c.route))
+
+  if (!file?.isMarkdown) {
+    return null
+  }
+
+  if (collection) {
+    return (
+      <p className={className}>
+        This file is in the <Link className='underline' to={`../${collection.id}`}>{collection.name}</Link> collection.
+      </p>
+    )
+  }
+
+  return (
+    <p className={className}>
+      Want to edit this file with the advanced markdown editor?
+      Add the file to a <Link className='underline' to={`../settings`}>collection</Link> and edit it there.
+    </p>
   )
 }
 
@@ -142,12 +167,7 @@ export default function FileDetails() {
         />
       </header>
       <div className='my-4'>
-        {file?.isMarkdown && (
-          <p className='mb-4'>
-            Want to edit this file with the advanced markdown editor?
-            Add the file to a <Link className='underline' to={`../settings`}>collection</Link> and edit it there.
-          </p>
-        )}
+        <MarkdownBanner className='mb-4' file={file || undefined} />
         <FileContents file={file || undefined} />
       </div>
       {!file?.isBinary && (
