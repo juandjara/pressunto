@@ -1,11 +1,19 @@
 import FileDetails from "@/components/source-files/FileDetails"
 import { getFileContent, saveFile } from "@/lib/github"
+import metaTitle from "@/lib/metaTitle"
 import { getBasename, getDirname } from "@/lib/pathUtils"
 import { getProject } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
-import type { ActionArgs, LoaderArgs} from "@remix-run/node"
+import type { ActionArgs, LoaderArgs, MetaFunction} from "@remix-run/node"
 import { redirect , json } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  const name = getBasename(data.file?.path || '')
+  return {
+    title: metaTitle(name)
+  }
+}
 
 export async function loader({ request, params }: LoaderArgs) {
   const { token } = await requireUserSession(request)
