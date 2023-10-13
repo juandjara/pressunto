@@ -9,7 +9,7 @@ import { folderFromCollection, getBasename } from "@/lib/pathUtils"
 import type { FileModalData } from "../file-actions/FileActionsModal"
 import type { TreeItem } from "@/lib/github"
 import { FileMode } from "@/lib/github"
-import { PencilIcon } from "@heroicons/react/20/solid"
+import { PencilIcon, XMarkIcon } from "@heroicons/react/20/solid"
 import { useState } from "react"
 import FileActionsModal from "../file-actions/FileActionsModal"
 import useProjectConfig from "@/lib/useProjectConfig"
@@ -121,7 +121,18 @@ export default function PostDetailsHeader({
                 static
                 className="mt-2 w-72 rounded-md shadow-lg absolute top-full right-0 ring-1 ring-black ring-opacity-5">
                 <div className="rounded-md text-left py-2 bg-white dark:bg-slate-600">
-                  {isDraft ? (
+                  <Menu.Item
+                    as="button"
+                    type="submit"
+                    name="draft"
+                    value="true"
+                    disabled={!isTouched || busy || isNew}
+                    className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
+                  >
+                    <ArrowDownOnSquareStackIcon className="w-5 h-5" />
+                    <span>{isDraft ? 'Save new draft' : 'Save draft'}</span>
+                  </Menu.Item>
+                  {isDraft && (
                     <Menu.Item
                       as="button"
                       type="submit"
@@ -130,34 +141,20 @@ export default function PostDetailsHeader({
                       disabled={busy}
                       className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
                     >
-                      <ArrowUturnLeftIcon className="w-5 h-5" />
+                      <XMarkIcon className="w-5 h-5" />
                       <span>Discard saved draft</span>
                     </Menu.Item>
-                  ) : (
-                    <>
-                      <Menu.Item
-                        as="button"
-                        type="submit"
-                        name="draft"
-                        value="true"
-                        disabled={!isTouched || busy || isNew}
-                        className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
-                      >
-                        <ArrowDownOnSquareStackIcon className="w-5 h-5" />
-                        <span>Save draft</span>
-                      </Menu.Item>
-                      <Menu.Item
-                        as="button"
-                        type="button"
-                        disabled={!isTouched || busy}
-                        onClick={() => window.location.reload()}
-                        className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
-                      >
-                        <ArrowUturnLeftIcon className="w-5 h-5" />
-                        <span>Discard unsaved changes</span>
-                      </Menu.Item>
-                    </>
                   )}
+                  <Menu.Item
+                    as="button"
+                    type="button"
+                    disabled={!isTouched || busy}
+                    onClick={() => window.location.reload()}
+                    className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
+                  >
+                    <ArrowUturnLeftIcon className="w-5 h-5" />
+                    <span>Discard unsaved changes</span>
+                  </Menu.Item>
                   <Menu.Item
                     as="button"
                     type="button"
