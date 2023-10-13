@@ -83,7 +83,15 @@ export default function NewProject() {
   const [selectedRepo, setSelectedRepo] = useState<RepoItem>()
 
   const [params] = useSearchParams()
-  const defaultRepo = params.get('repo') || undefined
+  const [defaultOrg, defaultRepo] = (params.get('repo') || '').split('/')
+
+  // select repo from url params
+  useEffect(() => {
+    if (fetcher.data && !selectedRepo && defaultRepo) {
+      const repo = fetcher.data?.find(d => d.name == defaultRepo)
+      setSelectedRepo(repo)
+    }
+  }, [defaultRepo, fetcher, selectedRepo])
 
   const debouncedSearchFn = useMemo(
     () => debounce(
@@ -100,9 +108,9 @@ export default function NewProject() {
   useEffect(() => {
     if (!fetcher.data && fetcher.state === 'idle') {
       const org = orgSelectRef.current?.value
-      fetcher.load(`/api/search-repo?q=&org=${org}`)
+      fetcher.load(`/api/search-repo?q=${defaultRepo || ''}&org=${org}`)
     }
-  }, [fetcher])
+  }, [defaultRepo, fetcher])
 
   useEffect(() => {
     if (errors?.repo && repoSelectRef.current) {
@@ -126,7 +134,7 @@ export default function NewProject() {
           <div>
             <label className={labelCN} htmlFor="repo">GitHub repo</label>
             <div className="flex items-center gap-2">
-              <select ref={orgSelectRef} name="org" className={inputCN} style={{ flexBasis: '150px' }}>
+              <select defaultValue={defaultOrg || undefined} ref={orgSelectRef} name="org" className={inputCN} style={{ flexBasis: '150px' }}>
                 <option value={user}>{user}</option>
                 {orgs.map((k) => (
                   <option key={k} value={k}>{k}</option>
@@ -141,7 +149,7 @@ export default function NewProject() {
                   onSearch={debouncedSearchFn}
                   labelKey='name'
                   valueKey='name'
-                  defaultValue={defaultRepo}
+                  defaultValue={defaultRepo || ''}
                   onSelect={onSelectedRepo}
                 />
               </div>

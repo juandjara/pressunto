@@ -6,14 +6,10 @@ import { json } from "@remix-run/node"
 export async function loader({ request }: LoaderArgs) {
   const { token } = await requireUserSession(request)
   const url = new URL(request.url)
-  let query = url.searchParams.get("q") || ''
+  const query = url.searchParams.get('q') || ''
   const org = url.searchParams.get('org') as string
-
-  if (org) {
-    query = `${org}/${query}`
-  }
   
-  const { items } = await searchRepos(token, { query, includeForks: true })
+  const { items } = await searchRepos(token, { query, org, includeForks: true })
   return json(items, {
     headers: {
       'Cache-control': 'max-age=30'

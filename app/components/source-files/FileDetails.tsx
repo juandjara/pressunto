@@ -132,6 +132,10 @@ export default function FileDetails() {
       </header>
       <div className='my-4'>
         <input type="hidden" name="sha" value={file?.sha} />
+        <p className='mb-4'>
+          Want to edit this file with the advanced markdown editor?
+          Add the file to a <Link className='underline' to={`../settings`}>collection</Link> and edit it there.
+        </p>
         <FileContents file={file} />
       </div>
       {!file.isBinary && (

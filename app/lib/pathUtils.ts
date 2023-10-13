@@ -21,3 +21,7 @@ export function getExtension(path: string) {
 export function folderFromCollection(collection: ProjectCollection) {
   return collection.route.replace(/^\//, '').replace(/\/$/, '')
 }
+
+export function cleanRoute(route: string) {
+  return route.replace(/^\//, '').replace(/\/$/, '')
+}

@@ -6,10 +6,11 @@ import { updateConfigFile } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import slugify from "@/lib/slugify"
 import { buttonCN, inputCN, labelCN } from "@/lib/styles"
-import useProjectConfig, { useProject } from "@/lib/useProjectConfig"
+import useProjectConfig, { useProject, useRepoTree } from "@/lib/useProjectConfig"
+import { FolderOpenIcon, ListBulletIcon } from "@heroicons/react/20/solid"
 import type { ActionFunction } from "@remix-run/node"
 import { redirect } from "@remix-run/node"
-import { Form, useNavigate, useParams, useSearchParams, useTransition, useMatches } from "@remix-run/react"
+import { Form, useNavigate, useParams, useSearchParams, useNavigation } from "@remix-run/react"
 import clsx from "clsx"
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -75,9 +76,8 @@ export default function EditCollection() {
   const config = useProjectConfig()
   const collection = config.collections.find((c) => c.id === collectionId)
   const project = useProject()
-  const route = useMatches().find((m) => m.id === 'routes/p/$project/settings')
-  const tree = route?.data.tree as TreeItem[]
-  const transition = useTransition()
+  const tree = useRepoTree()
+  const transition = useNavigation()
   const busy = transition.state === 'submitting'
 
   const templateOptions = [{ id: '', name: 'No template', fields: [] as any }].concat(config.templates)
@@ -117,6 +117,7 @@ export default function EditCollection() {
               labelKey='path'
               valueKey='path'
               defaultValue={collection?.route.replace(/^\//, '')}
+              icon={<FolderOpenIcon className="w-5 h-5" />}
             />
           </div>
           <div>
@@ -127,6 +128,7 @@ export default function EditCollection() {
               labelKey='name'
               valueKey='id'
               defaultValue={collection?.template}
+              icon={<ListBulletIcon className="w-5 h-5" />}
             />
           </div>
         </fieldset>
