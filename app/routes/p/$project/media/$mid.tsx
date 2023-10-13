@@ -1,24 +1,18 @@
 import FileActionsMenu from "@/components/file-actions/FileActionsMenu"
 import type { FileModalData } from "@/components/file-actions/FileActionsModal"
 import FileActionsModal from "@/components/file-actions/FileActionsModal"
-import type { TreeItem } from "@/lib/github"
 import { borderColor, buttonCN, iconCN } from "@/lib/styles"
+import { useProject, useRepoTree } from "@/lib/useProjectConfig"
 import { XMarkIcon } from "@heroicons/react/20/solid"
 import { PhotoIcon } from "@heroicons/react/24/outline"
-import { Link, useMatches, useParams } from "@remix-run/react"
+import { Link, useParams } from "@remix-run/react"
 import clsx from "clsx"
 import { useState } from "react"
 
-type LoaderData = {
-  tree: TreeItem[]
-  repo: string
-  branch: string
-}
-
 export default function MediaDetails() {
   const { mid } = useParams()
-  const route = useMatches().find((m) => m.id === 'routes/p/$project/media')
-  const { tree, repo, branch } = route?.data as LoaderData
+  const { branch, repo } = useProject()
+  const tree = useRepoTree()
   const folders = tree.filter(t => t.type === 'tree')
   const file = tree.find((t) => t.sha === mid)
   const baseURL = `https://raw.githubusercontent.com/${repo}/${branch}/`
