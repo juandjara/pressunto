@@ -19,6 +19,7 @@ export default function FileEditor({ name, isMarkdown = true, initialValue = '',
         placeholder="...here goes something"
         onChange={ev => onChange(ev.target.value)}
         rows={20}
+        autoCorrect="off"
       />
     </div>
   )

@@ -31,6 +31,7 @@ export default function MarkdownEditor({ name, initialValue = '', onChange }: Ma
         aria-label="file contents"
         placeholder="file contents"
         rows={20}
+        autoCorrect="off"
       />
     </div>
   )
