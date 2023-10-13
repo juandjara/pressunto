@@ -205,7 +205,7 @@ export default function PostDetails() {
               </p>
             )}
             {!isNew && (
-              <p className="flex-grow flex items-center justify-end gap-2 text-sm text-slate-500 dark:text-slate-300">
+              <p className="flex-grow flex-shrink-0 flex items-center justify-end gap-2 text-sm text-slate-500 dark:text-slate-300">
                 <span className={clsx(
                   'w-2 h-2 rounded inline-block',
                   isTouched
