@@ -3,7 +3,7 @@ import { EditorView } from "@codemirror/view"
 export const customTheme = EditorView.theme({
   '&': {
     fontSize: '16px',
-    borderRadius: '4px',
+    borderRadius: '8px',
   },
   '.cm-scroller': {
     maxHeight: '700px',
@@ -14,8 +14,11 @@ export const customTheme = EditorView.theme({
     paddingTop: '48px',
     maxWidth: 'min(75ch, calc(100vw - 46px))',
   },
-  '.cm-content, .cm-gutters': {
+  '& .cm-content': {
     minHeight: '300px',
+  },
+  '& .cm-gutters': {
+    height: '300px',
   },
   '&.cm-editor.cm-focused': {
     outline: '2px solid #cbd5e1'
