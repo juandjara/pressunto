@@ -1,3 +1,4 @@
+import { TITLE_FIELD } from "@/lib/fileUtils"
 import type { Permissions } from "@/lib/github"
 import { getBasename } from "@/lib/pathUtils"
 import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
@@ -79,8 +80,8 @@ export default function FrontmatterEditor({ onDraft }: { onDraft: () => void }) 
       </div>
       {attrs.length === 0 && (
         <p className="max-w-xs text-slate-500 dark:text-slate-300 text-sm font-medium mt-4">
-          No fields defined for this collection.
-          You can <Link className="underline" to={`/p/${project}/settings/templates/new?back=${backLink}`}>create a template</Link> to assign default fields to this collection.
+          No default fields were assigned to this post.
+          You can <Link className="underline" to={`/p/${project}/settings/templates/new?back=${backLink}`}>create a template</Link> to assign default fields to the collection.
         </p>
       )}
       <input type='hidden' name='meta_fields' value={attrs.map(f => f.field).join(',')} />
@@ -110,8 +111,11 @@ export default function FrontmatterEditor({ onDraft }: { onDraft: () => void }) 
             <input
               type={entry.hidden ? 'hidden' : 'text'}
               name={`meta__${entry.field}`}
+              id={`meta__${entry.field}`}
               defaultValue={entry.value || entry.default || ''}
               className={inputCN}
+              disabled={entry.field === TITLE_FIELD}
+              title={entry.field === TITLE_FIELD ? 'The title field cannot be edited here, only in the top title field' : ''}
             />
           </div>
         ))}

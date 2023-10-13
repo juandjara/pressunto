@@ -84,7 +84,7 @@ export default function PostEditor({
             </button>
           </div>
           <MarkdownEditor
-            name="markdown"
+            name="body"
             initialValue={tempContent || file.body || ''}
             onChange={setTempContent}
           />

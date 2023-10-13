@@ -12,6 +12,7 @@ import PostEditor from "@/components/post-details/PostEditor"
 import metaTitle from "@/lib/metaTitle"
 import { useState } from "react"
 import PostDetailsHeader from "@/components/post-details/PostDetailHeader"
+import { TITLE_FIELD } from "@/lib/fileUtils"
 
 type LoaderData = {
   file: CollectionFile,
@@ -63,35 +64,37 @@ export async function action({ request, params }: ActionArgs) {
   const { token } = await requireUserSession(request)
   const { branch, repo } = await getProject(Number(params.project))
   const formData = await request.formData()
-  const body = formData.get('markdown') as string
+  const body = formData.get('body') as string
   const sha = formData.get('sha') as string
   const path = formData.get('path') as string
 
   if (!body) {
-    throw new Response(`"markdown" param is required in form data`, { status: 400, statusText: 'Bad Request' })
+    throw new Response(`"body" param is required in form data`, { status: 400, statusText: 'Bad Request' })
   }
 
   if (!path) {
     throw new Response(`"path" param is required in form data`, { status: 400, statusText: 'Bad Request' })
   }
 
-  const meta_fields = formData.get('meta_fields') as string
-  const matter = meta_fields
-    .split(',')
-    .filter(Boolean)
-    .map(key => `${key}: ${formData.get(`meta__${key}`)}`)
-    .join('\n')
-
-  const content = matter ? ['---', matter, '---', '', body].join('\n') : body
-
   const isNew = !sha
-
-  const slug = slugify(formData.get('meta__title') as string || '')
-  const fullPath = isNew ? `${path}/${slug}.md` : path
+  const title = formData.get('title') as string | null
+  const fullPath = isNew
+    ? `${path}/${slugify((title || '').trim() || 'untitled')}.md`
+    : path
 
   const message = isNew
     ? `Create file ${fullPath}`
     : `Update file ${fullPath}`
+
+  const meta_fields = formData.get('meta_fields') as string
+  const matter = meta_fields
+    .split(',')
+    .filter(f => f && f !== TITLE_FIELD)
+    .map(key => `${key}: ${formData.get(`meta__${key}`)}`)
+    .concat(title ? [`${TITLE_FIELD}: ${title}`] : [])
+    .join('\n')
+
+  const content = matter ? ['---', matter, '---', '', body].join('\n') : body
 
   try {
     await saveFile(token, {
@@ -145,7 +148,7 @@ export default function PostDetails() {
           <div className="flex items-center justify-between mb-6 gap-4">
             {noTitle && (
               <p className="md:pl-11 text-xs md:opacity-0 group-hover:opacity-100 transition-opacity">
-                You can change the post title by adding a <code>title</code> field in the fields section
+                Filling in this field will add a <code>title</code> field to your post attributes.
               </p>
             )}
             {!isNew && (

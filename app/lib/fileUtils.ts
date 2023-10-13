@@ -66,3 +66,5 @@ function extensionToCodeMirrorLang(extension: string) {
 
   return extension
 }
+
+export const TITLE_FIELD = 'title'

@@ -1,11 +1,11 @@
 import type { CollectionFile } from "@/lib/projects.server"
-import { borderColor, buttonCN, iconCN } from "@/lib/styles"
+import { buttonCN, iconCN, inputCN } from "@/lib/styles"
 import { useNavigate, useParams, useNavigation } from "@remix-run/react"
 import { ArrowLeftIcon, ArrowUpTrayIcon, ArrowUturnLeftIcon, DocumentIcon } from "@heroicons/react/24/outline"
 import { EllipsisVerticalIcon, FolderOpenIcon, TrashIcon } from "@heroicons/react/24/solid"
 import { Menu, Transition } from "@headlessui/react"
 import clsx from "clsx"
-import { folderFromCollection } from "@/lib/pathUtils"
+import { folderFromCollection, getBasename } from "@/lib/pathUtils"
 import type { FileModalData } from "../file-actions/FileActionsModal"
 import type { TreeItem } from "@/lib/github"
 import { FileMode } from "@/lib/github"
@@ -50,6 +50,13 @@ export default function PostDetailsHeader({
     })
   }
 
+  const noTitle = isNew || file.title === getBasename(file.path)
+  const placeholder = isNew 
+    ? 'New Post' 
+    : noTitle
+      ? file.title
+      : 'Post title'
+
   return (
     <div className="mb-2 flex items-center gap-2">
       {modalData && (
@@ -68,15 +75,21 @@ export default function PostDetailsHeader({
         className={`${buttonCN.normal} ${buttonCN.icon} ${buttonCN.cancel}`}>
         <ArrowLeftIcon className='w-5 h-5' />
       </button>
-      <div className={clsx('flex-grow flex items-center gap-3 border-b-2 p-2 mr-1', borderColor)}>
-        <DocumentIcon className={iconCN.small} />
-        <p className="text-slate-600 dark:text-slate-200 text-lg">
-          {file.title || 'New post'}
-        </p>
+      <div className={clsx('flex-grow mr-1 relative')}>
+        <DocumentIcon className={clsx('absolute top-[11px] left-2', iconCN.small)} />
+        <input
+          type="text"
+          name="title"
+          autoComplete="off"
+          defaultValue={noTitle ? undefined : file.title}
+          className={clsx('pl-8', inputCN)}
+          placeholder={placeholder}
+          required={isNew}
+        />
       </div>
       <button
         type='submit'
-        aria-disabled={!isDraft || busy}
+        aria-disabled={busy}
         className={`aria-disabled:opacity-75 ${buttonCN.normal} ${buttonCN.slate} ${buttonCN.iconLeft}`}
       >
         <ArrowUpTrayIcon className="w-6 h-6" />
