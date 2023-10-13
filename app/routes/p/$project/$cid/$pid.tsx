@@ -107,41 +107,43 @@ export async function action({ request, params }: ActionArgs) {
 
   const content = matter ? ['---', matter, '---', '', body].join('\n') : body
 
-  const isDeleteDraft = formData.get('delete_draft') === 'true'
-  if (isDeleteDraft) {
-    await deleteDraft(project.id, fullPath)
-    const cookie = await setFlashMessage(request, `Draft for "${getBasename(fullPath)}" deleted successfully`)
-    return redirect(request.url, {
-      headers: {
-        'Set-Cookie': cookie
-      }
-    })
-  }
+  if (!isNew) {  
+    const isDraft = formData.get('draft') === 'true'
+    if (isDraft) {
+      await saveDraft({
+        project,
+        file: {
+          id: sha,
+          path: fullPath,
+          body,
+          title: title || getBasename(fullPath),
+          attributes: Object.fromEntries(
+            matter.split('\n').map(line => {
+              const [key, ...value] = line.split(':')
+              return [key.trim(), value.join(':').trim()]
+            })
+          )
+        }
+      })
+      const cookie = await setFlashMessage(request, `Saved draft for "${getBasename(fullPath)}" successfully`)
+      return redirect(request.url, {
+        headers: {
+          'Set-Cookie': cookie
+        }
+      })
+    }
 
-  const isDraft = formData.get('draft') === 'true'
-  if (isDraft && !isNew) {
-    await saveDraft(token, {
-      project,
-      file: {
-        id: sha,
-        path: fullPath,
-        body,
-        title: title || getBasename(fullPath),
-        attributes: Object.fromEntries(
-          matter.split('\n').map(line => {
-            const [key, ...value] = line.split(':')
-            return [key.trim(), value.join(':').trim()]
-          })
-        )
-      }
-    })
-    const cookie = await setFlashMessage(request, `Saved draft for "${getBasename(fullPath)}" successfully`)
-    return redirect(request.url, {
-      headers: {
-        'Set-Cookie': cookie
-      }
-    })
-  } else {
+    const isDeleteDraft = formData.get('delete_draft') === 'true'
+    if (isDeleteDraft) {
+      await deleteDraft(project.id, fullPath)
+      const cookie = await setFlashMessage(request, `Draft for "${getBasename(fullPath)}" deleted successfully`)
+      return redirect(request.url, {
+        headers: {
+          'Set-Cookie': cookie
+        }
+      })
+    }
+
     await deleteDraft(project.id, fullPath)
   }
 

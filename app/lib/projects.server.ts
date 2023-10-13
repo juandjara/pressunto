@@ -247,7 +247,7 @@ type SaveDraftParams = {
   file: CollectionFile
 }
 
-export async function saveDraft(token: string, params: SaveDraftParams) {
+export async function saveDraft(params: SaveDraftParams) {
   const { project, file } = params
   const key = `draft:${project.id}:${encodeURIComponent(file.path)}`
   await db.set(key, file)
@@ -261,4 +261,14 @@ export async function getDraft(projectId: number, path: string) {
 
 export async function deleteDraft(projectId: number, path: string) {
   await db.del(`draft:${projectId}:${encodeURIComponent(path)}`)
+}
+
+export async function renameDraft(projectId: number, oldPath: string, newPath: string) {
+  const draft = await getDraft(projectId, oldPath)
+  if (!draft) {
+    return
+  }
+
+  await db.set(`draft:${projectId}:${encodeURIComponent(newPath)}`, draft)
+  await db.del(`draft:${projectId}:${encodeURIComponent(oldPath)}`)
 }

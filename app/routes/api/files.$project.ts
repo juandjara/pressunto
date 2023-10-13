@@ -1,6 +1,6 @@
 import { deleteFile, renameFile } from "@/lib/github"
 import { folderFromCollection, getBasename, getDirname } from "@/lib/pathUtils"
-import { getProject, getProjectConfig } from "@/lib/projects.server"
+import { deleteDraft, getProject, getProjectConfig, renameDraft } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import type { ActionArgs } from "@remix-run/node"
 import { redirect } from "@remix-run/node"
@@ -43,6 +43,8 @@ export async function action({ params, request }: ActionArgs) {
       newPath,
       message
     })
+    
+    await renameDraft(project.id, path, newPath)
 
     const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
     if (redirectTarget === 'source') {
@@ -71,6 +73,8 @@ export async function action({ params, request }: ActionArgs) {
       message,
       path,
     })
+
+    await deleteDraft(project.id, path)
 
     const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
     const returnPath = refererPath === `/p/${project.id}/media` ? refererPath : `${refererPath}/..`
