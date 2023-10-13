@@ -55,6 +55,8 @@ export async function action({ params, request }: ActionArgs) {
       const returnPath = collection ? `/p/${project.id}/${collection.id}/${getBasename(newPath)}` : `/p/${project.id}/source/${newPath}`
       return redirect(returnPath, { headers: { 'Set-Cookie': cookie }})
     }
+
+    return redirect(refererPath, { headers: { 'Set-Cookie': cookie }})
   }
 
   // delete file
