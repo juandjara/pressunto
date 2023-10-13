@@ -200,50 +200,6 @@ export async function getFileContent(token: string, { repo, file, branch }: GetC
   return parseGithubFile(data)
 }
 
-export type SaveFileParams = {
-  repo: string
-  message: string
-  branch?: string
-  path: string
-  sha?: string
-  content: string
-}
-
-export async function saveFile(token: string, params: SaveFileParams) {
-  const { repo, message, branch, sha, path, content } = params
-
-  const url = `/repos/${repo}/contents/${encodeURIComponent(path)}`
-  const body = { message, sha, branch, content: b64EncodeUnicode(content) }
-
-  const { data } = await callGithubAPI(token, url, { method: 'PUT', body: JSON.stringify(body) })
-  return data
-}
-
-export enum FileMode {
-  FILE = '100644',
-  EXECUTABLE = '100755',
-  SYMLINK = '120000',
-  TREE = '040000',
-  SUBMODULE = '160000'
-}
-
-type GitTreeItem = {
-  path: string
-  mode: FileMode
-  type: 'blob' | 'tree' | 'commit'
-} & ({ sha: string | null } | { content: string })
-
-type TreeCreatePayload = {
-  base_tree: string
-  tree: GitTreeItem[]
-}
-
-export async function createTree(token: string, repo: string, tree: TreeCreatePayload) {
-  const url = `/repos/${repo}/git/trees`
-  const { data } = await callGithubAPI(token, url, { method: 'POST', body: JSON.stringify(tree) })
-  return data
-}
-
 type BranchReference = {
   ref: string
   node_id: string
@@ -282,6 +238,31 @@ export async function getBranches(token: string, repo: string) {
   return data
 }
 
+export enum FileMode {
+  FILE = '100644',
+  EXECUTABLE = '100755',
+  SYMLINK = '120000',
+  TREE = '040000',
+  SUBMODULE = '160000'
+}
+
+type GitTreeItem = {
+  path: string
+  mode: FileMode
+  type: 'blob' | 'tree' | 'commit'
+} & ({ sha: string | null } | { content: string })
+
+type TreeCreatePayload = {
+  base_tree: string
+  tree: GitTreeItem[]
+}
+
+export async function createTree(token: string, repo: string, tree: TreeCreatePayload) {
+  const url = `/repos/${repo}/git/trees`
+  const { data } = await callGithubAPI(token, url, { method: 'POST', body: JSON.stringify(tree) })
+  return data
+}
+
 type CommitFilesParams = {
   repo: string
   branch: string
@@ -313,6 +294,50 @@ export async function commitAndPush(token: string, params: CommitFilesParams) {
   })
 
   return commitData
+}
+
+export type SaveFileParams = {
+  repo: string
+  message: string
+  branch: string
+  path: string
+  oldPath?: string
+  sha?: string
+  content: string
+}
+
+export async function saveFile(token: string, params: SaveFileParams) {
+  const { repo, message, branch, sha, path, oldPath, content } = params
+
+  const isRename = sha && oldPath && oldPath !== path
+  if (isRename) {
+    const commit = await commitAndPush(token, {
+      repo,
+      branch,
+      message,
+      files: [
+        {
+          path: oldPath,
+          mode: FileMode.FILE,
+          type: 'blob',
+          sha: null,
+        },
+        {
+          path,
+          mode: FileMode.FILE,
+          type: 'blob',
+          content,
+        },
+      ]
+    })
+    return commit
+  }
+
+  const url = `/repos/${repo}/contents/${encodeURIComponent(path)}`
+  const body = { message, sha, branch, content: b64EncodeUnicode(content) }
+
+  const { data } = await callGithubAPI(token, url, { method: 'PUT', body: JSON.stringify(body) })
+  return data
 }
 
 type RenameParams = {

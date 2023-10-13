@@ -1,3 +1,5 @@
+export const borderColor = 'border-gray-200 dark:border-gray-600'
+
 export const focusCN = [
   `focus:border-slate-300`,
   'focus:ring',
@@ -30,6 +32,14 @@ export const inputCN = [
   'dark:placeholder:text-slate-500',
   focusCN
 ].join(' ')
+
+export const inputCNSmall = [
+  'bg-white dark:bg-slate-600',
+  'placeholder:text-slate-400 dark:placeholder:text-slate-500',
+  'py-1 px-2 rounded',
+  borderColor,
+  focusCN,
+]
 
 export const checkboxCN = [
   'rounded',
@@ -69,8 +79,6 @@ export const buttonCN = {
   delete: 'text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-400/20',
   deleteBold: 'bg-red-700 hover:bg-red-800 text-white'
 }
-
-export const borderColor = 'border-gray-200 dark:border-gray-600'
 
 const iconColor = 'text-slate-400 dark:text-slate-400'
 export const iconCN = {

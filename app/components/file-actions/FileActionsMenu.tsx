@@ -25,6 +25,7 @@ export default function FileActionsMenu({
 }) {
   const transition = useNavigation()
   const busy = transition.state !== 'idle'
+  const isNew = !file.sha
 
   function handleMove() {
     setModalData({
@@ -84,6 +85,7 @@ export default function FileActionsMenu({
                   <Menu.Item
                     as='a'
                     href={externalLink}
+                    disabled={isNew}
                     target="_blank"
                     rel="noreferrer noopener" 
                     className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
@@ -95,7 +97,7 @@ export default function FileActionsMenu({
                 <Menu.Item
                   as="button"
                   type="button"
-                  disabled={busy}
+                  disabled={busy || isNew}
                   onClick={handleMove}
                   className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
                 >
@@ -105,7 +107,7 @@ export default function FileActionsMenu({
                 <Menu.Item
                   as="button"
                   type="button"
-                  disabled={busy}
+                  disabled={busy || isNew}
                   onClick={handleRename}
                   className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
                 >
@@ -115,7 +117,7 @@ export default function FileActionsMenu({
                 <Menu.Item
                   as="button"
                   type='button'
-                  disabled={busy}
+                  disabled={busy || isNew}
                   onClick={handleDelete}
                   className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.delete, buttonCN.normal)}
                 >

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import FileEditor from './FileEditor'
-import { FileMode, type ParsedFile, type Permissions } from '@/lib/github'
+import { FileMode, type ParsedFile } from '@/lib/github'
 import { Form, Link, useLoaderData, useNavigation, useParams } from '@remix-run/react'
-import { buttonCN } from '@/lib/styles'
+import { borderColor, buttonCN, inputCNSmall } from '@/lib/styles'
 import { getBasename, getDirname } from '@/lib/pathUtils'
 import clsx from 'clsx'
 import { DocumentIcon } from '@heroicons/react/24/outline'
@@ -12,9 +12,7 @@ import FileActionsModal from '../file-actions/FileActionsModal'
 import { useRepoTree } from '@/lib/useProjectConfig'
 
 type LoaderData = {
-  branch: string
-  file: ParsedFile
-  permissions: Permissions
+  file: ParsedFile | null
 }
 
 function BackIcon() {
@@ -108,20 +106,31 @@ export default function FileDetails() {
           title='Back to file tree'>
           <BackIcon />
         </Link>
-        <div className='bg-white dark:bg-slate-700 text-slate-500 dark:text-slate-200 flex-grow min-w-0 py-1 px-2 rounded-md flex items-center gap-2'>
-          <DocumentIcon className="w-5 h-5" />
-          <span className='truncate'>
-            {folder && (
-              <span className='text-slate-400 dark:text-slate-500'>{folder}/</span>
+        <div className={clsx(
+          'text-slate-500 dark:text-slate-200',
+          'pl-2 flex-grow min-w-0 flex items-center border-l', borderColor
+        )}>
+          <DocumentIcon className="w-5 h-5 mr-2 flex-shrink-0" />
+          {folder && (
+            <span className='truncate text-slate-400 dark:text-slate-500'>{folder}/</span>
+          )}
+          <input
+            type="text"
+            name="name"
+            defaultValue={basename === 'new' ? undefined : basename}
+            placeholder='new file'
+            required
+            className={clsx(
+              inputCNSmall,
+              'basis-[50%] flex-grow ml-2'
             )}
-            <span className='font-medium'>{basename}</span>
-          </span>
+          />
         </div>
         <FileActionsMenu
           file={{
             mode: FileMode.FILE,
-            path: file.path,
-            sha: file.sha,
+            path: file?.path || '',
+            sha: file?.sha || '',
             type: 'blob',
           }}
           hasGroupTransition={false}
@@ -129,19 +138,19 @@ export default function FileDetails() {
           wrapperCN=''
           buttonCN='p-1'
           menuPosition='top-full right-0 mt-2'
-          externalLink={file.html_url}
+          externalLink={file?.html_url}
         />
       </header>
       <div className='my-4'>
-        {file.isMarkdown && (
+        {file?.isMarkdown && (
           <p className='mb-4'>
             Want to edit this file with the advanced markdown editor?
             Add the file to a <Link className='underline' to={`../settings`}>collection</Link> and edit it there.
           </p>
         )}
-        <FileContents file={file} />
+        <FileContents file={file || undefined} />
       </div>
-      {!file.isBinary && (
+      {!file?.isBinary && (
         <footer className='flex items-center'>
           <button
             disabled={busy}

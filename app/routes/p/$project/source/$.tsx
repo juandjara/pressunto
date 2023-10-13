@@ -1,6 +1,6 @@
 import FileDetails from "@/components/source-files/FileDetails"
 import { getFileContent, saveFile } from "@/lib/github"
-import { getBasename } from "@/lib/pathUtils"
+import { getBasename, getDirname } from "@/lib/pathUtils"
 import { getProject } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import type { ActionArgs, LoaderArgs} from "@remix-run/node"
@@ -33,29 +33,34 @@ export async function action({ request, params }: ActionArgs) {
   const { token } = await requireUserSession(request)
   const { branch, repo } = await getProject(Number(params.project))
   const formData = await request.formData()
-  const body = formData.get('body') as string
-  const name = formData.get('name') as string
-  const path = formData.get('path') as string
-  const sha = formData.get('sha') as string | undefined
+  const name = formData.get('name') as string | null
+  const path = formData.get('path') as string | null
+  const body = formData.get('body') as string | null
+  const sha = formData.get('sha') as string | null
+
+  if (!name) {
+    return new Response('"name" param must not be empty', { status: 400 })
+  }
 
   const isNew = !sha
-  const fullPath = (path || '') + name
+  const newPath = path ? `${getDirname(path)}/${name}` : name
   const message = isNew
-    ? `Create file ${fullPath}`
-    : `Update file ${fullPath}`
+    ? `Create file ${newPath}`
+    : `Update file ${newPath}`
 
   try {
     await saveFile(token, {
       branch,
       repo,
-      sha,
-      path: fullPath,
+      sha: sha || undefined,
+      oldPath: path || undefined,
+      path: newPath,
       message,
-      content: body
+      content: body || ''
     })
   } catch (err) {
     if ((err as Response).status === 409) {
-      const cookie = await setFlashMessage(request, `Conflict: File ${getBasename(fullPath)} has been updated by someone else. Please refresh the page to get the latest version.`)
+      const cookie = await setFlashMessage(request, `Conflict: File ${getBasename(newPath)} has been updated by someone else. Please refresh the page to get the latest version.`)
       return redirect(request.url, {
         headers: {
           'Set-Cookie': cookie
@@ -65,7 +70,7 @@ export async function action({ request, params }: ActionArgs) {
     throw err
   }
 
-  const redirectPath = `/p/${params.project}/source/${fullPath}`
+  const redirectPath = `/p/${params.project}/source/${newPath}`
   const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
 
   return redirect(redirectPath, {
