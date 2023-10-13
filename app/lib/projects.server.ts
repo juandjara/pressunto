@@ -241,3 +241,24 @@ export async function updateCollectionFileOrder(token: string, payload: UpdateOr
 
   return commit
 }
+
+type SaveDraftParams = {
+  project: Project
+  file: CollectionFile
+}
+
+export async function saveDraft(token: string, params: SaveDraftParams) {
+  const { project, file } = params
+  const key = `draft:${project.id}:${encodeURIComponent(file.path)}`
+  await db.set(key, file)
+  return key
+}
+
+export async function getDraft(projectId: number, path: string) {
+  const draft = await db.get<CollectionFile>(`draft:${projectId}:${encodeURIComponent(path)}`)
+  return draft
+}
+
+export async function deleteDraft(projectId: number, path: string) {
+  await db.del(`draft:${projectId}:${encodeURIComponent(path)}`)
+}

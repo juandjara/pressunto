@@ -1,6 +1,6 @@
 import { getFileContent, saveFile } from "@/lib/github"
 import type { CollectionFile } from "@/lib/projects.server"
-import { processFileContent , getProject, getProjectConfig } from "@/lib/projects.server"
+import { processFileContent , getProject, getProjectConfig, saveDraft, deleteDraft, getDraft } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import type { ActionArgs, LoaderFunction, MetaFunction} from "@remix-run/node"
 import { redirect , json } from "@remix-run/node"
@@ -13,9 +13,11 @@ import metaTitle from "@/lib/metaTitle"
 import { useState } from "react"
 import PostDetailsHeader from "@/components/post-details/PostDetailHeader"
 import { TITLE_FIELD } from "@/lib/fileUtils"
+import clsx from "clsx"
 
 type LoaderData = {
   file: CollectionFile,
+  isDraft: boolean
 }
 
 export const meta: MetaFunction = ({ data }) => {
@@ -48,24 +50,33 @@ export const loader: LoaderFunction = async ({ params, request }) => {
         title: '',
         attributes: {},
       },
+      isDraft: false
     })
   }
 
+  const fullPath = `${folder}/${filename}`
+
+  const draft = await getDraft(project.id, fullPath)
+  if (draft) {
+    return json<LoaderData>({ file: draft, isDraft: true })
+  }
+
   const file = await getFileContent(token, {
-    file: `${folder}/${filename}`,
+    file: fullPath,
     repo: project.repo,
     branch: project.branch,
   })
 
-  return json<LoaderData>({ file: processFileContent(file) })
+  return json<LoaderData>({ file: processFileContent(file), isDraft: false })
 }
 
 export async function action({ request, params }: ActionArgs) {
   const { token } = await requireUserSession(request)
-  const { branch, repo } = await getProject(Number(params.project))
+  const project = await getProject(Number(params.project))
+  const { repo, branch } = project
   const formData = await request.formData()
   const body = formData.get('body') as string
-  const sha = formData.get('sha') as string
+  const sha = formData.get('sha') as string | null
   const path = formData.get('path') as string
 
   if (!body) {
@@ -96,11 +107,49 @@ export async function action({ request, params }: ActionArgs) {
 
   const content = matter ? ['---', matter, '---', '', body].join('\n') : body
 
+  const isDeleteDraft = formData.get('delete_draft') === 'true'
+  if (isDeleteDraft) {
+    await deleteDraft(project.id, fullPath)
+    const cookie = await setFlashMessage(request, `Draft for "${getBasename(fullPath)}" deleted successfully`)
+    return redirect(request.url, {
+      headers: {
+        'Set-Cookie': cookie
+      }
+    })
+  }
+
+  const isDraft = formData.get('draft') === 'true'
+  if (isDraft && !isNew) {
+    await saveDraft(token, {
+      project,
+      file: {
+        id: sha,
+        path: fullPath,
+        body,
+        title: title || getBasename(fullPath),
+        attributes: Object.fromEntries(
+          matter.split('\n').map(line => {
+            const [key, ...value] = line.split(':')
+            return [key.trim(), value.join(':').trim()]
+          })
+        )
+      }
+    })
+    const cookie = await setFlashMessage(request, `Saved draft for "${getBasename(fullPath)}" successfully`)
+    return redirect(request.url, {
+      headers: {
+        'Set-Cookie': cookie
+      }
+    })
+  } else {
+    await deleteDraft(project.id, fullPath)
+  }
+
   try {
     await saveFile(token, {
       branch,
       repo,
-      sha,
+      sha: sha || undefined,
       path: fullPath,
       message,
       content
@@ -129,13 +178,13 @@ export async function action({ request, params }: ActionArgs) {
 }
 
 export default function PostDetails() {
-  const { file } = useLoaderData<LoaderData>()
-  const [isDraft, setIsDraft] = useState(false)
+  const { file, isDraft } = useLoaderData<LoaderData>()
+  const [isTouched, setIsTouched] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const isNew = !file.id
 
-  function saveDraft() {
-    setIsDraft(true)
+  function onTouched() {
+    setIsTouched(true)
   }
 
   const noTitle = isNew || file.title === getBasename(file.path)
@@ -144,7 +193,11 @@ export default function PostDetails() {
     <Form method='post' className="py-4 px-2 md:px-4 mb-8">
       <header>
         <div className="group">
-          <PostDetailsHeader file={file} isDraft={isDraft} />
+          <PostDetailsHeader
+            file={file}
+            isTouched={isTouched}
+            isDraft={isDraft}
+          />
           <div className="flex items-center justify-between mb-6 gap-4">
             {noTitle && (
               <p className="md:pl-11 text-xs md:opacity-0 group-hover:opacity-100 transition-opacity">
@@ -153,8 +206,22 @@ export default function PostDetails() {
             )}
             {!isNew && (
               <p className="flex-grow flex items-center justify-end gap-2 text-sm text-slate-500 dark:text-slate-300">
-                <span className={`${isDraft ? 'bg-yellow-600' : 'bg-green-600'} w-2 h-2 mt-1 rounded inline-block`}></span>
-                <span>{isDraft ? 'Unsaved changes' : 'Published'}</span>
+                <span className={clsx(
+                  'w-2 h-2 rounded inline-block',
+                  isTouched
+                    ? 'bg-yellow-600'
+                    : isDraft
+                      ? 'bg-green-600/50'
+                      : 'bg-green-600'
+                )}></span>
+                <span>
+                  {isTouched
+                    ? 'Unsaved changes'
+                    : isDraft
+                      ? 'Saved draft'
+                      : 'Published'
+                  }
+                </span>
               </p>
             )}
           </div>
@@ -162,12 +229,12 @@ export default function PostDetails() {
       </header>
       <div className="lg:flex items-stretch gap-4 mb-4">
         <PostEditor
-          onDraft={saveDraft}
+          onDraft={onTouched}
           onToggle={() => setExpanded(!expanded)}
           expanded={expanded}
         />
         {!expanded && (
-          <FrontmatterEditor onDraft={saveDraft} />
+          <FrontmatterEditor onDraft={onTouched} />
         )}
       </div>
       <input type='hidden' name='sha' value={file.id} />

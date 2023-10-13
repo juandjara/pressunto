@@ -1,7 +1,7 @@
 import type { CollectionFile } from "@/lib/projects.server"
 import { buttonCN, iconCN, inputCN } from "@/lib/styles"
 import { useNavigate, useParams, useNavigation } from "@remix-run/react"
-import { ArrowLeftIcon, ArrowUpTrayIcon, ArrowUturnLeftIcon, DocumentIcon } from "@heroicons/react/24/outline"
+import { ArrowDownOnSquareStackIcon, ArrowLeftIcon, ArrowUpTrayIcon, ArrowUturnLeftIcon, DocumentIcon } from "@heroicons/react/24/outline"
 import { EllipsisVerticalIcon, FolderOpenIcon, TrashIcon } from "@heroicons/react/24/solid"
 import { Menu, Transition } from "@headlessui/react"
 import clsx from "clsx"
@@ -16,9 +16,11 @@ import useProjectConfig from "@/lib/useProjectConfig"
 
 export default function PostDetailsHeader({
   file,
-  isDraft,
+  isTouched,
+  isDraft
 }: {
   file: CollectionFile,
+  isTouched: boolean
   isDraft: boolean
 }) {
   const transition = useNavigation()
@@ -119,20 +121,47 @@ export default function PostDetailsHeader({
                 static
                 className="mt-2 w-72 rounded-md shadow-lg absolute top-full right-0 ring-1 ring-black ring-opacity-5">
                 <div className="rounded-md text-left py-2 bg-white dark:bg-slate-600">
+                  {isDraft ? (
+                    <Menu.Item
+                      as="button"
+                      type="submit"
+                      name="delete_draft"
+                      value="true"
+                      disabled={busy}
+                      className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
+                    >
+                      <ArrowUturnLeftIcon className="w-5 h-5" />
+                      <span>Discard saved draft</span>
+                    </Menu.Item>
+                  ) : (
+                    <>
+                      <Menu.Item
+                        as="button"
+                        type="submit"
+                        name="draft"
+                        value="true"
+                        disabled={!isTouched || busy || isNew}
+                        className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
+                      >
+                        <ArrowDownOnSquareStackIcon className="w-5 h-5" />
+                        <span>Save draft</span>
+                      </Menu.Item>
+                      <Menu.Item
+                        as="button"
+                        type="button"
+                        disabled={!isTouched || busy}
+                        onClick={() => window.location.reload()}
+                        className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
+                      >
+                        <ArrowUturnLeftIcon className="w-5 h-5" />
+                        <span>Discard unsaved changes</span>
+                      </Menu.Item>
+                    </>
+                  )}
                   <Menu.Item
                     as="button"
                     type="button"
-                    disabled={!isDraft || busy}
-                    onClick={() => window.location.reload()}
-                    className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
-                  >
-                    <ArrowUturnLeftIcon className="w-5 h-5" />
-                    <span>Discard unsaved changes</span>
-                  </Menu.Item>
-                    <Menu.Item
-                    as="button"
-                    type="button"
-                    disabled={busy}
+                    disabled={busy || isNew}
                     onClick={() => openModal('move')}
                     className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
                   >
