@@ -1,13 +1,20 @@
 import { getContent } from "@/lib/content.server"
+import metaTitle from "@/lib/metaTitle"
 import { buttonCN } from "@/lib/styles"
 import { ArrowLeftIcon } from "@heroicons/react/20/solid"
-import type { LoaderArgs } from "@remix-run/node"
+import type { LoaderArgs, MetaFunction } from "@remix-run/node"
 import { useLoaderData, useNavigate } from "@remix-run/react"
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return {
+    title: metaTitle(data?.title)
+  }
+}
 
 export async function loader({ params }: LoaderArgs) {
   const slug = params['*'] || 'index'
-  const html = await getContent(slug)
-  return { html }
+  const { html, title } = await getContent(slug)
+  return { html, title }
 }
 
 export default function DocLayout() {

@@ -1,5 +1,5 @@
 ---
-meta: {"title":"Documentation | Pressunto"}
+title: Documentation
 ---
 
 ## Documentation

@@ -1,8 +1,10 @@
 ---
-meta: {"title":"Privacy | Pressunto"}
+title: Privacy
 ---
 
 ## Privacy
+
+[[toc]]
 
 This page describes what data is read and saved in the application, how is it used and how to delete it if necessary.
 
