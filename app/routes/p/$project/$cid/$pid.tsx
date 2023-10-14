@@ -127,7 +127,7 @@ export async function action({ request, params }: ActionArgs) {
         }
       })
       const cookie = await setFlashMessage(request, `Saved draft for "${getBasename(fullPath)}" successfully`)
-      return redirect(request.url, {
+      return json({ ok: true }, {
         headers: {
           'Set-Cookie': cookie
         }
@@ -138,7 +138,7 @@ export async function action({ request, params }: ActionArgs) {
     if (isDeleteDraft) {
       await deleteDraft(project.id, fullPath)
       const cookie = await setFlashMessage(request, `Draft for "${getBasename(fullPath)}" deleted successfully`)
-      return redirect(request.url, {
+      return json({ ok: true }, {
         headers: {
           'Set-Cookie': cookie
         }
@@ -160,7 +160,7 @@ export async function action({ request, params }: ActionArgs) {
   } catch (err) {
     if ((err as Response).status === 409) {
       const cookie = await setFlashMessage(request, `Conflict: File ${getBasename(fullPath)} has been updated by someone else. Please refresh the page to get the latest version.`)
-      return redirect(request.url, {
+      return json({ ok: true }, {
         headers: {
           'Set-Cookie': cookie
         }
@@ -202,6 +202,7 @@ export default function PostDetails() {
             method: 'post',
             preventScrollReset: true,
           })
+          setIsTouched(false)
         }
       },
       AUTOSAVE_INTERVAL
@@ -236,22 +237,22 @@ export default function PostDetails() {
             <p className="flex-grow flex-shrink-0 flex items-center justify-end gap-2 text-sm text-slate-500 dark:text-slate-300">
               <span className={clsx(
                 'w-2 h-2 rounded inline-block',
-                isTouched
-                  ? autosaveInProgress 
-                    ? 'bg-yellow-600/50'
-                    : 'bg-yellow-600'
-                  : isDraft
-                    ? 'bg-green-600/50'
-                    : 'bg-green-600'
+                autosaveInProgress
+                  ? 'bg-yellow-600/50'
+                  : isTouched
+                    ? 'bg-yellow-600'
+                    : isDraft
+                      ? 'bg-green-600/50'
+                      : 'bg-green-600'
               )}></span>
               <span>
-                {isTouched
-                  ? autosaveInProgress
-                    ? 'Saving draft...'
-                    : 'Unsaved changes'
-                  : isDraft
-                    ? 'Saved draft'
-                    : 'Published'
+                {autosaveInProgress
+                  ? 'Saving draft...'
+                  : isTouched
+                    ? 'Unsaved changes'
+                    : isDraft
+                      ? 'Saved draft'
+                      : 'Published'
                 }
               </span>
             </p>
