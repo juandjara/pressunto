@@ -91,9 +91,7 @@ export default function App() {
             <Outlet />
           </div>
         </div>
-        <ScrollRestoration
-          // getKey={(l) => l.pathname}
-        />
+        <ScrollRestoration />
         <Scripts />
         <LiveReload />
       </body>
