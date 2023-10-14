@@ -114,7 +114,7 @@ export default function ProjectSettings() {
               <li>They are defined by a <strong>name</strong>, a <strong>folder</strong> path in the repo and a <strong>template</strong>.</li>
               <li>Every collection can have a list of default fields called a <strong>template</strong> that will be asigned to every new post.</li>
               <li>Every collection will list the markdown files in the folder as posts, not including subfolders.</li>
-              <li>Posts for a collection can accessed in the upper area of the left sidebar.</li>
+              <li>Posts for a collection can be accessed in the upper area of the left sidebar.</li>
             </ul>
           </details>
           <div className="pb-6 pt-1">
