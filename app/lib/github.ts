@@ -1,4 +1,4 @@
-import { getTreeCache, setTreeCache } from './cache.server'
+import { deleteFileCache, deleteTreeCache, getFileCache, getTreeCache, setFileCache, setTreeCache } from './cache.server'
 import type { GithubFile} from './fileUtils'
 import { b64EncodeUnicode, parseGithubFile } from './fileUtils'
 
@@ -181,6 +181,11 @@ type GetContentParams = {
 }
 
 export async function getFileContent(token: string, { repo, file, branch }: GetContentParams) {
+  const cachedFile = await getFileCache(repo, branch, file)
+  if (cachedFile) {
+    return cachedFile
+  }
+
   const fileURL = `/repos/${repo}/contents/${file}?ref=${branch}`
   const { data } = await callGithubAPI(token, fileURL, {
     headers: {
@@ -188,6 +193,7 @@ export async function getFileContent(token: string, { repo, file, branch }: GetC
     }
   }) as { data: GithubFile }
 
+  // directories are not cached
   if (data.type === 'dir') {
     return data
   }
@@ -207,7 +213,10 @@ export async function getFileContent(token: string, { repo, file, branch }: GetC
     data.content = await res.text()
   }
 
-  return parseGithubFile(data)
+  const parsedFile = parseGithubFile(data)
+  await setFileCache(repo, branch, file, parsedFile)
+
+  return parsedFile
 }
 
 type BranchReference = {
@@ -284,6 +293,8 @@ export async function commitAndPush(token: string, params: CommitFilesParams) {
   const { repo, branch, message, files } = params
   const branchData = await getBranch(token, repo, branch)
   const baseSha = branchData.object.sha
+  await deleteTreeCache(repo, baseSha)
+
   const tree = await createTree(token, repo, {
     base_tree: baseSha,
     tree: files
@@ -318,6 +329,7 @@ export type SaveFileParams = {
 
 export async function saveFile(token: string, params: SaveFileParams) {
   const { repo, message, branch, sha, path, oldPath, content } = params
+  await deleteFileCache(repo, branch, path)
 
   const isRename = sha && oldPath && oldPath !== path
   if (isRename) {
@@ -361,6 +373,7 @@ type RenameParams = {
 
 export async function renameFile(token: string, params: RenameParams) {
   const { repo, branch, sha, path, newPath, message } = params
+  await deleteFileCache(repo, branch, path)
   const commit = await commitAndPush(token, {
     repo,
     branch,
@@ -392,6 +405,7 @@ type DeleteFileParams = {
 
 export async function deleteFile(token: string, params: DeleteFileParams) {
   const { repo, branch, path, message } = params
+  await deleteFileCache(repo, branch, path)
   const commit = await commitAndPush(token, {
     repo,
     branch,

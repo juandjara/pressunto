@@ -3,6 +3,7 @@ import type { ParsedFile } from "./github"
 import { FileMode, commitAndPush, deleteFile, getFileContent, getRepoFiles, saveFile } from "./github"
 import { getBasename, getDirname, isMarkdown } from "./pathUtils"
 import matter from 'front-matter'
+import { deleteFileCache } from "./cache.server"
 
 const db = Redis.fromEnv()
 
@@ -223,6 +224,7 @@ export async function updateCollectionFileOrder(token: string, payload: UpdateOr
       .map(([key, value]) => `${key}: ${key === 'order' ? files.indexOf(file) : value}`)
       .join('\n')
 
+    await deleteFileCache(repo, branch, file.path)
     const content = ['---', matter, '---', '', file.body].join('\n')
     contents.push(content)
   }
