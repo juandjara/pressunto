@@ -14,7 +14,7 @@ import { markdown, markdownLanguage } from "@codemirror/lang-markdown"
 import { syntaxHighlighting, HighlightStyle, defaultHighlightStyle, bracketMatching } from "@codemirror/language"
 import { tags } from "@lezer/highlight"
 import { searchKeymap } from '@codemirror/search'
-import { historyKeymap, history } from '@codemirror/commands'
+import { historyKeymap, history, indentWithTab } from '@codemirror/commands'
 import { boldBinding } from "./bold"
 import { italicBinding } from "./italic"
 import { customTheme } from "./customTheme"
@@ -144,6 +144,7 @@ export default function useCodeMirror(
         }),
         keymap.of([
           // ...defaultKeymap,
+          indentWithTab,
           ...searchKeymap,
           ...historyKeymap,
           ...boldBinding,
