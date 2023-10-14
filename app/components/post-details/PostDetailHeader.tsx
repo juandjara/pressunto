@@ -1,18 +1,16 @@
-import type { CollectionFile } from "@/lib/projects.server"
-import { buttonCN, iconCN, inputCN } from "@/lib/styles"
-import { useNavigate, useParams, useNavigation } from "@remix-run/react"
-import { ArrowDownOnSquareStackIcon, ArrowLeftIcon, ArrowUpTrayIcon, ArrowUturnLeftIcon, DocumentIcon } from "@heroicons/react/24/outline"
-import { EllipsisVerticalIcon, FolderOpenIcon, TrashIcon } from "@heroicons/react/24/solid"
-import { Menu, Transition } from "@headlessui/react"
-import clsx from "clsx"
-import { folderFromCollection, getBasename } from "@/lib/pathUtils"
-import type { FileModalData } from "../file-actions/FileActionsModal"
 import type { TreeItem } from "@/lib/github"
 import { FileMode } from "@/lib/github"
-import { PencilIcon, XMarkIcon } from "@heroicons/react/20/solid"
-import { useState } from "react"
-import FileActionsModal from "../file-actions/FileActionsModal"
+import { folderFromCollection, getBasename } from "@/lib/pathUtils"
+import type { CollectionFile } from "@/lib/projects.server"
+import { buttonCN, iconCN, inputCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
+import { Menu, Transition } from "@headlessui/react"
+import { PencilIcon, EllipsisVerticalIcon, FolderOpenIcon, TrashIcon, ArrowDownOnSquareStackIcon, ArrowLeftIcon, ArrowUpTrayIcon, ArrowUturnLeftIcon, DocumentIcon } from "@heroicons/react/24/outline"
+import { useNavigate, useNavigation, useParams } from "@remix-run/react"
+import clsx from "clsx"
+import { useState } from "react"
+import type { FileModalData } from "../file-actions/FileActionsModal"
+import FileActionsModal from "../file-actions/FileActionsModal"
 
 export default function PostDetailsHeader({
   file,
@@ -132,28 +130,16 @@ export default function PostDetailsHeader({
                     <ArrowDownOnSquareStackIcon className="w-5 h-5" />
                     <span>{isDraft ? 'Save new draft' : 'Save draft'}</span>
                   </Menu.Item>
-                  {isDraft && (
-                    <Menu.Item
-                      as="button"
-                      type="submit"
-                      name="delete_draft"
-                      value="true"
-                      disabled={busy}
-                      className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
-                    >
-                      <XMarkIcon className="w-5 h-5" />
-                      <span>Discard saved draft</span>
-                    </Menu.Item>
-                  )}
                   <Menu.Item
                     as="button"
-                    type="button"
-                    disabled={!isTouched || busy}
-                    onClick={() => window.location.reload()}
+                    type="submit"
+                    name="delete_draft"
+                    value="true"
+                    disabled={busy || !isDraft}
                     className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
                   >
                     <ArrowUturnLeftIcon className="w-5 h-5" />
-                    <span>Discard unsaved changes</span>
+                    <span>Discard saved draft</span>
                   </Menu.Item>
                   <Menu.Item
                     as="button"
