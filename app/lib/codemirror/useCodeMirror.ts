@@ -138,10 +138,10 @@ export default function useCodeMirror(
             isItalic
           })
 
-          sessionStorage.setItem(
-            'codemirror-scroll',
-            String(ev.state.selection.main.from)
-          )
+          // sessionStorage.setItem(
+          //   'codemirror-scroll',
+          //   String(ev.state.selection.main.from)
+          // )
 
           if (ev.docChanged) {
             setValue(ev.state.doc.toString())
@@ -173,14 +173,14 @@ export default function useCodeMirror(
       document.head.appendChild(style)
     }
 
-    setTimeout(() => {
-      const scroll = Number(sessionStorage.getItem('codemirror-scroll') || '0')
-      if (scroll) {
-        view.dispatch({
-          effects: EditorView.scrollIntoView(scroll)
-        })
-      }
-    }, 500)
+    // setTimeout(() => {
+    //   const scroll = Number(sessionStorage.getItem('codemirror-scroll') || '0')
+    //   if (scroll) {
+    //     view.dispatch({
+    //       effects: EditorView.scrollIntoView(scroll)
+    //     })
+    //   }
+    // }, 500)
 
 
     return () => {
