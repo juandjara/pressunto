@@ -4,7 +4,7 @@ import { processFileContent , getProject, getProjectConfig, saveDraft, deleteDra
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import type { ActionArgs, LoaderFunction, MetaFunction} from "@remix-run/node"
 import { redirect , json } from "@remix-run/node"
-import { Form, useFetcher, useLoaderData } from "@remix-run/react"
+import { useFetcher, useLoaderData } from "@remix-run/react"
 import { folderFromCollection, getBasename } from "@/lib/pathUtils"
 import slugify from "@/lib/slugify"
 import FrontmatterEditor from "@/components/post-details/FrontmatterEditor"
@@ -219,7 +219,7 @@ export default function PostDetails() {
   const noTitle = isNew || file.title === getBasename(file.path)
 
   return (
-    <Form ref={formRef} method='post' className="py-4 px-2 md:px-4 mb-8">
+    <fetcher.Form ref={formRef} method='post' className="py-4 px-2 md:px-4 mb-8">
       <header className="group">
         <PostDetailsHeader
           file={file}
@@ -270,6 +270,6 @@ export default function PostDetails() {
       </div>
       <input type='hidden' name='sha' value={file.id} />
       <input type='hidden' name='path' value={file.path} />
-    </Form>
+    </fetcher.Form>
   )
 }
