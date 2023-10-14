@@ -33,18 +33,15 @@ export default function PostEditor({
     }
   }, [file])
 
+  function handleChange(text: string) {
+    setTempContent(text)
+    onDraft()
+  }
+
   const ExpandIcon = expanded ? ArrowsPointingInIcon : ArrowsPointingOutIcon
 
   return (
-    <div
-      className={clsx('-mx-2 md:mx-0 pt-1', { 'basis-[75ch]': !expanded, 'w-full': expanded })}
-      onBlur={(ev: React.FocusEvent<HTMLDivElement>) => {
-        const isEditor = ev.target.getAttribute("contenteditable") === 'true'
-        if (isEditor) {
-          onDraft()
-        }
-      }}
-    >
+    <div className={clsx('-mx-2 md:mx-0 pt-1', { 'basis-[75ch]': !expanded, 'w-full': expanded })}>
       {preview ? (
         <>
           <button
@@ -86,7 +83,7 @@ export default function PostEditor({
           <MarkdownEditor
             name="body"
             initialValue={tempContent || file.body || ''}
-            onChange={setTempContent}
+            onChange={handleChange}
           />
         </>
       )}

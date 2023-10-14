@@ -193,40 +193,38 @@ export default function PostDetails() {
 
   return (
     <Form method='post' className="py-4 px-2 md:px-4 mb-8">
-      <header>
-        <div className="group">
-          <PostDetailsHeader
-            file={file}
-            isTouched={isTouched}
-            isDraft={isDraft}
-          />
-          <div className="flex items-center justify-between mb-6 gap-4">
-            {noTitle && (
-              <p className="md:pl-11 text-xs md:opacity-0 group-hover:opacity-100 transition-opacity">
-                Filling in this field will add a <code>title</code> field to your post attributes.
-              </p>
-            )}
-            {!isNew && (
-              <p className="flex-grow flex-shrink-0 flex items-center justify-end gap-2 text-sm text-slate-500 dark:text-slate-300">
-                <span className={clsx(
-                  'w-2 h-2 rounded inline-block',
-                  isTouched
-                    ? 'bg-yellow-600'
-                    : isDraft
-                      ? 'bg-green-600/50'
-                      : 'bg-green-600'
-                )}></span>
-                <span>
-                  {isTouched
-                    ? 'Unsaved changes'
-                    : isDraft
-                      ? 'Saved draft'
-                      : 'Published'
-                  }
-                </span>
-              </p>
-            )}
-          </div>
+      <header className="group">
+        <PostDetailsHeader
+          file={file}
+          isTouched={isTouched}
+          isDraft={isDraft}
+        />
+        <div className="flex items-center justify-between mb-6 gap-4">
+          {noTitle && (
+            <p className="md:pl-11 text-xs md:opacity-0 group-hover:opacity-100 transition-opacity">
+              Filling in this field will add a <code>title</code> field to your post attributes.
+            </p>
+          )}
+          {!isNew && (
+            <p className="flex-grow flex-shrink-0 flex items-center justify-end gap-2 text-sm text-slate-500 dark:text-slate-300">
+              <span className={clsx(
+                'w-2 h-2 rounded inline-block',
+                isTouched
+                  ? 'bg-yellow-600'
+                  : isDraft
+                    ? 'bg-green-600/50'
+                    : 'bg-green-600'
+              )}></span>
+              <span>
+                {isTouched
+                  ? 'Unsaved changes'
+                  : isDraft
+                    ? 'Saved draft'
+                    : 'Published'
+                }
+              </span>
+            </p>
+          )}
         </div>
       </header>
       <div className="lg:flex items-stretch gap-4 mb-4">

@@ -87,8 +87,8 @@ export default function FrontmatterEditor({ onDraft }: { onDraft: () => void }) 
       <input type='hidden' name='meta_fields' value={attrs.map(f => f.field).join(',')} />
       <fieldset
         className="space-y-6 mb-10 mt-5"
-        onBlur={(ev: React.FocusEvent<HTMLElement>) => {
-          const isInput = ev.target.tagName.toLowerCase() === 'input'
+        onChange={(ev: React.FormEvent<HTMLElement>) => {
+          const isInput = (ev.target as HTMLInputElement).tagName?.toLowerCase() === 'input'
           if (isInput) {
             onDraft()
           }
