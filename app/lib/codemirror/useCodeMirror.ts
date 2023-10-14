@@ -138,7 +138,10 @@ export default function useCodeMirror(
             isItalic
           })
 
-          sessionStorage.setItem('codemirror-scroll', ev.view.scrollDOM.scrollTop.toString())
+          sessionStorage.setItem(
+            'codemirror-scroll',
+            String(ev.state.selection.main.from)
+          )
 
           if (ev.docChanged) {
             setValue(ev.state.doc.toString())
@@ -171,11 +174,14 @@ export default function useCodeMirror(
     }
 
     setTimeout(() => {
-      const scroll = sessionStorage.getItem('codemirror-scroll')
+      const scroll = Number(sessionStorage.getItem('codemirror-scroll') || '0')
       if (scroll) {
-        view.scrollDOM.scrollTop = parseInt(scroll, 10)
+        view.dispatch({
+          effects: EditorView.scrollIntoView(scroll)
+        })
       }
     }, 500)
+
 
     return () => {
       view.destroy()
