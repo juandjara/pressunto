@@ -4,16 +4,17 @@ import { processFileContent , getProject, getProjectConfig, saveDraft, deleteDra
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import type { ActionArgs, LoaderFunction, MetaFunction} from "@remix-run/node"
 import { redirect , json } from "@remix-run/node"
-import { Form, useLoaderData } from "@remix-run/react"
+import { Form, useFetcher, useLoaderData } from "@remix-run/react"
 import { folderFromCollection, getBasename } from "@/lib/pathUtils"
 import slugify from "@/lib/slugify"
 import FrontmatterEditor from "@/components/post-details/FrontmatterEditor"
 import PostEditor from "@/components/post-details/PostEditor"
 import metaTitle from "@/lib/metaTitle"
-import { useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import PostDetailsHeader from "@/components/post-details/PostDetailHeader"
 import { TITLE_FIELD } from "@/lib/fileUtils"
 import clsx from "clsx"
+import { debounce } from "debounce"
 
 type LoaderData = {
   file: CollectionFile,
@@ -179,20 +180,46 @@ export async function action({ request, params }: ActionArgs) {
   })
 }
 
+const AUTOSAVE_INTERVAL = 1000 // 1 second
+
 export default function PostDetails() {
   const { file, isDraft } = useLoaderData<LoaderData>()
   const [isTouched, setIsTouched] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const isNew = !file.id
+  const formRef = useRef<HTMLFormElement>(null)
+  const fetcher = useFetcher()
+  const autosaveInProgress = fetcher.state !== 'idle'
+
+  const debouncedSubmit = useMemo(
+    () => debounce(
+      () => {
+        if (formRef.current) {
+          const fd = new FormData(formRef.current)
+          fd.set('draft', 'true')
+          fetcher.submit(fd, {
+            replace: true,
+            method: 'post',
+            preventScrollReset: true,
+          })
+        }
+      },
+      AUTOSAVE_INTERVAL
+    ),
+    [fetcher]
+  )
 
   function onTouched() {
-    setIsTouched(true)
+    if (!isTouched) {
+      setIsTouched(true)
+    }
+    debouncedSubmit()
   }
 
   const noTitle = isNew || file.title === getBasename(file.path)
 
   return (
-    <Form method='post' className="py-4 px-2 md:px-4 mb-8">
+    <Form ref={formRef} method='post' className="py-4 px-2 md:px-4 mb-8">
       <header className="group">
         <PostDetailsHeader
           file={file}
@@ -210,14 +237,18 @@ export default function PostDetails() {
               <span className={clsx(
                 'w-2 h-2 rounded inline-block',
                 isTouched
-                  ? 'bg-yellow-600'
+                  ? autosaveInProgress 
+                    ? 'bg-yellow-600/50'
+                    : 'bg-yellow-600'
                   : isDraft
                     ? 'bg-green-600/50'
                     : 'bg-green-600'
               )}></span>
               <span>
                 {isTouched
-                  ? 'Unsaved changes'
+                  ? autosaveInProgress
+                    ? 'Saving draft...'
+                    : 'Unsaved changes'
                   : isDraft
                     ? 'Saved draft'
                     : 'Published'
