@@ -170,10 +170,12 @@ export default function useCodeMirror(
       document.head.appendChild(style)
     }
 
-    const scroll = sessionStorage.getItem('codemirror-scroll')
-    if (scroll) {
-      view.scrollDOM.scrollTop = parseInt(scroll, 10)
-    }
+    setTimeout(() => {
+      const scroll = sessionStorage.getItem('codemirror-scroll')
+      if (scroll) {
+        view.scrollDOM.scrollTop = parseInt(scroll, 10)
+      }
+    }, 500)
 
     return () => {
       view.destroy()
