@@ -1,3 +1,4 @@
+import { getTreeCache, setTreeCache } from './cache.server'
 import type { GithubFile} from './fileUtils'
 import { b64EncodeUnicode, parseGithubFile } from './fileUtils'
 
@@ -150,6 +151,12 @@ type TreeResponse = {
 export async function getRepoFiles(token: string, repo: string, branch: string) {
   const branchData = await getBranch(token, repo, branch)
   const treeSha = branchData.object.sha
+
+  const cachedTree = await getTreeCache(repo, treeSha)
+  if (cachedTree) {
+    return cachedTree
+  }
+
   const res = await callGithubAPI(token, `/repos/${repo}/git/trees/${treeSha}?recursive=true`)
   const data = res.data as TreeResponse
 
@@ -159,7 +166,10 @@ export async function getRepoFiles(token: string, repo: string, branch: string) 
     else return a.path < b.path ? -1 : 1
   })
 
-  return data.tree
+  const tree = data.tree
+  await setTreeCache(repo, treeSha, tree)
+
+  return tree
 }
 
 export type ParsedFile = ReturnType<typeof parseGithubFile>
