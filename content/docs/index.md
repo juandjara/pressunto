@@ -33,6 +33,7 @@ In the bottom part of the page, a transparency note acts as a cookie warning and
 
 This page lists the github repos you have connected to *Press*unto, each with their assigned title. From this page you can connect more repos to the platform and access the ones you have already connected
 
+
 ### Edit link
 
 *Press*unto has a special feature which lets you directly access the editor for a file just writing the repo and the file you want to the edit in the URL, without having to worry about the internal routing structure of the platform.
@@ -72,7 +73,7 @@ The top most section is for your **collections**, the folders where you can orga
 - The **Privacy** page links to a small document about how data is stored in the platform and what can you do to delete it if you want.
 
 
-### Collections
+#### Collections
 
 This page lists your collections, the folders where you can organize your content.
 
@@ -97,30 +98,75 @@ Every collection is saved in your configuration file with this data structure:
 
 ### Collection Detail
 
+![collection_detail.png](https://raw.githubusercontent.com/juandjara/pressunto/master/content/images/collection_detail.png) 
+
 This screen lists all the posts in the collection by their saved title in the post frontmatter. From this page you can reorder your posts, access the post detail page for each post or create a new one.
 
-#### Collection reorder
+#### Post reorder
 
 By clicking the icon in the top right corner with the two arrows, you can enter the **reorder view**. This view will allow you to reorder your collections file by writing an `order` attribute to the attributes of each markdown file. You can then later use this attribute in your website to sort the blog posts.
 
 
 ### Post Detail
 
-You can use this page to edit the content and frontmatter for your selected markdown posts. 
+![post_editor.png](https://raw.githubusercontent.com/juandjara/pressunto/master/content/images/post_editor.png) 
+
+You can use this page to edit the content and frontmatter for your selected markdown posts.
+
+#### Post detail actions
+
+![post_detail_header.png](https://raw.githubusercontent.com/juandjara/pressunto/master/content/images/post_detail_header.png) 
+
+This sections contains the main elements for action within the post editor.
+
+1. The **back button** returns you the list of posts
+2. The **title field** allows to assign a title the 
+   post. This title will be displayed in the list of posts and will be saved in the post frontmatter as the `title` attribute. Because of this, the `title` attribute will be not editable in the fields editor.
+3. The **publish button** will upload your draft document to github, creating a new commit to your selected main branch and cleaning the draft for this file.
+4. The action menu will display a list of additional operations you can perform on this file. Most of them open a modal to confirm or complete the action.
+
+![post_action_menu.png](https://raw.githubusercontent.com/juandjara/pressunto/master/content/images/post_action_menu.png) 
+
+- **Discard saved draft** will clean your saved draft and completely return the post to the state it is on github.
+- **Move to another collection** will open a modal with a folder selector so you can move the post the folder of another collection.
+
+![move_file.png](https://raw.githubusercontent.com/juandjara/pressunto/master/content/images/move_file.png) 
+
+- **Rename file** will open a model with a text field so you can rename the file that backs up the post.
+
+![rename_file.png](https://raw.githubusercontent.com/juandjara/pressunto/master/content/images/rename_file.png) 
+
+- **Delete file** will open a confirmation modal to make sure you want to delete the selected file.
+
+![delete_file.png](https://raw.githubusercontent.com/juandjara/pressunto/master/content/images/delete_file.png) 
+
+#### Status Indicator
+
+A small indicator revealing the current state of the document will be visible below the publish button and the button that opens the actions menu. This indicator will show an orange dot when you have written some changes to the actual document that are still not saved on github or in a draft. On the other case, this small dot would be green. It will also tell you when a new draft is being automatically saved. 
+
+#### Autosaving
+
+When you are editing some text in the markdown editor, after you stop for a second, a new draft will be generated and saved automatically to the DB, so you can resume your edits later. You can also continue the editing from another device, as long as you are logged in with the same account.
+
+#### Layout buttons
+
+There are two buttons on top of the editor that modify the page layout: the *Preview* button and the *Expand* button (this one only as an icon).
+
+- The Preview button will render an HTML preview of the markdown text you are currently writing using a basic theme with emphasis on typography. Your changes to the text will not be lost when you click this button and you can always come back to the editor as you left it clicking the Back button on the left corner. This preview also supports emoji markup using the `:+1:` syntax
+
+- The *Expand* button will collapse the fields editor so you have more screen space for writing. Clicking this button again will restore the fields editor to its original state.
+
+#### Accesibility consideration
+
+The markdown editor supports rich editing of **GitHub Flavored Markddown**. This experience is based on the [codemirror](codemirror.net/) library. To offer a better experiencie in general, the editor will trap the `Tab` key when editing text inside, so pressing `Tab` will add indentation to the current line instead of navigating to the next input like the normal `Tab` navigation flow of the web browser will be. You can always get out of this state by pressing the `Esc` key. When you press the `Esc` key while inside the text editor, you can do the normal `Tab` navigation flow again.  
+ 
+#### Drag and Drop
+
+The editor also supports **image drag and drop**. When you drop an image into the editor, a new commit will be created with the selected file. The editing will be blocked for a couple of seconds while the image is being uploaded to GitHub and a placeholder will be shown. When the upload is complete, the URL of the uploaded image will replace the placeholder. This process also applies to uploading an image by pressing the image button in the markdown editor toolbar.
 
 #### Fields editor
 
 The attributes in the frontmatter of the file will be listed as simple inputs to the right of the main markdown editor. The list of attributes will be populated with the fields defined in the collection [template](#templates) plus any other attribute the file may contain. You can freely add or delete any field from this list and it will be reflected on the post frontmatter.
-
-#### Markdown editor
-
-The markdown editor supports **GitHub Flavored Markddown**. There are two buttons at the top of the editor: the *Preview* button and the *Expand* button (this one only as an icon).
-
-- The Preview button will render an HTML preview of the markdown text you are currently writing using a basic theme with emphasis on typography. Your changes to the text will not be lost when you click this button and you can always come back to the editor as you left it clicking the Back button on the left corner. The preview also supports emoji markup using the `:+1:` syntax
-
-- The *Expand* button will collapse the fields editor so you have more screen space for writing. Clicking this button again will restore the fields editor to its original state.
-
-The editor also supports **image drag and drop**. When you drop an image into the editor, the editing will be blocked for a couple of seconds while the image is being uploaded to GitHub and a placeholder will be shown. When the upload is complete, the URL of the uploaded will replace the placeholder.
 
 
 ### Source Code
