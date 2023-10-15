@@ -5,7 +5,7 @@ import type { CollectionFile } from "@/lib/projects.server"
 import { buttonCN, iconCN, inputCN } from "@/lib/styles"
 import useProjectConfig from "@/lib/useProjectConfig"
 import { Menu, Transition } from "@headlessui/react"
-import { PencilIcon, EllipsisVerticalIcon, FolderOpenIcon, TrashIcon, ArrowDownOnSquareStackIcon, ArrowLeftIcon, ArrowUpTrayIcon, ArrowUturnLeftIcon, DocumentIcon } from "@heroicons/react/24/outline"
+import { PencilIcon, EllipsisVerticalIcon, FolderOpenIcon, TrashIcon, ArrowLeftIcon, ArrowUpTrayIcon, ArrowUturnLeftIcon, DocumentIcon } from "@heroicons/react/24/outline"
 import { useNavigate, useNavigation, useParams } from "@remix-run/react"
 import clsx from "clsx"
 import { useState } from "react"
@@ -119,7 +119,7 @@ export default function PostDetailsHeader({
                 static
                 className="mt-2 w-72 rounded-md shadow-lg absolute top-full right-0 ring-1 ring-black ring-opacity-5">
                 <div className="rounded-md text-left py-2 bg-white dark:bg-slate-600">
-                  <Menu.Item
+                  {/* <Menu.Item
                     as="button"
                     type="submit"
                     name="draft"
@@ -129,7 +129,7 @@ export default function PostDetailsHeader({
                   >
                     <ArrowDownOnSquareStackIcon className="w-5 h-5" />
                     <span>{isDraft ? 'Save new draft' : 'Save draft'}</span>
-                  </Menu.Item>
+                  </Menu.Item> */}
                   <Menu.Item
                     as="button"
                     type="submit"
