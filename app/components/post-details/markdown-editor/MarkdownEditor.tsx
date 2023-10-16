@@ -24,7 +24,7 @@ export default function MarkdownEditor({ name, initialValue = '', onChange }: Ma
       <textarea
         ref={textareaRef}
         name={name}
-        value={initialValue}
+        defaultValue={initialValue}
         className={`font-mono whitespace-pre-line ${inputCN}`}
         readOnly
         title="file contents"
