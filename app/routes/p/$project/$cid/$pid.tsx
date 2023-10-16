@@ -99,7 +99,7 @@ export async function action({ request, params }: ActionArgs) {
     : `Update file ${fullPath}`
 
   const meta_fields = formData.get('meta_fields') as string
-  const matter = meta_fields
+  const matter = (meta_fields || '')
     .split(',')
     .filter(f => f && f !== TITLE_FIELD)
     .map(key => `${key}: ${formData.get(`meta__${key}`)}`)
@@ -119,7 +119,7 @@ export async function action({ request, params }: ActionArgs) {
           body,
           title: title || getBasename(fullPath),
           attributes: Object.fromEntries(
-            matter.split('\n').map(line => {
+            (matter || '').split('\n').map(line => {
               const [key, ...value] = line.split(':')
               return [key.trim(), value.join(':').trim()]
             })
