@@ -171,14 +171,21 @@ The attributes in the frontmatter of the file will be listed as simple inputs to
 
 ### Source Code
 
-In this view you can browse all the files in your repo, so you can know which routes to configure in the collection sections. The files here can be edited plain, as they are in the github repo. This lets you tweak little details in the code of your application not related to the content you are tracking in your collection. The interface is almost the same as the interface for editing markdown posts, and you can also delete individual files from here.
+![source_page.png](https://raw.githubusercontent.com/juandjara/pressunto/master/content/images/source_page.png) 
 
+![source_detail_page.png](https://raw.githubusercontent.com/juandjara/pressunto/master/content/images/source_detail_page.png) 
+
+In this view you can browse all the files in your repo, so you can know which routes to configure in the collection sections. The files here can be edited plain, as they are in the github repo. This lets you tweak little details in the code of your application not related to the content you are tracking in your collection. From here you can also perform other file actions like move, rename or delete.
 
 ### Settings
+
+![settings_page.png](https://raw.githubusercontent.com/juandjara/pressunto/master/content/images/settings_page.png) 
 
 Here you can edit the configuration for your project, how content is organized and what defaults field are added to every content collection 
 
 #### Collection settings
+
+![collection_edit_modal.png](https://raw.githubusercontent.com/juandjara/pressunto/master/content/images/collection_edit_modal.png) 
 
 This section contains a little description of the concept of collections. Clicking the list items will open a modal with the information of the collection. Clicking the _"new +"_ button will open the same modal for creating a new collection. There you can name your collection, select a folder from your repository and select a template from the available templates.
 
@@ -215,9 +222,14 @@ This section contains a little description of the concept of templates. Clicking
   - The **hidden** property marks whether or not this field is displayed in the markdown post editor 
   - The **default** property holds the default value that will be asigned to this field when a post is created
 
+![template_edit_modal.png](https://raw.githubusercontent.com/juandjara/pressunto/master/content/images/template_edit_modal.png) 
+
+- The **key** field is the key used to save the field in the frontmatter, correspond to the **id** field in the json
+- The **label** field corresponde to the **name** field in the json
+
 #### Project settings
 
-In this section you can edit your project title, and change the branch of the repository that your project is using.
+In this section you can edit your project title, and change the branch of the repository that your project is using. In this section you can also edit your media folder, the folder in your repository where images will be uploaded when using the post editor or the media page. If you don't specify a folder, all media files will be stored in the root of your repository.
 
 #### Danger Zone
 
