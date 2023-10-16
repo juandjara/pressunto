@@ -91,10 +91,15 @@ export async function updateProject(project: Project) {
 
 export async function deleteProject(project: Project) {
   return withRedis(async (db) => {
+    const deleteDraftsCommand = db.pipeline()
+    const draftKeys = await db.smembers(`drafts:${project.repo}`)
+    draftKeys.forEach((key) => deleteDraftsCommand.del(key))
+    await deleteDraftsCommand.exec()
+
     await Promise.all([
       db.srem(`projects:${project.user}`, project.id),
       db.del(`project:${project.id}`),
-      db.del(`repo:${project.repo}`)
+      db.del(`repo:${project.repo}`),
     ])
   })
 }
@@ -268,6 +273,7 @@ export async function saveDraft(params: SaveDraftParams) {
   return withRedis(async (db) => {
     const { project, file } = params
     const key = `draft:${project.id}:${encodeURIComponent(file.path)}`
+    await db.sadd(`drafts:${project.repo}`, key)
     await db.set(key, JSON.stringify(file))
     return key
   })
@@ -280,22 +286,26 @@ export async function getDraft(projectId: number, path: string) {
   })
 }
 
-export async function deleteDraft(projectId: number, path: string) {
+export async function deleteDraft(project: Project, path: string) {
   return withRedis(async (db) => {
-    await db.del(`draft:${projectId}:${encodeURIComponent(path)}`)
+    const key = `draft:${project.id}:${encodeURIComponent(path)}`
+    await db.srem(`drafts:${project.repo}`, key)
+    await db.del(key)
   })
 }
 
-export async function renameDraft(projectId: number, oldPath: string, newPath: string) {
+export async function renameDraft(project: Project, oldPath: string, newPath: string) {
+  const draft = await getDraft(project.id, oldPath)
+  if (!draft) {
+    return
+  }
+
   return withRedis(async (db) => {
-    const draft = await getDraft(projectId, oldPath)
-    if (!draft) {
-      return
-    }
-  
     await Promise.all([
-      db.set(`draft:${projectId}:${encodeURIComponent(newPath)}`, JSON.stringify(draft)),
-      db.del(`draft:${projectId}:${encodeURIComponent(oldPath)}`),
+      db.set(`draft:${project.id}:${encodeURIComponent(newPath)}`, JSON.stringify(draft)),
+      db.sadd(`drafts:${project.repo}`, `draft:${project.id}:${encodeURIComponent(newPath)}`),
+      db.del(`draft:${project.id}:${encodeURIComponent(oldPath)}`),
+      db.srem(`drafts:${project.repo}`, `draft:${project.id}:${encodeURIComponent(oldPath)}`),
     ])
   })
 }

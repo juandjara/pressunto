@@ -44,7 +44,7 @@ export async function action({ params, request }: ActionArgs) {
       message
     })
     
-    await renameDraft(project.id, path, newPath)
+    await renameDraft(project, path, newPath)
 
     const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
     if (redirectTarget === 'source') {
@@ -74,7 +74,7 @@ export async function action({ params, request }: ActionArgs) {
       path,
     })
 
-    await deleteDraft(project.id, path)
+    await deleteDraft(project, path)
 
     const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
     if (redirectTarget === 'source') {

@@ -136,7 +136,7 @@ export async function action({ request, params }: ActionArgs) {
 
     const isDeleteDraft = formData.get('delete_draft') === 'true'
     if (isDeleteDraft) {
-      await deleteDraft(project.id, fullPath)
+      await deleteDraft(project, fullPath)
       const cookie = await setFlashMessage(request, `Draft for "${getBasename(fullPath)}" deleted successfully`)
       return json({ ok: true }, {
         headers: {
@@ -145,7 +145,7 @@ export async function action({ request, params }: ActionArgs) {
       })
     }
 
-    await deleteDraft(project.id, fullPath)
+    await deleteDraft(project, fullPath)
   }
 
   try {
