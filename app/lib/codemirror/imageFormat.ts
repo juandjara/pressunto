@@ -137,9 +137,14 @@ export async function insertImage(view: EditorView, file: File, projectId: strin
   view.dispatch({
     effects: EditableComparment.reconfigure(EditorView.editable.of(false))
   })
+  
+  try {
+    const url = await uploadImageAsBase64(file, projectId)
+    writeMarkup(view, `![${file.name}](${url}) `, 'replace')
+  } catch (err) {
+    writeMarkup(view, `![${file.name}](Upload failed: ${(err as Error).message}) `, 'replace')
+  }
 
-  const url = await uploadImageAsBase64(file, projectId)
-  writeMarkup(view, `![${file.name}](${url}) `, 'replace')
   view.dispatch({
     effects: EditableComparment.reconfigure(EditorView.editable.of(true))
   })
