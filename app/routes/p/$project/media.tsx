@@ -7,10 +7,10 @@ import { FileMode } from "@/lib/github"
 import { getBasename } from "@/lib/pathUtils"
 import { getProject, getProjectConfig } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
-import { borderColor, buttonCN, iconCN } from "@/lib/styles"
+import { borderColor, buttonCN, iconCN, inputCN } from "@/lib/styles"
 import { uploadImage } from "@/lib/uploadImage"
 import useProjectConfig, { useProject, useRepoTree } from "@/lib/useProjectConfig"
-import { CloudArrowUpIcon, PhotoIcon } from "@heroicons/react/20/solid"
+import { CloudArrowUpIcon, MagnifyingGlassIcon, PhotoIcon } from "@heroicons/react/20/solid"
 import type { ActionArgs, UploadHandlerPart } from "@remix-run/node"
 import { json, unstable_composeUploadHandlers, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node"
 import { Link, Outlet, useActionData, useFetcher, useRevalidator } from "@remix-run/react"
@@ -61,7 +61,7 @@ export default function Media() {
   const { branch, repo } = useProject()
   const tree = useRepoTree()
   const folders = tree.filter(t => t.type === 'tree')
-
+  const [query, setQuery] = useState('')
   const [previews, setPreviews] = useState([] as FilePreview[])
 
   const allImages = useMemo(() => {
@@ -76,8 +76,13 @@ export default function Media() {
         url: p.url,
       }))
 
-    return [...notExistingPreviews, ...images]
-  }, [tree, previews, mediaFolder])
+    const allImages = [...notExistingPreviews, ...images]
+    if (!query) {
+      return allImages
+    }
+    const regex = new RegExp(query, 'i')
+    return allImages.filter(img => regex.test(img.path))
+  }, [query, tree, previews, mediaFolder])
 
   useEffect(() => {
     setPreviews([])
@@ -114,6 +119,24 @@ export default function Media() {
           This page lists all the images in your repository. You can upload new images or move, rename or delete existing images.
         </p>
       </header>
+      <div className="mb-8">
+        <label htmlFor="search" className="block text-sm mb-1 text-slate-500 dark:text-slate-300">
+          Search file
+        </label>
+        <div className="relative">
+          <MagnifyingGlassIcon
+            className={clsx('absolute left-2 top-1/2 transform -translate-y-1/2', iconCN.small)}
+          />
+          <input
+            type="text"
+            name="search"
+            value={query}
+            onChange={ev => setQuery(ev.currentTarget.value)}
+            className={clsx(inputCN, 'pl-8')}
+            placeholder="Search file by name"
+          />
+        </div>
+      </div>
       <ImageUpload onChange={setPreviews} />
       <p className="text-slate-500 dark:text-slate-300 text-sm mt-1">
         Images will be uploaded to your media folder <code>{mediaFolder}</code>. You can change this folder in <Link className="underline" to="../settings">project settings</Link>.
