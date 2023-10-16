@@ -77,7 +77,11 @@ export async function action({ params, request }: ActionArgs) {
     await deleteDraft(project.id, path)
 
     const cookie = await setFlashMessage(request, `Pushed commit "${message}" successfully`)
-    const returnPath = refererPath === `/p/${project.id}/media` ? refererPath : `${refererPath}/..`
-    return redirect(returnPath, { headers: { 'Set-Cookie': cookie }})
+    if (redirectTarget === 'source') {
+      return redirect(`/p/${project.id}/source?open=${getDirname(path)}`, { headers: { 'Set-Cookie': cookie }})
+    }
+    if (redirectTarget === 'media' || refererPath === `/p/${project.id}/media`) {
+      return redirect(`/p/${project.id}/media`, { headers: { 'Set-Cookie': cookie }})
+    }
   }
 }

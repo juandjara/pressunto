@@ -17,7 +17,7 @@ import { Link, Outlet, useActionData, useFetcher, useRevalidator } from "@remix-
 import clsx from "clsx"
 import isBinaryPath from "is-binary-path"
 import type { ChangeEvent } from "react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 export async function action({ params, request }: ActionArgs) {
   const { token } = await requireUserSession(request)
@@ -62,20 +62,27 @@ export default function Media() {
   const tree = useRepoTree()
   const folders = tree.filter(t => t.type === 'tree')
 
-  const images = tree.filter(t => isBinaryPath(t.path))
   const [previews, setPreviews] = useState([] as FilePreview[])
 
-  const notExistingPreviews = previews
-    .filter(p => !images.some(img => img.path.includes(p.name)))
-    .map(p => ({
-      sha: '',
-      path: mediaFolder ? `${mediaFolder}/${p.name}` : p.name,
-      type: 'blob' as const,
-      mode: FileMode.FILE,
-      url: p.url,
-    }))
+  const allImages = useMemo(() => {
+    const images = tree.filter(t => isBinaryPath(t.path))
+    const notExistingPreviews = previews
+      .filter(p => !images.some(img => img.path.includes(p.name)))
+      .map(p => ({
+        sha: '',
+        path: mediaFolder ? `${mediaFolder}/${p.name}` : p.name,
+        type: 'blob' as const,
+        mode: FileMode.FILE,
+        url: p.url,
+      }))
 
-  const allImages = [...notExistingPreviews, ...images]
+    return [...notExistingPreviews, ...images]
+  }, [tree, previews, mediaFolder])
+
+  useEffect(() => {
+    setPreviews([])
+  }, [tree])
+
   const [modalData, setModalData] = useState<FileModalData | null>(null)
 
   const data = useActionData()
