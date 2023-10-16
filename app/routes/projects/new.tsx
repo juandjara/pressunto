@@ -37,7 +37,7 @@ export const action: ActionFunction = async ({ request }) => {
     errors.push(['repo', 'This field is required'])
   }
 
-  const branchIsValid = await validateBranch(token, repo, branch)
+  const branchIsValid = await validateBranch(token, `${org}/${repo}`, branch)
   if (!branchIsValid) {
     errors.push(['branch', `Branch "${branch}" does not exist`])
   }
