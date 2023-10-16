@@ -1,11 +1,9 @@
-import { Redis } from "@upstash/redis"
 import type { ParsedFile } from "./github"
 import { FileMode, commitAndPush, deleteFile, getFileContent, getRepoFiles, saveFile } from "./github"
 import { getBasename, getDirname, isMarkdown } from "./pathUtils"
 import matter from 'front-matter'
 import { deleteFileCache } from "./cache.server"
-
-const db = Redis.fromEnv()
+import { withRedis } from "./redis.server"
 
 export type Project = {
   id: number
@@ -44,44 +42,61 @@ export type ProjectConfig = {
 const NEXT_PROJECT_KEY = 'next_project_id'
 
 export async function getUserProjects(user: string) {
-  const ids = await db.smembers(`projects:${user}`)
-  if (ids.length === 0) {
-    return []
-  }
-
-  const projects = await db.mget(...ids.map(id => `project:${id}`)) as Project[]
-  return projects.sort((a, b) => a.title.localeCompare(b.title))
+  return withRedis(async (db) => {
+    const ids = await db.smembers(`projects:${user}`)
+    if (ids.length === 0) {
+      return []
+    }
+  
+    const projects = await db.mget(...ids.map(id => `project:${id}`))
+    return projects
+      .filter((p) => p)
+      .map((p) => JSON.parse(p!) as Project)
+      .sort((a, b) => a.title.localeCompare(b.title))
+  })
 }
 
 export async function getProject(id: number) {
-  return await db.get(`project:${id}`) as Project
+  return withRedis<Project>(async (db) => {
+    const data = await db.get(`project:${id}`)
+    return data && JSON.parse(data)
+  })
 }
 
 export async function getIdForRepo(repo: string) {
-  return await db.get(`repo:${repo}`)
+  return withRedis(async (db) => {
+    const data = await db.get(`repo:${repo}`)
+    return data ? Number(data) : null
+  })
 }
 
 export async function createProject(project: Omit<Project, 'id'>) {
-  const id = await db.incr(NEXT_PROJECT_KEY)
-  await Promise.all([
-    db.sadd(`projects:${project.user}`, id),
-    db.set(`project:${id}`, { ...project, id }),
-    db.set(`repo:${project.repo}`, id)
-  ])
-
-  return id
+  return withRedis(async (db) => {
+    const id = await db.incr(NEXT_PROJECT_KEY)
+    await Promise.all([
+      db.sadd(`projects:${project.user}`, id),
+      db.set(`project:${id}`, JSON.stringify({ ...project, id })),
+      db.set(`repo:${project.repo}`, id)
+    ])
+  
+    return id
+  })
 }
 
 export async function updateProject(project: Project) {
-  return db.set(`project:${project.id}`, project)
+  return withRedis(async (db) => {
+    await db.set(`project:${project.id}`, JSON.stringify(project))
+  })
 }
 
 export async function deleteProject(project: Project) {
-  return Promise.all([
-    db.srem(`projects:${project.user}`, project.id),
-    db.del(`project:${project.id}`),
-    db.del(`repo:${project.repo}`)
-  ])
+  return withRedis(async (db) => {
+    await Promise.all([
+      db.srem(`projects:${project.user}`, project.id),
+      db.del(`project:${project.id}`),
+      db.del(`repo:${project.repo}`)
+    ])
+  })
 }
 
 export const CONFIG_FILE_NAME = 'pressunto.config.json'
@@ -250,27 +265,37 @@ type SaveDraftParams = {
 }
 
 export async function saveDraft(params: SaveDraftParams) {
-  const { project, file } = params
-  const key = `draft:${project.id}:${encodeURIComponent(file.path)}`
-  await db.set(key, file)
-  return key
+  return withRedis(async (db) => {
+    const { project, file } = params
+    const key = `draft:${project.id}:${encodeURIComponent(file.path)}`
+    await db.set(key, JSON.stringify(file))
+    return key
+  })
 }
 
 export async function getDraft(projectId: number, path: string) {
-  const draft = await db.get<CollectionFile>(`draft:${projectId}:${encodeURIComponent(path)}`)
-  return draft
+  return withRedis<CollectionFile>(async (db) => {
+    const data = await db.get(`draft:${projectId}:${encodeURIComponent(path)}`)
+    return data && JSON.parse(data)
+  })
 }
 
 export async function deleteDraft(projectId: number, path: string) {
-  await db.del(`draft:${projectId}:${encodeURIComponent(path)}`)
+  return withRedis(async (db) => {
+    await db.del(`draft:${projectId}:${encodeURIComponent(path)}`)
+  })
 }
 
 export async function renameDraft(projectId: number, oldPath: string, newPath: string) {
-  const draft = await getDraft(projectId, oldPath)
-  if (!draft) {
-    return
-  }
-
-  await db.set(`draft:${projectId}:${encodeURIComponent(newPath)}`, draft)
-  await db.del(`draft:${projectId}:${encodeURIComponent(oldPath)}`)
+  return withRedis(async (db) => {
+    const draft = await getDraft(projectId, oldPath)
+    if (!draft) {
+      return
+    }
+  
+    await Promise.all([
+      db.set(`draft:${projectId}:${encodeURIComponent(newPath)}`, JSON.stringify(draft)),
+      db.del(`draft:${projectId}:${encodeURIComponent(oldPath)}`),
+    ])
+  })
 }

@@ -1,32 +1,42 @@
-import { Redis } from "@upstash/redis"
 import type { ParsedFile, TreeItem } from "./github"
-
-const db = Redis.fromEnv()
+import { withRedis } from "./redis.server"
 
 export async function getTreeCache(repo: string, sha: string) {
-  return await db.get(`tree:${repo}:${sha}`) as TreeItem[]
+  return withRedis<TreeItem[]>(async (db) => {
+    const data = await db.get(`tree:${repo}:${sha}`)
+    return data && JSON.parse(data)
+  })
 }
 
 export async function setTreeCache(repo: string, sha: string, tree: TreeItem[]) {
-  await db.set(`tree:${repo}:${sha}`, tree, {
-    ex: 60 * 60 * 24 // 1 day
+  return withRedis(async (db) => {
+    const oneDay = 60 * 60 * 24
+    await db.setex(`tree:${repo}:${sha}`, oneDay, JSON.stringify(tree))
   })
 }
 
 export async function deleteTreeCache(repo: string, sha: string) {
-  await db.del(`tree:${repo}:${sha}`)
+  return withRedis(async (db) => {
+    await db.del(`tree:${repo}:${sha}`)
+  })
 }
 
 export async function getFileCache(repo: string, branch: string, path: string) {
-  return await db.get(`file:${repo}/${branch}/${path}`) as ParsedFile
+  return withRedis<ParsedFile>(async (db) => {
+    const data = await db.get(`file:${repo}/${branch}/${path}`)
+    return data && JSON.parse(data)
+  })
 }
 
 export async function setFileCache(repo: string, branch: string, path: string, file: ParsedFile) {
-  await db.set(`file:${repo}/${branch}/${path}`, file, {
-    ex: 60 * 60 * 24 // 1 day
+  return withRedis(async (db) => {
+    const oneDay = 60 * 60 * 24
+    await db.setex(`file:${repo}/${branch}/${path}`, oneDay, JSON.stringify(file))
   })
 }
 
 export async function deleteFileCache(repo: string, branch: string, path: string) {
-  await db.del(`file:${repo}/${branch}/${path}`)
+  return withRedis(async (db) => {
+    await db.del(`file:${repo}/${branch}/${path}`)
+  })
 }
