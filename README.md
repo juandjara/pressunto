@@ -30,3 +30,9 @@ A sample `.env.example` is provided with these keys blank. You can copy this fil
 To contribute to this project, create a fork under your name, write you changes to a branch with a name relating your changes and send a Pull Request. You can read a more detailed guide [here](https://github.com/MarcDiethelm/contributing/blob/master/README.md).
 
 Changes to the linter configuration and other architectural details and preferences (tabs, spaces, semicolons) won't be accepted without a strong argument but every PR will be read and discussed.
+
+## Why the name "Pressunto" ?
+It's a wordplay between "Press" from "Wordpress" and "presunto", a word in spanish and portuguese. I'm from Spain and I like portuguese words and "presunto" means "ham" in portuguese and "alleged" in spanish, so I made a joke many times with that to my friends.
+
+
+
