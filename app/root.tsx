@@ -45,9 +45,9 @@ export const meta: MetaFunction = () => ({
   'twitter:description': description,
   'twitter:image': image,
   'og:image': image,
-  'og:image:alt': 'Screenshot of Settings page of the platform',
-  'og:image:width': '1641',
-  'og:image:height': '1055',
+  'og:image:alt': 'Screenshot of the Post Editor of the platform',
+  'og:image:width': '2658',
+  'og:image:height': '1664',
   'og:site_name': metaTitle('')
 })
 
