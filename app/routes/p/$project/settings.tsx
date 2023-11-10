@@ -1,20 +1,31 @@
 import { ComboBoxLocal } from "@/components/ComboBoxLocal"
+import { deleteAllCaches, getCachedFiles } from "@/lib/cache.server"
 import type { TreeItem} from "@/lib/github"
 import { FileMode } from "@/lib/github"
 import metaTitle from "@/lib/metaTitle"
-import { getProject, getProjectConfig, updateConfigFile , deleteConfigFile, deleteProject, updateProject } from "@/lib/projects.server"
+import { getProject, getProjectConfig, updateConfigFile , deleteConfigFile, deleteProject, updateProject, getDraftKeys, deleteAllDrafts } from "@/lib/projects.server"
 import { requireUserSession, setFlashMessage } from "@/lib/session.server"
 import { buttonCN, checkboxCN, iconCN, inputCN, labelCN } from "@/lib/styles"
 import useProjectConfig, { useProject, useRepoTree } from "@/lib/useProjectConfig"
 import { DocumentDuplicateIcon, ListBulletIcon, PlusIcon, FolderOpenIcon } from "@heroicons/react/20/solid"
-import type { ActionFunction } from "@remix-run/node"
+import type { ActionFunction, LoaderArgs } from "@remix-run/node"
 import { redirect } from "@remix-run/node"
-import { Form, Link, Outlet, useNavigation } from "@remix-run/react"
+import { Form, Link, Outlet, useLoaderData, useNavigation } from "@remix-run/react"
 import clsx from "clsx"
 import { useMemo } from "react"
 
 export const meta = {
   title: metaTitle('Settings')
+}
+
+export async function loader({ params }: LoaderArgs) {
+  const project = await getProject(Number(params.project))
+  const [cachedFiles, drafts] = await Promise.all([
+    getCachedFiles(project.repo, project.branch),
+    getDraftKeys(project),
+  ])
+
+  return { cachedFiles, drafts }
 }
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -54,6 +65,16 @@ export const action: ActionFunction = async ({ request, params }) => {
     }
 
     flashMessage = 'Project deleted successfully'
+  }
+
+  if (op === 'clearCache') {
+    await deleteAllCaches(project.repo)
+    flashMessage = 'Cache cleared successfully'
+  }
+
+  if (op === 'removeDrafts') {
+    await deleteAllDrafts(project)
+    flashMessage = 'Drafts removed successfully'
   }
 
   const headers = new Headers({
@@ -171,10 +192,72 @@ export default function ProjectSettings() {
             </ul>
           </div>
         </section>
+        <CacheSection />
         <EditProject folders={folders} />
         <DangerZone />
       </main>
     </div>
+  )
+}
+
+function CacheSection() {
+  const { cachedFiles, drafts } = useLoaderData<typeof loader>()
+  const transition = useNavigation()
+  const busy = transition.state === 'submitting'
+
+  return (
+    <>
+      <section>
+        <h3 className="text-slate-500 dark:text-slate-300 font-medium text-2xl mb-2">Cache</h3>
+        <details>
+          <summary className="text-slate-700 dark:text-slate-300 mb-2 cursor-pointer">
+            {cachedFiles.length} cached file{cachedFiles.length === 1 ? '' : 's'}
+          </summary>
+          <ul className="">
+            {cachedFiles.map((file) => (
+              <li key={file} className="text-slate-700 dark:text-slate-300">
+                <code>{file}</code>
+              </li>
+            ))}
+          </ul>
+        </details>
+        <Form method='post' replace>
+          <button
+            name="operation"
+            value="clearCache"
+            type="submit"
+            disabled={busy}
+            className={`mt-4 ${buttonCN.normal} ${buttonCN.slate}`}>
+            {busy ? 'Clearing cache...' : 'Clear GitHub cache'}
+          </button>
+        </Form>
+      </section>
+      <section>
+        <h3 className="text-slate-500 dark:text-slate-300 font-medium text-2xl mb-2">Drafts</h3>
+        <details>
+          <summary className="text-slate-700 dark:text-slate-300 mb-2 cursor-pointer">
+            {drafts.length} saved draft{drafts.length === 1 ? '' : 's'}
+          </summary>
+          <ul className="">
+            {drafts.map((file) => (
+              <li key={file} className="text-slate-700 dark:text-slate-300">
+                <code>{file}</code>
+              </li>
+            ))}
+          </ul>
+        </details>
+        <Form method='post' replace>
+          <button
+            name="operation"
+            value="removeDrafts"
+            type="submit"
+            disabled={busy}
+            className={`mt-4 ${buttonCN.normal} ${buttonCN.slate}`}>
+            {busy ? 'Removing...' : 'Remove all drafts'}
+          </button>
+        </Form>
+      </section>
+    </>
   )
 }
 

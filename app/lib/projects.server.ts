@@ -100,6 +100,7 @@ export async function deleteProject(project: Project) {
       db.srem(`projects:${project.user}`, project.id),
       db.del(`project:${project.id}`),
       db.del(`repo:${project.repo}`),
+      db.del(`drafts:${project.repo}`),
     ])
   })
 }
@@ -190,7 +191,7 @@ export function processFileContent(fileContent: Pick<ParsedFile, 'content' | 'sh
   }
 }
 
-export async function getCollectionFiles(token: string, project: Project, collection: ProjectCollection) {
+export async function getCollectionFiles(token: string, project: Project, collection: ProjectCollection, includeBody = false) {
   const tree = await getRepoFiles(token, project.repo, project.branch)
   const collectionTree = tree.filter((f) => {
     const inCollection = getDirname(f.path) === collection.route.replace(/^\//, '')
@@ -219,7 +220,8 @@ export async function getCollectionFiles(token: string, project: Project, collec
     const collectionFile = processFileContent(fileContent)
     parsedFiles.push({
       ...collectionFile,
-      body: '', // removing body for collection files to reduce payload size
+      // removing body for collection files to reduce payload size
+      body: includeBody ? collectionFile.body : '',
     })
   }
 
@@ -238,14 +240,23 @@ type UpdateOrderParams = {
 export async function updateCollectionFileOrder(token: string, payload: UpdateOrderParams) {
   const { repo, branch, collectionRoute, files } = payload
   
+  const fullFiles = await getCollectionFiles(
+    token,
+    { repo, branch, id: 0, title: '', user: '' },
+    { route: collectionRoute, name: '', id: '', template: '' },
+    true
+  )
+
   const contents = [] as string[]
   for (const file of files) {
     const matter = Object.entries(file.attributes)
       .map(([key, value]) => `${key}: ${key === 'order' ? files.indexOf(file) : value}`)
       .join('\n')
 
+    const fullFile = fullFiles.find((f) => f.path === file.path)
+
     await deleteFileCache(repo, branch, file.path)
-    const content = ['---', matter, '---', '', file.body].join('\n')
+    const content = ['---', matter, '---', '', fullFile?.body || ''].join('\n')
     contents.push(content)
   }
 
@@ -279,6 +290,15 @@ export async function saveDraft(params: SaveDraftParams) {
   })
 }
 
+export async function getDraftKeys(project: Project) {
+  return withRedis(async (db) => {
+    const keys = await db.smembers(`drafts:${project.repo}`)
+    return (keys || [])
+      .filter((k) => k.startsWith(`draft:${project.id}:`))
+      .map((k) => decodeURIComponent(k.replace(`draft:${project.id}:`, '')))
+  })
+}
+
 export async function getDraft(projectId: number, path: string) {
   return withRedis<CollectionFile>(async (db) => {
     const data = await db.get(`draft:${projectId}:${encodeURIComponent(path)}`)
@@ -291,6 +311,13 @@ export async function deleteDraft(project: Project, path: string) {
     const key = `draft:${project.id}:${encodeURIComponent(path)}`
     await db.srem(`drafts:${project.repo}`, key)
     await db.del(key)
+  })
+}
+
+export async function deleteAllDrafts(project: Project) {
+  return withRedis(async (db) => {
+    const draftKeys = await db.smembers(`drafts:${project.repo}`)
+    await db.del(draftKeys)
   })
 }
 
