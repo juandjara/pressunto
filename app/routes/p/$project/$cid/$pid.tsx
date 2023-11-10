@@ -119,7 +119,7 @@ export async function action({ request, params }: ActionArgs) {
           body,
           title: title || getBasename(fullPath),
           attributes: Object.fromEntries(
-            (matter || '').split('\n').map(line => {
+            (matter || '').split('\n').filter(Boolean).map(line => {
               const [key, ...value] = line.split(':')
               return [key.trim(), value.join(':').trim()]
             })
