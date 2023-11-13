@@ -1,7 +1,7 @@
 import type { CollectionFile, ProjectConfig } from "@/lib/projects.server"
 import { borderColor, buttonCN } from "@/lib/styles"
 import { useLoaderData } from "@remix-run/react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import MarkdownEditor from "./markdown-editor/MarkdownEditor"
 import MarkdownPreview from "./markdown-editor/MarkdownPreview"
 import clsx from "clsx"
@@ -24,14 +24,8 @@ export default function PostEditor({
   expanded: boolean
 }) {
   const { file } = useLoaderData<LoaderData>()
-  const [tempContent, setTempContent] = useState('')
+  const [tempContent, setTempContent] = useState(file.body || '')
   const [preview, setPreview] = useState(false)
-
-  useEffect(() => {
-    if (file) {
-      setTempContent(file.body || '')
-    }
-  }, [file])
 
   function handleChange(text: string) {
     setTempContent(text)
