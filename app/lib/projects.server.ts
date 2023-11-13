@@ -317,7 +317,8 @@ export async function deleteDraft(project: Project, path: string) {
 export async function deleteAllDrafts(project: Project) {
   return withRedis(async (db) => {
     const draftKeys = await db.smembers(`drafts:${project.repo}`)
-    await db.del(draftKeys)
+    console.log(draftKeys)
+    return await db.del(`drafts:${project.repo}`, ...draftKeys)
   })
 }
 

@@ -68,13 +68,13 @@ export const action: ActionFunction = async ({ request, params }) => {
   }
 
   if (op === 'clearCache') {
-    await deleteAllCaches(project.repo)
-    flashMessage = 'Cache cleared successfully'
+    const num = await deleteAllCaches(project.repo)
+    flashMessage = `Cache cleared successfully. Cleared ${num} files.`
   }
 
   if (op === 'removeDrafts') {
-    await deleteAllDrafts(project)
-    flashMessage = 'Drafts removed successfully'
+    const num = await deleteAllDrafts(project)
+    flashMessage = `Drafts removed successfully. Removed ${num} drafts.`
   }
 
   const headers = new Headers({

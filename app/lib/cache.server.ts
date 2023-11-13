@@ -15,7 +15,7 @@ export async function getCachedFiles(repo: string, branch: string) {
 export async function deleteAllCaches(repo: string) {
   return withRedis(async (db) => {
     const cacheKeys = await db.smembers(`caches:${repo}`)
-    await db.del(cacheKeys)
+    return await db.del(`caches:${repo}`, ...cacheKeys)
   })
 }
 
