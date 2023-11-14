@@ -83,5 +83,10 @@ export async function action({ params, request }: ActionArgs) {
     if (redirectTarget === 'media' || refererPath === `/p/${project.id}/media`) {
       return redirect(`/p/${project.id}/media`, { headers: { 'Set-Cookie': cookie }})
     }
+    if (redirectTarget === 'post') {
+      const conf = await getProjectConfig(token, project)
+      const collection = conf.collections.find(c => folderFromCollection(c) === getDirname(path))
+      return redirect(`/p/${project.id}/${collection?.id}`, { headers: { 'Set-Cookie': cookie }})
+    }
   }
 }
