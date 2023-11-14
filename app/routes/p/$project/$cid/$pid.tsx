@@ -108,45 +108,43 @@ export async function action({ request, params }: ActionArgs) {
 
   const content = matter ? ['---', matter, '---', '', body].join('\n') : body
 
-  if (!isNew) {  
-    const isDraft = formData.get('draft') === 'true'
-    if (isDraft) {
-      await saveDraft({
-        project,
-        file: {
-          id: sha,
-          path: fullPath,
-          body,
-          title: title || getBasename(fullPath),
-          attributes: Object.fromEntries(
-            (matter || '').split('\n').filter(Boolean).map(line => {
-              const [key, ...value] = line.split(':')
-              return [key.trim(), value.join(':').trim()]
-            })
-          )
-        }
-      })
-      const cookie = await setFlashMessage(request, `Saved draft for "${getBasename(fullPath)}" successfully`)
-      return json({ ok: true }, {
-        headers: {
-          'Set-Cookie': cookie
-        }
-      })
-    }
-
-    const isDeleteDraft = formData.get('delete_draft') === 'true'
-    if (isDeleteDraft) {
-      await deleteDraft(project, fullPath)
-      const cookie = await setFlashMessage(request, `Draft for "${getBasename(fullPath)}" deleted successfully`)
-      return json({ ok: true }, {
-        headers: {
-          'Set-Cookie': cookie
-        }
-      })
-    }
-
-    await deleteDraft(project, fullPath)
+  const isDraft = formData.get('draft') === 'true'
+  if (isDraft) {
+    await saveDraft({
+      project,
+      file: {
+        id: sha || '',
+        path: fullPath,
+        body,
+        title: title || getBasename(fullPath),
+        attributes: Object.fromEntries(
+          (matter || '').split('\n').filter(Boolean).map(line => {
+            const [key, ...value] = line.split(':')
+            return [key.trim(), value.join(':').trim()]
+          })
+        )
+      }
+    })
+    const cookie = await setFlashMessage(request, `Saved draft for "${getBasename(fullPath)}" successfully`)
+    return json({ ok: true }, {
+      headers: {
+        'Set-Cookie': cookie
+      }
+    })
   }
+
+  const isDeleteDraft = formData.get('delete_draft') === 'true'
+  if (isDeleteDraft) {
+    await deleteDraft(project, fullPath)
+    const cookie = await setFlashMessage(request, `Draft for "${getBasename(fullPath)}" deleted successfully`)
+    return json({ ok: true }, {
+      headers: {
+        'Set-Cookie': cookie
+      }
+    })
+  }
+
+  await deleteDraft(project, fullPath)
 
   try {
     await saveFile(token, {
@@ -194,7 +192,7 @@ export default function PostDetails() {
   const debouncedSubmit = useMemo(
     () => debounce(
       () => {
-        if (formRef.current) {
+        if (formRef.current && !isNew) {
           const fd = new FormData(formRef.current)
           fd.set('draft', 'true')
           fetcher.submit(fd, {
@@ -207,7 +205,7 @@ export default function PostDetails() {
       },
       AUTOSAVE_INTERVAL
     ),
-    [fetcher]
+    [fetcher, isNew]
   )
 
   function onTouched() {
