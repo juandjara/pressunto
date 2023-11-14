@@ -119,17 +119,6 @@ export default function PostDetailsHeader({
                 static
                 className="mt-2 w-72 rounded-md shadow-lg absolute top-full right-0 ring-1 ring-black ring-opacity-5">
                 <div className="rounded-md text-left py-2 bg-white dark:bg-slate-600">
-                  {/* <Menu.Item
-                    as="button"
-                    type="submit"
-                    name="draft"
-                    value="true"
-                    disabled={!isTouched || busy || isNew}
-                    className={clsx('w-full text-left rounded-none', buttonCN.iconLeftWide, buttonCN.cancel, buttonCN.normal)}
-                  >
-                    <ArrowDownOnSquareStackIcon className="w-5 h-5" />
-                    <span>{isDraft ? 'Save new draft' : 'Save draft'}</span>
-                  </Menu.Item> */}
                   <Menu.Item
                     as="button"
                     type="submit"
