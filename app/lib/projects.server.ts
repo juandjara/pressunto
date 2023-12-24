@@ -249,6 +249,9 @@ export async function updateCollectionFileOrder(token: string, payload: UpdateOr
 
   const contents = [] as string[]
   for (const file of files) {
+    if (!file.attributes.order) {
+      file.attributes.order = files.indexOf(file)
+    }
     const matter = Object.entries(file.attributes)
       .map(([key, value]) => `${key}: ${key === 'order' ? files.indexOf(file) : value}`)
       .join('\n')
